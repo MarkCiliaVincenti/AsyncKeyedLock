@@ -15,13 +15,13 @@ namespace AsyncKeyedLock
         public void Dispose()
         {
             ReferenceCounter<SemaphoreSlim> item;
-            lock (AsyncKeyedLock.SemaphoreSlims)
+            lock (AsyncKeyedLocker.SemaphoreSlims)
             {
-                item = AsyncKeyedLock.SemaphoreSlims[_key];
+                item = AsyncKeyedLocker.SemaphoreSlims[_key];
                 --item.ReferenceCount;
                 if (item.ReferenceCount == 0)
                 {
-                    AsyncKeyedLock.SemaphoreSlims.Remove(_key);
+                    AsyncKeyedLocker.SemaphoreSlims.Remove(_key);
                 }
             }
             item.Value.Release();
