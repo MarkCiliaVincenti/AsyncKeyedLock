@@ -6,7 +6,7 @@ The recommended means is to use [NuGet](https://www.nuget.org/packages/AsyncKeye
 
 ## Usage
 ```csharp
-using (var lockObj = await AsyncDuplicateLock.LockAsync(myObject))
+using (var lockObj = await AsyncKeyedLocker.LockAsync(myObject))
 {
 	...
 }

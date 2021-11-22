@@ -8,7 +8,7 @@ namespace AsyncKeyedLock
     /// <summary>
     /// AsyncKeyedLock class, adapted from <see href="https://stackoverflow.com/questions/31138179/asynchronous-locking-based-on-a-key/31194647#31194647">Stephen Cleary's solution</see>.
     /// </summary>
-    public sealed class AsyncKeyedLock
+    public sealed class AsyncKeyedLocker
     {
         private static readonly Dictionary<object, ReferenceCounter<SemaphoreSlim>> _semaphoreSlims = new Dictionary<object, ReferenceCounter<SemaphoreSlim>>();
         internal static Dictionary<object, ReferenceCounter<SemaphoreSlim>> SemaphoreSlims => _semaphoreSlims;
