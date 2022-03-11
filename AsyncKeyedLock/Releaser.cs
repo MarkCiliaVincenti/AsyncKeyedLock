@@ -5,23 +5,25 @@ namespace AsyncKeyedLock
 {
     internal sealed class Releaser : IDisposable
     {
-        public readonly object _key;
+        private readonly AsyncKeyedLocker _asyncKeyedLocker;
+        private readonly object _key;
 
-        public Releaser(object key)
+        public Releaser(AsyncKeyedLocker asyncKeyedLocker, object key)
         {
+            _asyncKeyedLocker = asyncKeyedLocker;
             _key = key;
         }
 
         public void Dispose()
         {
             ReferenceCounter<SemaphoreSlim> item;
-            lock (AsyncKeyedLocker.SemaphoreSlims)
+            lock (_asyncKeyedLocker.SemaphoreSlims)
             {
-                item = AsyncKeyedLocker.SemaphoreSlims[_key];
+                item = _asyncKeyedLocker.SemaphoreSlims[_key];
                 --item.ReferenceCount;
                 if (item.ReferenceCount == 0)
                 {
-                    AsyncKeyedLocker.SemaphoreSlims.Remove(_key);
+                    _asyncKeyedLocker.SemaphoreSlims.Remove(_key);
                 }
             }
             item.Value.Release();
