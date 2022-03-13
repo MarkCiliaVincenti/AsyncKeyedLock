@@ -1,4 +1,4 @@
-# ![AsyncKeyedLock](https://api.nuget.org/v3-flatcontainer/asynckeyedlock/2.0.0/icon) AsyncKeyedLock
+# ![AsyncKeyedLock](https://github.com/MarkCiliaVincenti/AsyncKeyedLock/raw/master/logo.png) AsyncKeyedLock
 [![GitHub branch checks state](https://img.shields.io/github/checks-status/MarkCiliaVincenti/AsyncKeyedLock/master?label=build&logo=github&style=for-the-badge)](https://actions-badge.atrox.dev/MarkCiliaVincenti/AsyncKeyedLock/goto?ref=master) [![Nuget](https://img.shields.io/nuget/v/AsyncKeyedLock?label=AsyncKeyedLock&logo=nuget&style=for-the-badge)](https://www.nuget.org/packages/AsyncKeyedLock) [![Nuget](https://img.shields.io/nuget/dt/AsyncKeyedLock?logo=nuget&style=for-the-badge)](https://www.nuget.org/packages/AsyncKeyedLock)
 
 An asynchronous .NET Standard 2.0 library that allows you to lock based on a key (keyed semaphores), only allowing a defined number of concurrent threads that share the same key.
