@@ -1,5 +1,6 @@
 # AsyncKeyedLock
 ![GitHub branch checks state](https://img.shields.io/github/checks-status/MarkCiliaVincenti/AsyncKeyedLock/master?style=for-the-badge) ![Nuget](https://img.shields.io/nuget/v/AsyncKeyedLock?style=for-the-badge) ![Nuget](https://img.shields.io/nuget/dt/AsyncKeyedLock?style=for-the-badge)
+
 An asynchronous .NET Standard 2.0 library that allows you to lock based on a key (keyed semaphores), only allowing a defined number of concurrent threads that share the same key.
 
 For example, if you're processing transactions, you may want to limit to only one transaction per user so that the order is maintained, but meanwhile allowing parallel processing of multiple users.
