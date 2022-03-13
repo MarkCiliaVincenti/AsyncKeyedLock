@@ -9,7 +9,7 @@
 		<Version>2.0.0</Version>
 		<PackageIcon>logo.png</PackageIcon>
 		<PackageReleaseNotes>No longer static; now requires you to create an instance and store it, or inject it via dependency injection.</PackageReleaseNotes>
-		<Description>An asynchronous .NET Standard 2.0 library that allows you to lock based on a key (keyed semaphores).</Description>
+		<Description>An asynchronous .NET Standard 2.0 library that allows you to lock based on a key (keyed semaphores), only allowing a defined number of concurrent threads that share the same key.</Description>
 		<Copyright>© 2022 Mark Cilia Vincenti</Copyright>
 		<PackageTags>async,lock,key,semaphore</PackageTags>
 		<RepositoryType>git</RepositoryType>
