@@ -24,7 +24,17 @@ var asyncKeyedLocker = new AsyncKeyedLocker(2);
 
 If you would like to see how many concurrent requests there are for a semaphore for a given key:
 ```csharp
-int myCount = asyncKeyedLocker.GetCount(myObject);
+int myRemainingCount = asyncKeyedLocker.GetRemainingCount(myObject);
+```
+
+If you would like to see the number of remaining threads that can enter the lock for a given key:
+```csharp
+int myCurrentCount = asyncKeyedLocker.GetCurrentCount(myObject);
+```
+
+If you would like to check whether any request is using a specific key:
+```csharp
+bool isInUse = asyncKeyedLocker.IsInUse(myObject);
 ```
 
 And if for some reason you need to force release the requests in the semaphore for a key:

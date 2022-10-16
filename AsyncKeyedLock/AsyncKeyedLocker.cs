@@ -38,7 +38,7 @@ namespace AsyncKeyedLock
                 }
                 else
                 {
-                    referenceCounter = new ReferenceCounter<SemaphoreSlim>(new SemaphoreSlim(1, MaxCount));
+                    referenceCounter = new ReferenceCounter<SemaphoreSlim>(new SemaphoreSlim(MaxCount));
                     SemaphoreSlims[key] = referenceCounter;
                 }
             }
@@ -63,8 +63,22 @@ namespace AsyncKeyedLock
         /// <returns>A disposable value.</returns>
         public async Task<IDisposable> LockAsync(object key)
         {
-            await GetOrAdd(key).WaitAsync().ConfigureAwait(false);
+            var semaphoreSlim = GetOrAdd(key);
+            await semaphoreSlim.WaitAsync().ConfigureAwait(false);
             return new Releaser(this, key);
+        }
+
+        /// <summary>
+        /// Checks whether or not there is a thread making use of a keyed lock.
+        /// </summary>
+        /// <param name="key">The key requests are locked on.</param>
+        /// <returns><see langword="true"/> if the key is in use; otherwise, false.</returns>
+        public bool IsInUse(object key)
+        {
+            lock (SemaphoreSlims)
+            {
+                return SemaphoreSlims.ContainsKey(key);
+            }
         }
 
         /// <summary>
@@ -72,7 +86,18 @@ namespace AsyncKeyedLock
         /// </summary>
         /// <param name="key">The key requests are locked on.</param>
         /// <returns>The number of requests.</returns>
+        [Obsolete("This method should not longer be used as it is confusing with Semaphore terminology. Use <see cref=\"GetCurrentCount\"/> or <see cref=\"GetRemaningCount\"/> instead depending what you want to do.")]
         public int GetCount(object key)
+        {
+            return GetRemainingCount(key);
+        }
+
+        /// <summary>
+        /// Get the number of requests concurrently locked for a given key.
+        /// </summary>
+        /// <param name="key">The key requests are locked on.</param>
+        /// <returns>The number of requests concurrently locked for a given key.</returns>
+        public int GetRemainingCount(object key)
         {
             lock (SemaphoreSlims)
             {
@@ -82,6 +107,16 @@ namespace AsyncKeyedLock
                 }
                 return 0;
             }
+        }
+
+        /// <summary>
+        /// Get the number of remaining threads that can enter the lock for a given key.
+        /// </summary>
+        /// <param name="key">The key requests are locked on.</param>
+        /// <returns>The number of remaining threads that can enter the lock for a given key.</returns>
+        public int GetCurrentCount(object key)
+        {
+            return MaxCount - GetRemainingCount(key);
         }
 
         /// <summary>

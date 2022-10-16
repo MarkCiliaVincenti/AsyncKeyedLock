@@ -3,7 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.1.31903.286
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AsyncKeyedLock", "AsyncKeyedLock\AsyncKeyedLock.csproj", "{0A7CB651-70B8-4C5C-8647-31B211273EAE}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AsyncKeyedLock", "AsyncKeyedLock\AsyncKeyedLock.csproj", "{0A7CB651-70B8-4C5C-8647-31B211273EAE}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AsyncKeyedLock.Tests", "AsyncKeyedLock.Tests\AsyncKeyedLock.Tests.csproj", "{0402C044-81BB-4029-BE63-168D3DFABA99}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -15,6 +17,10 @@ Global
 		{0A7CB651-70B8-4C5C-8647-31B211273EAE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0A7CB651-70B8-4C5C-8647-31B211273EAE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0A7CB651-70B8-4C5C-8647-31B211273EAE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{0402C044-81BB-4029-BE63-168D3DFABA99}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{0402C044-81BB-4029-BE63-168D3DFABA99}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{0402C044-81BB-4029-BE63-168D3DFABA99}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{0402C044-81BB-4029-BE63-168D3DFABA99}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
