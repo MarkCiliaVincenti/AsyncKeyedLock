@@ -128,7 +128,12 @@ namespace AsyncKeyedLock
         {
             lock (SemaphoreSlims)
             {
-                return SemaphoreSlims.Remove(key);
+                if (SemaphoreSlims.TryGetValue(key, out var referenceCounter))
+                {
+                    referenceCounter.Value.Release(referenceCounter.ReferenceCount);
+                    return SemaphoreSlims.Remove(key);
+                }
+                return false;
             }
         }
     }
