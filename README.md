@@ -5,6 +5,9 @@ An asynchronous .NET Standard 2.0 library that allows you to lock based on a key
 
 For example, if you're processing transactions, you may want to limit to only one transaction per user so that the order is maintained, but meanwhile allowing parallel processing of multiple users.
 
+## Benchmarks
+Tests show that AsyncKeyedLock is [considerably faster than similar libraries](https://github.com/MarkCiliaVincenti/AsyncKeyedLockBenchmarks) due to its neat locking mechanism.
+
 ## Installation
 The recommended means is to use [NuGet](https://www.nuget.org/packages/AsyncKeyedLock), but you could also download the source code from [here](https://github.com/MarkCiliaVincenti/AsyncKeyedLock/releases).
 
