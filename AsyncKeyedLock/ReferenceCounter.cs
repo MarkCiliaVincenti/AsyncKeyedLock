@@ -1,13 +1,21 @@
-﻿namespace AsyncKeyedLock
-{
-    internal sealed class ReferenceCounter<T>
-    {
-        public int ReferenceCount { get; set; } = 1;
-        public T Value { get; private set; }
+﻿using System.Threading;
 
-        public ReferenceCounter(T value)
+namespace AsyncKeyedLock
+{
+    internal sealed class ReferenceCounter<TKey>
+    {
+        private readonly TKey _key;
+        public TKey Key => _key;
+
+        public int ReferenceCount { get; set; }
+
+        private readonly SemaphoreSlim _semaphoreSlim;
+        public SemaphoreSlim SemaphoreSlim => _semaphoreSlim;
+
+        public ReferenceCounter(TKey key, SemaphoreSlim semaphoreSlim)
         {
-            Value = value;
+            _key = key;
+            _semaphoreSlim = semaphoreSlim;
         }
     }
 }

@@ -8,10 +8,10 @@ namespace AsyncKeyedLock
     /// <summary>
     /// AsyncKeyedLock class, adapted and improved from <see href="https://stackoverflow.com/questions/31138179/asynchronous-locking-based-on-a-key/31194647#31194647">Stephen Cleary's solution</see>.
     /// </summary>
-    public sealed class AsyncKeyedLocker : IAsyncKeyedLocker
+    public sealed class AsyncKeyedLocker<TKey> : IAsyncKeyedLocker<TKey>
     {
-        private readonly Dictionary<object, ReferenceCounter<SemaphoreSlim>> _semaphoreSlims = new Dictionary<object, ReferenceCounter<SemaphoreSlim>>();
-        internal Dictionary<object, ReferenceCounter<SemaphoreSlim>> SemaphoreSlims => _semaphoreSlims;
+        private readonly AsyncKeyedLockerDictionary<TKey> _semaphoreSlims = new AsyncKeyedLockerDictionary<TKey>();
+        internal AsyncKeyedLockerDictionary<TKey> SemaphoreSlims => _semaphoreSlims;
 
         /// <summary>
         /// The maximum number of requests for the semaphore that can be granted concurrently. Defaults to 1.
@@ -27,22 +27,9 @@ namespace AsyncKeyedLock
             MaxCount = maxCount;
         }
 
-        private SemaphoreSlim GetOrAdd(object key)
+        private ReferenceCounter<TKey> GetOrAdd(TKey key)
         {
-            ReferenceCounter<SemaphoreSlim> referenceCounter;
-            lock (SemaphoreSlims)
-            {
-                if (SemaphoreSlims.TryGetValue(key, out referenceCounter))
-                {
-                    ++referenceCounter.ReferenceCount;
-                }
-                else
-                {
-                    referenceCounter = new ReferenceCounter<SemaphoreSlim>(new SemaphoreSlim(MaxCount));
-                    SemaphoreSlims[key] = referenceCounter;
-                }
-            }
-            return referenceCounter.Value;
+            return SemaphoreSlims.GetOrAdd(key, MaxCount);
         }
 
         /// <summary>
@@ -50,10 +37,11 @@ namespace AsyncKeyedLock
         /// </summary>
         /// <param name="key">The key to lock on.</param>
         /// <returns>A disposable value.</returns>
-        public IDisposable Lock(object key)
+        public IDisposable Lock(TKey key)
         {
-            GetOrAdd(key).Wait();
-            return new Releaser(this, key);
+            var referenceCounter = GetOrAdd(key);
+            referenceCounter.SemaphoreSlim.Wait();
+            return new Releaser<TKey>(this, referenceCounter);
         }
 
         /// <summary>
@@ -61,11 +49,11 @@ namespace AsyncKeyedLock
         /// </summary>
         /// <param name="key">The key to lock on.</param>
         /// <returns>A disposable value.</returns>
-        public async Task<IDisposable> LockAsync(object key)
+        public async Task<IDisposable> LockAsync(TKey key)
         {
-            var semaphoreSlim = GetOrAdd(key);
-            await semaphoreSlim.WaitAsync().ConfigureAwait(false);
-            return new Releaser(this, key);
+            var referenceCounter = GetOrAdd(key);
+            await referenceCounter.SemaphoreSlim.WaitAsync().ConfigureAwait(false);
+            return new Releaser<TKey>(this, referenceCounter);
         }
 
         /// <summary>
@@ -73,12 +61,9 @@ namespace AsyncKeyedLock
         /// </summary>
         /// <param name="key">The key requests are locked on.</param>
         /// <returns><see langword="true"/> if the key is in use; otherwise, false.</returns>
-        public bool IsInUse(object key)
+        public bool IsInUse(TKey key)
         {
-            lock (SemaphoreSlims)
-            {
-                return SemaphoreSlims.ContainsKey(key);
-            }
+            return SemaphoreSlims.ContainsKey(key);
         }
 
         /// <summary>
@@ -87,7 +72,7 @@ namespace AsyncKeyedLock
         /// <param name="key">The key requests are locked on.</param>
         /// <returns>The number of requests.</returns>
         [Obsolete("This method should not longer be used as it is confusing with Semaphore terminology. Use <see cref=\"GetCurrentCount\"/> or <see cref=\"GetRemaningCount\"/> instead depending what you want to do.")]
-        public int GetCount(object key)
+        public int GetCount(TKey key)
         {
             return GetRemainingCount(key);
         }
@@ -97,7 +82,7 @@ namespace AsyncKeyedLock
         /// </summary>
         /// <param name="key">The key requests are locked on.</param>
         /// <returns>The number of requests concurrently locked for a given key.</returns>
-        public int GetRemainingCount(object key)
+        public int GetRemainingCount(TKey key)
         {
             lock (SemaphoreSlims)
             {
@@ -114,7 +99,7 @@ namespace AsyncKeyedLock
         /// </summary>
         /// <param name="key">The key requests are locked on.</param>
         /// <returns>The number of remaining threads that can enter the lock for a given key.</returns>
-        public int GetCurrentCount(object key)
+        public int GetCurrentCount(TKey key)
         {
             return MaxCount - GetRemainingCount(key);
         }
@@ -124,14 +109,14 @@ namespace AsyncKeyedLock
         /// </summary>
         /// <param name="key">The key requests are locked on.</param>
         /// <returns><see langword="true"/> if the key is successfully found and removed; otherwise, false.</returns>
-        public bool ForceRelease(object key)
+        public bool ForceRelease(TKey key)
         {
             lock (SemaphoreSlims)
             {
                 if (SemaphoreSlims.TryGetValue(key, out var referenceCounter))
                 {
-                    referenceCounter.Value.Release(referenceCounter.ReferenceCount);
-                    return SemaphoreSlims.Remove(key);
+                    referenceCounter.SemaphoreSlim.Release(referenceCounter.ReferenceCount);
+                    return SemaphoreSlims.TryRemove(key, out _);
                 }
                 return false;
             }

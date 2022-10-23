@@ -3,30 +3,39 @@ using System.Threading;
 
 namespace AsyncKeyedLock
 {
-    internal sealed class Releaser : IDisposable
+    internal struct Releaser<TKey> : IDisposable
     {
-        private readonly AsyncKeyedLocker _asyncKeyedLocker;
-        private readonly object _key;
+        private readonly AsyncKeyedLocker<TKey> _asyncKeyedLocker;
+        private readonly ReferenceCounter<TKey> _referenceCounter;
 
-        public Releaser(AsyncKeyedLocker asyncKeyedLocker, object key)
+        public Releaser(AsyncKeyedLocker<TKey> asyncKeyedLocker, ReferenceCounter<TKey> referenceCounter)
         {
             _asyncKeyedLocker = asyncKeyedLocker;
-            _key = key;
+            _referenceCounter = referenceCounter;
         }
 
         public void Dispose()
         {
-            ReferenceCounter<SemaphoreSlim> item;
-            lock (_asyncKeyedLocker.SemaphoreSlims)
+            var semaphoreSlim = _referenceCounter.SemaphoreSlim;
+
+            while (true)
             {
-                item = _asyncKeyedLocker.SemaphoreSlims[_key];
-                --item.ReferenceCount;
-                if (item.ReferenceCount == 0)
+                if (Monitor.TryEnter(semaphoreSlim))
                 {
-                    _asyncKeyedLocker.SemaphoreSlims.Remove(_key);
+                    break;
                 }
             }
-            item.Value.Release();
+
+            var remainingConsumers = --_referenceCounter.ReferenceCount;
+
+            if (remainingConsumers == 0)
+            {
+                _asyncKeyedLocker.SemaphoreSlims.TryRemove(_referenceCounter.Key, out _);
+            }
+
+            Monitor.Exit(semaphoreSlim);
+
+            semaphoreSlim.Release();
         }
     }
 }
