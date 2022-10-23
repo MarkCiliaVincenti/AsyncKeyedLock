@@ -7,14 +7,28 @@ using System.Threading;
 
 namespace AsyncKeyedLock
 {
-    internal sealed class AsyncKeyedLockerDictionary<TKey> : ConcurrentDictionary<TKey, AsyncKeyedLockReferenceCounter<TKey>>
+    /// <summary>
+    /// AsyncKeyedLockerDictionary class
+    /// </summary>
+    /// <typeparam name="TKey">The type for the dictionary key</typeparam>
+    public sealed class AsyncKeyedLockerDictionary<TKey> : ConcurrentDictionary<TKey, AsyncKeyedLockReferenceCounter<TKey>>
     {
         private readonly int _maxCount;
+
+        /// <summary>
+        /// Constructor for AsyncKeyedLockerDictionary
+        /// </summary>
+        /// <param name="maxCount">The number of semaphore counts to allow.</param>
         public AsyncKeyedLockerDictionary(int maxCount)
         {
             _maxCount = maxCount;
         }
 
+        /// <summary>
+        /// Provider for AsyncKeyedLockReferenceCounter
+        /// </summary>
+        /// <param name="key">The key for which a reference counter should be obtained.</param>
+        /// <returns>A created or retrieved reference counter</returns>
         public AsyncKeyedLockReferenceCounter<TKey> GetOrAdd(TKey key)
         {
             if (TryGetValue(key, out var firstReferenceCounter) && Monitor.TryEnter(firstReferenceCounter))
@@ -46,6 +60,10 @@ namespace AsyncKeyedLock
             }
         }
 
+        /// <summary>
+        /// Dispose and release.
+        /// </summary>
+        /// <param name="referenceCounter">The reference counter instance.</param>
         public void Release(AsyncKeyedLockReferenceCounter<TKey> referenceCounter)
         {
             while (!Monitor.TryEnter(referenceCounter)) { }

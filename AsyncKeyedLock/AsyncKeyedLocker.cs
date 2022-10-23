@@ -33,7 +33,11 @@ namespace AsyncKeyedLock
     public class AsyncKeyedLocker<TKey> : IAsyncKeyedLocker<TKey>
     {
         private readonly AsyncKeyedLockerDictionary<TKey> _semaphoreSlims;
-        internal AsyncKeyedLockerDictionary<TKey> SemaphoreSlims => _semaphoreSlims;
+
+        /// <summary>
+        /// The dictionary of SemaphoreSlim objects.
+        /// </summary>
+        public AsyncKeyedLockerDictionary<TKey> SemaphoreSlims => _semaphoreSlims;
 
         /// <summary>
         /// The maximum number of requests for the semaphore that can be granted concurrently. Defaults to 1.
