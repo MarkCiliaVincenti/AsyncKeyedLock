@@ -7,10 +7,29 @@ using System.Threading;
 
 namespace AsyncKeyedLock
 {
-    internal sealed class AsyncKeyedLockerDictionary<TKey> : ConcurrentDictionary<TKey, ReferenceCounter<TKey>>
+    internal sealed class AsyncKeyedLockerDictionary<TKey> : ConcurrentDictionary<TKey, AsyncKeyedLockReferenceCounter<TKey>>
     {
-        public ReferenceCounter<TKey> GetOrAdd(TKey key, int maxCount)
+        private readonly int _maxCount;
+        public AsyncKeyedLockerDictionary(int maxCount)
         {
+            _maxCount = maxCount;
+        }
+
+        public AsyncKeyedLockReferenceCounter<TKey> GetOrAdd(TKey key)
+        {
+            if (TryGetValue(key, out var firstReferenceCounter) && Monitor.TryEnter(firstReferenceCounter))
+            {
+                ++firstReferenceCounter.ReferenceCount;
+                Monitor.Exit(firstReferenceCounter);
+                return firstReferenceCounter;
+            }
+
+            firstReferenceCounter = new AsyncKeyedLockReferenceCounter<TKey>(key, new SemaphoreSlim(_maxCount), this);
+            if (TryAdd(key, firstReferenceCounter))
+            {
+                return firstReferenceCounter;
+            }
+
             while (true)
             {
                 if (TryGetValue(key, out var referenceCounter) && Monitor.TryEnter(referenceCounter))
@@ -20,15 +39,14 @@ namespace AsyncKeyedLock
                     return referenceCounter;
                 }
 
-                referenceCounter = new ReferenceCounter<TKey>(key, new SemaphoreSlim(maxCount));                
-                if (TryAdd(key, referenceCounter))
+                if (TryAdd(key, firstReferenceCounter))
                 {
-                    return referenceCounter;
+                    return firstReferenceCounter;
                 }
             }
         }
 
-        public void Release(ReferenceCounter<TKey> referenceCounter)
+        public void Release(AsyncKeyedLockReferenceCounter<TKey> referenceCounter)
         {
             while (!Monitor.TryEnter(referenceCounter)) { }
 

@@ -3,12 +3,12 @@ using System.Threading;
 
 namespace AsyncKeyedLock
 {
-    internal sealed class Releaser<TKey> : IDisposable
+    internal sealed class AsyncKeyedLockReleaser<TKey> : IDisposable
     {
         private readonly AsyncKeyedLockerDictionary<TKey> _asyncKeyedLockerDictionary;
-        private readonly ReferenceCounter<TKey> _referenceCounter;
+        private readonly AsyncKeyedLockReferenceCounter<TKey> _referenceCounter;
 
-        public Releaser(AsyncKeyedLockerDictionary<TKey> asyncKeyedLockerDictionary, ReferenceCounter<TKey> referenceCounter)
+        public AsyncKeyedLockReleaser(AsyncKeyedLockerDictionary<TKey> asyncKeyedLockerDictionary, AsyncKeyedLockReferenceCounter<TKey> referenceCounter)
         {
             _asyncKeyedLockerDictionary = asyncKeyedLockerDictionary;
             _referenceCounter = referenceCounter;

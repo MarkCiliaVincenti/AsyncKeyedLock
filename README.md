@@ -6,24 +6,53 @@ An asynchronous .NET Standard 2.0 library that allows you to lock based on a key
 For example, if you're processing transactions, you may want to limit to only one transaction per user so that the order is maintained, but meanwhile allowing parallel processing of multiple users.
 
 ## Benchmarks
-Tests show that AsyncKeyedLock is [considerably faster than similar libraries](https://github.com/MarkCiliaVincenti/AsyncKeyedLockBenchmarks) due to its neat locking mechanism.
+Tests show that AsyncKeyedLock is [faster than similar libraries, while consuming less memory](https://github.com/MarkCiliaVincenti/AsyncKeyedLockBenchmarks).
 
 ## Installation
 The recommended means is to use [NuGet](https://www.nuget.org/packages/AsyncKeyedLock), but you could also download the source code from [here](https://github.com/MarkCiliaVincenti/AsyncKeyedLock/releases).
 
 ## Usage
+You need to start off with creating an instance of `AsyncKeyedLocker` or `AsyncKeyedLocker<T>`. The recommended way is to use the latter, which consumes less memory. The former uses `object` and may be slightly faster, but at the expense of higher memory usage.
+
+### Dependency injection
+```csharp
+services.AddSingleton<IAsyncKeyedLocker, AsyncKeyedLocker>();
+```
+
+or:
+
+```csharp
+services.AddSingleton<IAsyncKeyedLocker<string>, AsyncKeyedLocker<string>>();
+```
+
+### Variable instantiation
 ```csharp
 var asyncKeyedLocker = new AsyncKeyedLocker();
+```
+
+or:
+
+```csharp
+var asyncKeyedLocker = new AsyncKeyedLocker<string>();
+```
+
+or if you would like to set the maximum number of requests for the semaphore that can be granted concurrently (set to 1 by default):
+
+```csharp
+var asyncKeyedLocker = new AsyncKeyedLocker<string>(2);
+```
+
+### Locking
+```csharp
 using (var lockObj = await asyncKeyedLocker.LockAsync(myObject))
 {
 	...
 }
 ```
 
-You can also set the maximum number of requests for the semaphore that can be granted concurrently (set to 1 by default):
-```csharp
-var asyncKeyedLocker = new AsyncKeyedLocker(2);
-```
+There are other overloaded methods for `LockAsync` which allow you to use `CancellationToken`, milliseconds timeout, `System.TimeSpan` or a combination of these.
+
+There are also synchronous `Lock` methods available.
 
 If you would like to see how many concurrent requests there are for a semaphore for a given key:
 ```csharp
@@ -45,7 +74,5 @@ And if for some reason you need to force release the requests in the semaphore f
 asyncKeyedLocker.ForceRelease(myObject);
 ```
 
-You may also use Dependency Injection to inject an instance of AsyncKeyedLock.
-
 ## Credits
-This library is based on [Stephen Cleary's solution](https://stackoverflow.com/questions/31138179/asynchronous-locking-based-on-a-key/31194647#31194647).
+This library was inspired by [Stephen Cleary's solution](https://stackoverflow.com/questions/31138179/asynchronous-locking-based-on-a-key/31194647#31194647).

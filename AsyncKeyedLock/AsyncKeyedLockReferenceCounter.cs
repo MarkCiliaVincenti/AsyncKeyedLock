@@ -2,7 +2,7 @@
 
 namespace AsyncKeyedLock
 {
-    internal sealed class ReferenceCounter<TKey>
+    internal sealed class AsyncKeyedLockReferenceCounter<TKey>
     {
         private readonly TKey _key;
         public TKey Key => _key;
@@ -12,10 +12,13 @@ namespace AsyncKeyedLock
         private readonly SemaphoreSlim _semaphoreSlim;
         public SemaphoreSlim SemaphoreSlim => _semaphoreSlim;
 
-        public ReferenceCounter(TKey key, SemaphoreSlim semaphoreSlim)
+        public AsyncKeyedLockReleaser<TKey> Releaser;
+
+        public AsyncKeyedLockReferenceCounter(TKey key, SemaphoreSlim semaphoreSlim, AsyncKeyedLockerDictionary<TKey> dictionary)
         {
             _key = key;
             _semaphoreSlim = semaphoreSlim;
+            Releaser = new AsyncKeyedLockReleaser<TKey>(dictionary, this);
         }
     }
 }
