@@ -7,7 +7,7 @@ using System.Threading;
 
 namespace AsyncKeyedLock
 {
-    internal class AsyncKeyedLockerDictionary<TKey> : ConcurrentDictionary<TKey, ReferenceCounter<TKey>>
+    internal sealed class AsyncKeyedLockerDictionary<TKey> : ConcurrentDictionary<TKey, ReferenceCounter<TKey>>
     {
         public ReferenceCounter<TKey> GetOrAdd(TKey key, int maxCount)
         {
