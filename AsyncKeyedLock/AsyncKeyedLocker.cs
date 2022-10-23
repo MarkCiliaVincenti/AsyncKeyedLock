@@ -13,8 +13,15 @@ namespace AsyncKeyedLock
         /// <summary>
         /// Constructor for AsyncKeyedLock.
         /// </summary>
+        public AsyncKeyedLocker()
+        {
+        }
+
+        /// <summary>
+        /// Constructor for AsyncKeyedLock.
+        /// </summary>
         /// <param name="maxCount">The maximum number of requests for the semaphore that can be granted concurrently. Defaults to 1.</param>
-        public AsyncKeyedLocker(int maxCount = 1)
+        public AsyncKeyedLocker(int maxCount)
         {
             MaxCount = maxCount;
         }
