@@ -50,9 +50,9 @@ using (var lockObj = await asyncKeyedLocker.LockAsync(myObject))
 }
 ```
 
-There are other overloaded methods for `LockAsync` which allow you to use `CancellationToken`, milliseconds timeout, `System.TimeSpan` or a combination of these.
+There are other overloaded methods for `LockAsync` which allow you to use `CancellationToken`, milliseconds timeout, `System.TimeSpan` or a combination of these. In the case of timeouts, you can also use `TryLockAsync` methods which will call a `Func<Task>` or `Action` if the timeout is not expired, whilst returning a boolean representing whether or not it waited successfully.
 
-There are also synchronous `Lock` methods available.
+There are also synchronous `Lock` methods available, including out parameters for checking whether or not the timeout was reached.
 
 If you would like to see how many concurrent requests there are for a semaphore for a given key:
 ```csharp

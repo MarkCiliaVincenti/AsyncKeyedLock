@@ -62,6 +62,7 @@ namespace AsyncKeyedLock
             _semaphoreSlims = new AsyncKeyedLockerDictionary<TKey>(maxCount);
         }
 
+        #region Synchronous
         /// <summary>
         /// Synchronously lock based on a key.
         /// </summary>
@@ -83,7 +84,15 @@ namespace AsyncKeyedLock
         public IDisposable Lock(TKey key, CancellationToken cancellationToken)
         {
             var referenceCounter = SemaphoreSlims.GetOrAdd(key);
-            referenceCounter.SemaphoreSlim.WaitAsync(cancellationToken);
+            try
+            {
+                referenceCounter.SemaphoreSlim.WaitAsync(cancellationToken);
+            }
+            catch (OperationCanceledException)
+            {
+                SemaphoreSlims.Release(referenceCounter);
+                throw;
+            }
             return referenceCounter.Releaser;
         }
 
@@ -101,6 +110,20 @@ namespace AsyncKeyedLock
         }
 
         /// <summary>
+        /// Synchronously lock based on a key, setting a limit for the number of milliseconds to wait.
+        /// </summary>
+        /// <param name="key">The key to lock on.</param>
+        /// <param name="millisecondsTimeout">The number of milliseconds to wait, <see cref="Timeout.Infinite"/> (-1) to wait indefinitely, or zero to test the state of the wait handle and return immediately.</param>
+        /// <param name="success">False if timed out, true if it successfully entered.</param>
+        /// <returns>A disposable value.</returns>
+        public IDisposable Lock(TKey key, int millisecondsTimeout, out bool success)
+        {
+            var referenceCounter = SemaphoreSlims.GetOrAdd(key);
+            success = referenceCounter.SemaphoreSlim.Wait(millisecondsTimeout);
+            return referenceCounter.Releaser;
+        }
+
+        /// <summary>
         /// Synchronously lock based on a key, setting a limit for the <see cref="TimeSpan"/> to wait.
         /// </summary>
         /// <param name="key">The key to lock on.</param>
@@ -114,6 +137,20 @@ namespace AsyncKeyedLock
         }
 
         /// <summary>
+        /// Synchronously lock based on a key, setting a limit for the <see cref="TimeSpan"/> to wait.
+        /// </summary>
+        /// <param name="key">The key to lock on.</param>
+        /// <param name="timeout">A <see cref="TimeSpan"/> that represents the number of milliseconds to wait, a <see cref="TimeSpan"/> that represents -1 milliseconds to wait indefinitely, or a <see cref="TimeSpan"/> that represents 0 milliseconds to test the wait handle and return immediately.</param>
+        /// <param name="success">False if timed out, true if it successfully entered.</param>
+        /// <returns>A disposable value.</returns>
+        public IDisposable Lock(TKey key, TimeSpan timeout, out bool success)
+        {
+            var referenceCounter = SemaphoreSlims.GetOrAdd(key);
+            success = referenceCounter.SemaphoreSlim.Wait(timeout);
+            return referenceCounter.Releaser;
+        }
+
+        /// <summary>
         /// Synchronously lock based on a key, setting a limit for the number of milliseconds to wait, while observing a <see cref="CancellationToken"/>.
         /// </summary>
         /// <param name="key">The key to lock on.</param>
@@ -123,7 +160,38 @@ namespace AsyncKeyedLock
         public IDisposable Lock(TKey key, int millisecondsTimeout, CancellationToken cancellationToken)
         {
             var referenceCounter = SemaphoreSlims.GetOrAdd(key);
-            referenceCounter.SemaphoreSlim.Wait(millisecondsTimeout, cancellationToken);
+            try
+            {
+                referenceCounter.SemaphoreSlim.Wait(millisecondsTimeout, cancellationToken);
+            }
+            catch (OperationCanceledException)
+            {
+                SemaphoreSlims.Release(referenceCounter);
+                throw;
+            }
+            return referenceCounter.Releaser;
+        }
+
+        /// <summary>
+        /// Synchronously lock based on a key, setting a limit for the number of milliseconds to wait, while observing a <see cref="CancellationToken"/>.
+        /// </summary>
+        /// <param name="key">The key to lock on.</param>
+        /// <param name="millisecondsTimeout">The number of milliseconds to wait, <see cref="Timeout.Infinite"/> (-1) to wait indefinitely, or zero to test the state of the wait handle and return immediately.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> to observe.</param>
+        /// <param name="success">False if timed out, true if it successfully entered.</param>
+        /// <returns>A disposable value.</returns>
+        public IDisposable Lock(TKey key, int millisecondsTimeout, CancellationToken cancellationToken, out bool success)
+        {
+            var referenceCounter = SemaphoreSlims.GetOrAdd(key);
+            try
+            {
+                success = referenceCounter.SemaphoreSlim.Wait(millisecondsTimeout, cancellationToken);
+            }
+            catch (OperationCanceledException)
+            {
+                SemaphoreSlims.Release(referenceCounter);
+                throw;
+            }
             return referenceCounter.Releaser;
         }
 
@@ -137,10 +205,329 @@ namespace AsyncKeyedLock
         public IDisposable Lock(TKey key, TimeSpan timeout, CancellationToken cancellationToken)
         {
             var referenceCounter = SemaphoreSlims.GetOrAdd(key);
-            referenceCounter.SemaphoreSlim.Wait(timeout, cancellationToken);
+            try
+            {
+                referenceCounter.SemaphoreSlim.Wait(timeout, cancellationToken);
+            }
+            catch (OperationCanceledException)
+            {
+                SemaphoreSlims.Release(referenceCounter);
+                throw;
+            }
             return referenceCounter.Releaser;
         }
 
+        /// <summary>
+        /// Synchronously lock based on a key, setting a limit for the <see cref="System.TimeSpan"/> to wait, while observing a <see cref="CancellationToken"/>.
+        /// </summary>
+        /// <param name="key">The key to lock on.</param>
+        /// <param name="timeout">A <see cref="TimeSpan"/> that represents the number of milliseconds to wait, a <see cref="TimeSpan"/> that represents -1 milliseconds to wait indefinitely, or a <see cref="TimeSpan"/> that represents 0 milliseconds to test the wait handle and return immediately.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> to observe.</param>
+        /// <param name="success">False if timed out, true if it successfully entered.</param>
+        /// <returns>A disposable value.</returns>
+        public IDisposable Lock(TKey key, TimeSpan timeout, CancellationToken cancellationToken, out bool success)
+        {
+            var referenceCounter = SemaphoreSlims.GetOrAdd(key);
+            try
+            {
+                success = referenceCounter.SemaphoreSlim.Wait(timeout, cancellationToken);
+            }
+            catch (OperationCanceledException)
+            {
+                SemaphoreSlims.Release(referenceCounter);
+                throw;
+            }
+            return referenceCounter.Releaser;
+        }
+        #endregion Synchronous
+
+        #region AsynchronousTry
+        /// <summary>
+        /// Asynchronously lock based on a key, setting a limit for the number of milliseconds to wait, and if not timed out, scynchronously execute an action and release.
+        /// </summary>
+        /// <param name="key">The key to lock on.</param>
+        /// <param name="action">The synchronous action.</param>
+        /// <param name="millisecondsTimeout">The number of milliseconds to wait, <see cref="Timeout.Infinite"/> (-1) to wait indefinitely, or zero to test the state of the wait handle and return immediately.</param>
+        /// <returns>False if timed out, true if it successfully entered.</returns>
+        public async Task<bool> TryLockAsync(TKey key, Action action, int millisecondsTimeout)
+        {
+            var refCounter = SemaphoreSlims.GetOrAdd(key);
+            if (!await refCounter.SemaphoreSlim.WaitAsync(millisecondsTimeout).ConfigureAwait(false))
+            {
+                SemaphoreSlims.Release(refCounter);
+                return false;
+            }
+
+            try
+            {
+                action();
+            }
+            catch
+            {
+                throw;
+            }
+            finally
+            {
+                SemaphoreSlims.Release(refCounter);
+            }
+            return true;
+        }
+
+        /// <summary>
+        /// Asynchronously lock based on a key, setting a limit for the number of milliseconds to wait, and if not timed out, scynchronously execute an action and release.
+        /// </summary>
+        /// <param name="key">The key to lock on.</param>
+        /// <param name="task">The asynchronous task.</param>
+        /// <param name="millisecondsTimeout">The number of milliseconds to wait, <see cref="Timeout.Infinite"/> (-1) to wait indefinitely, or zero to test the state of the wait handle and return immediately.</param>
+        /// <returns>False if timed out, true if it successfully entered.</returns>
+        public async Task<bool> TryLockAsync(TKey key, Func<Task> task, int millisecondsTimeout)
+        {
+            var refCounter = SemaphoreSlims.GetOrAdd(key);
+            if (!await refCounter.SemaphoreSlim.WaitAsync(millisecondsTimeout).ConfigureAwait(false))
+            {
+                SemaphoreSlims.Release(refCounter);
+                return false;
+            }
+
+            try
+            {
+                await task().ConfigureAwait(false);
+            }
+            catch
+            {
+                throw;
+            }
+            finally
+            {
+                SemaphoreSlims.Release(refCounter);
+            }
+            return true;
+        }
+
+        /// <summary>
+        /// Asynchronously lock based on a key, setting a limit for the <see cref="System.TimeSpan"/> to wait, and if not timed out, scynchronously execute an action and release.
+        /// </summary>
+        /// <param name="key">The key to lock on.</param>
+        /// <param name="action">The synchronous action.</param>
+        /// <param name="timeout">A <see cref="TimeSpan"/> that represents the number of milliseconds to wait, a <see cref="TimeSpan"/> that represents -1 milliseconds to wait indefinitely, or a <see cref="TimeSpan"/> that represents 0 milliseconds to test the wait handle and return immediately.</param>
+        /// <returns>False if timed out, true if it successfully entered.</returns>
+        public async Task<bool> TryLockAsync(TKey key, Action action, TimeSpan timeout)
+        {
+            var refCounter = SemaphoreSlims.GetOrAdd(key);
+            if (!await refCounter.SemaphoreSlim.WaitAsync(timeout).ConfigureAwait(false))
+            {
+                SemaphoreSlims.Release(refCounter);
+                return false;
+            }
+
+            try
+            {
+                action();
+            }
+            catch
+            {
+                throw;
+            }
+            finally
+            {
+                SemaphoreSlims.Release(refCounter);
+            }
+            return true;
+        }
+
+        /// <summary>
+        /// Asynchronously lock based on a key, setting a limit for the <see cref="System.TimeSpan"/> to wait, and if not timed out, scynchronously execute an action and release.
+        /// </summary>
+        /// <param name="key">The key to lock on.</param>
+        /// <param name="task">The asynchronous task.</param>
+        /// <param name="timeout">A <see cref="TimeSpan"/> that represents the number of milliseconds to wait, a <see cref="TimeSpan"/> that represents -1 milliseconds to wait indefinitely, or a <see cref="TimeSpan"/> that represents 0 milliseconds to test the wait handle and return immediately.</param>
+        /// <returns>False if timed out, true if it successfully entered.</returns>
+        public async Task<bool> TryLockAsync(TKey key, Func<Task> task, TimeSpan timeout)
+        {
+            var refCounter = SemaphoreSlims.GetOrAdd(key);
+            if (!await refCounter.SemaphoreSlim.WaitAsync(timeout).ConfigureAwait(false))
+            {
+                SemaphoreSlims.Release(refCounter);
+                return false;
+            }
+
+            try
+            {
+                await task().ConfigureAwait(false);
+            }
+            catch
+            {
+                throw;
+            }
+            finally
+            {
+                SemaphoreSlims.Release(refCounter);
+            }
+            return true;
+        }
+
+        /// <summary>
+        /// Asynchronously lock based on a key, setting a limit for the number of milliseconds to wait, and if not timed out, scynchronously execute an action and release, while observing a <see cref="CancellationToken"/>.
+        /// </summary>
+        /// <param name="key">The key to lock on.</param>
+        /// <param name="action">The synchronous action.</param>
+        /// <param name="millisecondsTimeout">The number of milliseconds to wait, <see cref="Timeout.Infinite"/> (-1) to wait indefinitely, or zero to test the state of the wait handle and return immediately.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> to observe.</param>
+        /// <returns>False if timed out, true if it successfully entered.</returns>
+        public async Task<bool> TryLockAsync(TKey key, Action action, int millisecondsTimeout, CancellationToken cancellationToken)
+        {
+            var refCounter = SemaphoreSlims.GetOrAdd(key);
+            try
+            {
+                if (!await refCounter.SemaphoreSlim.WaitAsync(millisecondsTimeout).ConfigureAwait(false))
+                {
+                    SemaphoreSlims.Release(refCounter);
+                    return false;
+                }
+            }
+            catch (OperationCanceledException)
+            {
+                SemaphoreSlims.Release(refCounter);
+                throw;
+            }
+
+            try
+            {
+                action();
+            }
+            catch
+            {
+                throw;
+            }
+            finally
+            {
+                SemaphoreSlims.Release(refCounter);
+            }
+            return true;
+        }
+
+        /// <summary>
+        /// Asynchronously lock based on a key, setting a limit for the number of milliseconds to wait, and if not timed out, scynchronously execute an action and release, while observing a <see cref="CancellationToken"/>.
+        /// </summary>
+        /// <param name="key">The key to lock on.</param>
+        /// <param name="task">The asynchronous task.</param>
+        /// <param name="millisecondsTimeout">The number of milliseconds to wait, <see cref="Timeout.Infinite"/> (-1) to wait indefinitely, or zero to test the state of the wait handle and return immediately.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> to observe.</param>
+        /// <returns>False if timed out, true if it successfully entered.</returns>
+        public async Task<bool> TryLockAsync(TKey key, Func<Task> task, int millisecondsTimeout, CancellationToken cancellationToken)
+        {
+            var refCounter = SemaphoreSlims.GetOrAdd(key);
+            try
+            {
+                if (!await refCounter.SemaphoreSlim.WaitAsync(millisecondsTimeout).ConfigureAwait(false))
+                {
+                    SemaphoreSlims.Release(refCounter);
+                    return false;
+                }
+            }
+            catch (OperationCanceledException)
+            {
+                SemaphoreSlims.Release(refCounter);
+                throw;
+            }
+
+            try
+            {
+                await task().ConfigureAwait(false);
+            }
+            catch
+            {
+                throw;
+            }
+            finally
+            {
+                SemaphoreSlims.Release(refCounter);
+            }
+            return true;
+        }
+
+        /// <summary>
+        /// Asynchronously lock based on a key, setting a limit for the <see cref="System.TimeSpan"/> to wait, and if not timed out, scynchronously execute an action and release, while observing a <see cref="CancellationToken"/>.
+        /// </summary>
+        /// <param name="key">The key to lock on.</param>
+        /// <param name="action">The synchronous action.</param>
+        /// <param name="timeout">A <see cref="TimeSpan"/> that represents the number of milliseconds to wait, a <see cref="TimeSpan"/> that represents -1 milliseconds to wait indefinitely, or a <see cref="TimeSpan"/> that represents 0 milliseconds to test the wait handle and return immediately.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> to observe.</param>
+        /// <returns>False if timed out, true if it successfully entered.</returns>
+        public async Task<bool> TryLockAsync(TKey key, Action action, TimeSpan timeout, CancellationToken cancellationToken)
+        {
+            var refCounter = SemaphoreSlims.GetOrAdd(key);
+            try
+            {
+                if (!await refCounter.SemaphoreSlim.WaitAsync(timeout).ConfigureAwait(false))
+                {
+                    SemaphoreSlims.Release(refCounter);
+                    return false;
+                }
+            }
+            catch (OperationCanceledException)
+            {
+                SemaphoreSlims.Release(refCounter);
+                throw;
+            }
+
+            try
+            {
+                action();
+            }
+            catch
+            {
+                throw;
+            }
+            finally
+            {
+                SemaphoreSlims.Release(refCounter);
+            }
+            return true;
+        }
+
+        /// <summary>
+        /// Asynchronously lock based on a key, setting a limit for the <see cref="System.TimeSpan"/> to wait, and if not timed out, scynchronously execute an action and release, while observing a <see cref="CancellationToken"/>.
+        /// </summary>
+        /// <param name="key">The key to lock on.</param>
+        /// <param name="task">The asynchronous task.</param>
+        /// <param name="timeout">A <see cref="TimeSpan"/> that represents the number of milliseconds to wait, a <see cref="TimeSpan"/> that represents -1 milliseconds to wait indefinitely, or a <see cref="TimeSpan"/> that represents 0 milliseconds to test the wait handle and return immediately.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> to observe.</param>
+        /// <returns>False if timed out, true if it successfully entered.</returns>
+        public async Task<bool> TryLockAsync(TKey key, Func<Task> task, TimeSpan timeout, CancellationToken cancellationToken)
+        {
+            var refCounter = SemaphoreSlims.GetOrAdd(key);
+            try
+            {
+                if (!await refCounter.SemaphoreSlim.WaitAsync(timeout).ConfigureAwait(false))
+                {
+                    SemaphoreSlims.Release(refCounter);
+                    return false;
+                }
+            }
+            catch (OperationCanceledException)
+            {
+                SemaphoreSlims.Release(refCounter);
+                throw;
+            }
+
+            try
+            {
+                await task().ConfigureAwait(false);
+            }
+            catch
+            {
+                throw;
+            }
+            finally
+            {
+                SemaphoreSlims.Release(refCounter);
+            }
+            return true;
+        }
+        #endregion AsynchronousTry
+
+        #region Asynchronous
         /// <summary>
         /// Asynchronously lock based on a key.
         /// </summary>
@@ -162,7 +549,15 @@ namespace AsyncKeyedLock
         public async Task<IDisposable> LockAsync(TKey key, CancellationToken cancellationToken)
         {
             var referenceCounter = SemaphoreSlims.GetOrAdd(key);
-            await referenceCounter.SemaphoreSlim.WaitAsync(cancellationToken).ConfigureAwait(false);
+            try
+            {
+                await referenceCounter.SemaphoreSlim.WaitAsync(cancellationToken).ConfigureAwait(false);
+            }
+            catch (OperationCanceledException)
+            {
+                SemaphoreSlims.Release(referenceCounter);
+                throw;
+            }
             return referenceCounter.Releaser;
         }
 
@@ -202,7 +597,15 @@ namespace AsyncKeyedLock
         public async Task<IDisposable> LockAsync(TKey key, int millisecondsTimeout, CancellationToken cancellationToken)
         {
             var referenceCounter = SemaphoreSlims.GetOrAdd(key);
-            await referenceCounter.SemaphoreSlim.WaitAsync(millisecondsTimeout, cancellationToken).ConfigureAwait(false);
+            try
+            {
+                await referenceCounter.SemaphoreSlim.WaitAsync(millisecondsTimeout, cancellationToken).ConfigureAwait(false);
+            }
+            catch (OperationCanceledException)
+            {
+                SemaphoreSlims.Release(referenceCounter);
+                throw;
+            }
             return referenceCounter.Releaser;
         }
 
@@ -216,9 +619,18 @@ namespace AsyncKeyedLock
         public async Task<IDisposable> LockAsync(TKey key, TimeSpan timeout, CancellationToken cancellationToken)
         {
             var referenceCounter = SemaphoreSlims.GetOrAdd(key);
-            await referenceCounter.SemaphoreSlim.WaitAsync(timeout, cancellationToken).ConfigureAwait(false);
+            try
+            {
+                await referenceCounter.SemaphoreSlim.WaitAsync(timeout, cancellationToken).ConfigureAwait(false);
+            }
+            catch (OperationCanceledException)
+            {
+                SemaphoreSlims.Release(referenceCounter);
+                throw;
+            }
             return referenceCounter.Releaser;
         }
+        #endregion
 
         /// <summary>
         /// Checks whether or not there is a thread making use of a keyed lock.
@@ -248,14 +660,11 @@ namespace AsyncKeyedLock
         /// <returns>The number of requests concurrently locked for a given key.</returns>
         public int GetRemainingCount(TKey key)
         {
-            lock (SemaphoreSlims)
+            if (SemaphoreSlims.TryGetValue(key, out var referenceCounter))
             {
-                if (SemaphoreSlims.TryGetValue(key, out var referenceCounter))
-                {
-                    return referenceCounter.ReferenceCount;
-                }
-                return 0;
+                return referenceCounter.ReferenceCount;
             }
+            return 0;
         }
 
         /// <summary>
@@ -275,15 +684,12 @@ namespace AsyncKeyedLock
         /// <returns><see langword="true"/> if the key is successfully found and removed; otherwise, false.</returns>
         public bool ForceRelease(TKey key)
         {
-            lock (SemaphoreSlims)
+            if (SemaphoreSlims.TryGetValue(key, out var referenceCounter))
             {
-                if (SemaphoreSlims.TryGetValue(key, out var referenceCounter))
-                {
-                    referenceCounter.SemaphoreSlim.Release(referenceCounter.ReferenceCount);
-                    return SemaphoreSlims.TryRemove(key, out _);
-                }
-                return false;
+                referenceCounter.SemaphoreSlim.Release(referenceCounter.ReferenceCount);
+                return SemaphoreSlims.TryRemove(key, out _);
             }
+            return false;
         }
     }
 }

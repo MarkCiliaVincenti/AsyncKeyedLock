@@ -45,12 +45,30 @@ namespace AsyncKeyedLock
         IDisposable Lock(TKey key, int millisecondsTimeout);
 
         /// <summary>
+        /// Synchronously lock based on a key, setting a limit for the number of milliseconds to wait.
+        /// </summary>
+        /// <param name="key">The key to lock on.</param>
+        /// <param name="millisecondsTimeout">The number of milliseconds to wait, <see cref="Timeout.Infinite"/> (-1) to wait indefinitely, or zero to test the state of the wait handle and return immediately.</param>
+        /// <param name="success">False if timed out, true if it successfully entered.</param>
+        /// <returns>A disposable value.</returns>
+        IDisposable Lock(TKey key, int millisecondsTimeout, out bool success);
+
+        /// <summary>
         /// Synchronously lock based on a key, setting a limit for the <see cref="TimeSpan"/> to wait.
         /// </summary>
         /// <param name="key">The key to lock on.</param>
         /// <param name="timeout">A <see cref="TimeSpan"/> that represents the number of milliseconds to wait, a <see cref="TimeSpan"/> that represents -1 milliseconds to wait indefinitely, or a <see cref="TimeSpan"/> that represents 0 milliseconds to test the wait handle and return immediately.</param>
         /// <returns>A disposable value.</returns>
         IDisposable Lock(TKey key, TimeSpan timeout);
+
+        /// <summary>
+        /// Synchronously lock based on a key, setting a limit for the <see cref="TimeSpan"/> to wait.
+        /// </summary>
+        /// <param name="key">The key to lock on.</param>
+        /// <param name="timeout">A <see cref="TimeSpan"/> that represents the number of milliseconds to wait, a <see cref="TimeSpan"/> that represents -1 milliseconds to wait indefinitely, or a <see cref="TimeSpan"/> that represents 0 milliseconds to test the wait handle and return immediately.</param>
+        /// <param name="success">False if timed out, true if it successfully entered.</param>
+        /// <returns>A disposable value.</returns>
+        IDisposable Lock(TKey key, TimeSpan timeout, out bool success);
 
         /// <summary>
         /// Synchronously lock based on a key, setting a limit for the number of milliseconds to wait, while observing a <see cref="CancellationToken"/>.
@@ -62,6 +80,16 @@ namespace AsyncKeyedLock
         IDisposable Lock(TKey key, int millisecondsTimeout, CancellationToken cancellationToken);
 
         /// <summary>
+        /// Synchronously lock based on a key, setting a limit for the number of milliseconds to wait, while observing a <see cref="CancellationToken"/>.
+        /// </summary>
+        /// <param name="key">The key to lock on.</param>
+        /// <param name="millisecondsTimeout">The number of milliseconds to wait, <see cref="Timeout.Infinite"/> (-1) to wait indefinitely, or zero to test the state of the wait handle and return immediately.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> to observe.</param>
+        /// <param name="success">False if timed out, true if it successfully entered.</param>
+        /// <returns>A disposable value.</returns>
+        IDisposable Lock(TKey key, int millisecondsTimeout, CancellationToken cancellationToken, out bool success);
+
+        /// <summary>
         /// Synchronously lock based on a key, setting a limit for the <see cref="System.TimeSpan"/> to wait, while observing a <see cref="CancellationToken"/>.
         /// </summary>
         /// <param name="key">The key to lock on.</param>
@@ -69,6 +97,16 @@ namespace AsyncKeyedLock
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> to observe.</param>
         /// <returns>A disposable value.</returns>
         IDisposable Lock(TKey key, TimeSpan timeout, CancellationToken cancellationToken);
+
+        /// <summary>
+        /// Synchronously lock based on a key, setting a limit for the <see cref="System.TimeSpan"/> to wait, while observing a <see cref="CancellationToken"/>.
+        /// </summary>
+        /// <param name="key">The key to lock on.</param>
+        /// <param name="timeout">A <see cref="TimeSpan"/> that represents the number of milliseconds to wait, a <see cref="TimeSpan"/> that represents -1 milliseconds to wait indefinitely, or a <see cref="TimeSpan"/> that represents 0 milliseconds to test the wait handle and return immediately.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> to observe.</param>
+        /// <param name="success">False if timed out, true if it successfully entered.</param>
+        /// <returns>A disposable value.</returns>
+        IDisposable Lock(TKey key, TimeSpan timeout, CancellationToken cancellationToken, out bool success);
 
         /// <summary>
         /// Asynchronously lock based on a key.

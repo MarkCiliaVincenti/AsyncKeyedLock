@@ -6,6 +6,102 @@ namespace AsyncKeyedLock.Tests
     public class Tests
     {
         [Fact]
+        public async Task BasicTest()
+        {
+            var range = 5000;
+            var asyncKeyedLocker = new AsyncKeyedLocker();
+            var concurrentQueue = new ConcurrentQueue<(bool entered, int key)>();
+
+            var tasks = Enumerable.Range(1, range * 5)
+                .Select(async i =>
+                {
+                    var key = Convert.ToInt32(Math.Ceiling((double)i / 5));
+                    using (await asyncKeyedLocker.LockAsync(key))
+                    {
+                        concurrentQueue.Enqueue((true, key));
+                        await Task.Delay(100);
+                        concurrentQueue.Enqueue((false, key));
+                    }
+                });
+            await Task.WhenAll(tasks.AsParallel());
+
+            bool valid = true;
+
+            var entered = new HashSet<int>();
+
+            while (!concurrentQueue.IsEmpty)
+            {
+                concurrentQueue.TryDequeue(out var result);
+                if (result.entered)
+                {
+                    if (entered.Contains(result.key))
+                    {
+                        valid = false;
+                        break;
+                    }
+                    entered.Add(result.key);
+                }
+                else
+                {
+                    if (!entered.Contains(result.key))
+                    {
+                        valid = false;
+                        break;
+                    }
+                    entered.Remove(result.key);
+                }
+            }
+        }
+
+        [Fact]
+        public async Task BasicTestGenerics()
+        {
+            var range = 5000;
+            var asyncKeyedLocker = new AsyncKeyedLocker<int>();
+            var concurrentQueue = new ConcurrentQueue<(bool entered, int key)>();
+
+            var tasks = Enumerable.Range(1, range * 5)
+                .Select(async i =>
+                {
+                    var key = Convert.ToInt32(Math.Ceiling((double)i / 5));
+                    using (await asyncKeyedLocker.LockAsync(key))
+                    {
+                        concurrentQueue.Enqueue((true, key));
+                        await Task.Delay(100);
+                        concurrentQueue.Enqueue((false, key));
+                    }
+                });
+            await Task.WhenAll(tasks.AsParallel());
+
+            bool valid = true;
+
+            var entered = new HashSet<int>();
+
+            while (!concurrentQueue.IsEmpty)
+            {
+                concurrentQueue.TryDequeue(out var result);
+                if (result.entered)
+                {
+                    if (entered.Contains(result.key))
+                    {
+                        valid = false;
+                        break;
+                    }
+                    entered.Add(result.key);
+                }
+                else
+                {
+                    if (!entered.Contains(result.key))
+                    {
+                        valid = false;
+                        break;
+                    }
+                    entered.Remove(result.key);
+                }
+            }
+        }
+
+        [Fact]
         public async Task Test1AtATime()
         {
             var range = 25;
