@@ -71,7 +71,7 @@ namespace AsyncKeyedLock
         public IDisposable Lock(TKey key)
         {
             var referenceCounter = SemaphoreSlims.GetOrAdd(key);
-            referenceCounter.SemaphoreSlim.WaitAsync();
+            referenceCounter.SemaphoreSlim.Wait();
             return referenceCounter.Releaser;
         }
 
@@ -86,7 +86,7 @@ namespace AsyncKeyedLock
             var referenceCounter = SemaphoreSlims.GetOrAdd(key);
             try
             {
-                referenceCounter.SemaphoreSlim.WaitAsync(cancellationToken);
+                referenceCounter.SemaphoreSlim.Wait(cancellationToken);
             }
             catch (OperationCanceledException)
             {

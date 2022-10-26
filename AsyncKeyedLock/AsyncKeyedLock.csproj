@@ -7,16 +7,16 @@
 		<RepositoryUrl>https://github.com/MarkCiliaVincenti/AsyncKeyedLock.git</RepositoryUrl>
 		<PackageProjectUrl>https://github.com/MarkCiliaVincenti/AsyncKeyedLock</PackageProjectUrl>
 		<PackageLicenseFile>LICENSE</PackageLicenseFile>
-		<Version>3.2.2</Version>
+		<Version>3.2.3</Version>
 		<PackageIcon>logo.png</PackageIcon>
-		<PackageReleaseNotes>Fixes CancellationToken issue and adding TryLockAsync methods.</PackageReleaseNotes>
+		<PackageReleaseNotes>Fixes CancellationToken issues and adding TryLockAsync methods.</PackageReleaseNotes>
 		<Description>An asynchronous .NET Standard 2.0 library that allows you to lock based on a key (keyed semaphores), only allowing a defined number of concurrent threads that share the same key.</Description>
 		<Copyright>© 2022 Mark Cilia Vincenti</Copyright>
 		<PackageTags>async,lock,key,semaphore,dictionary</PackageTags>
 		<RepositoryType>git</RepositoryType>
 		<GeneratePackageOnBuild>false</GeneratePackageOnBuild>
-		<AssemblyVersion>3.2.2.0</AssemblyVersion>
-		<FileVersion>3.2.2.0</FileVersion>
+		<AssemblyVersion>3.2.3.0</AssemblyVersion>
+		<FileVersion>3.2.3.0</FileVersion>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
 		<IsPackable>true</IsPackable>
 		<IsTrimmable>true</IsTrimmable>

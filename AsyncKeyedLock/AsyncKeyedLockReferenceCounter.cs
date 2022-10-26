@@ -17,7 +17,7 @@ namespace AsyncKeyedLock
         /// <summary>
         /// The reference count
         /// </summary>
-        public int ReferenceCount { get; set; }
+        public int ReferenceCount { get; set; } = 1;
 
         private readonly SemaphoreSlim _semaphoreSlim;
         
