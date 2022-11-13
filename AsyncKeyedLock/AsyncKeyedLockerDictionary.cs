@@ -70,8 +70,6 @@ namespace AsyncKeyedLock
             if (--referenceCounter.ReferenceCount == 0)
             {
                 TryRemove(referenceCounter.Key, out _);
-                Monitor.Exit(referenceCounter);
-                return;
             }
 
             Monitor.Exit(referenceCounter);
