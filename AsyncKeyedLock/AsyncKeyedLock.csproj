@@ -44,4 +44,7 @@
 		</None>
 		<None Include="..\logo.png">
 			<Pack>True</Pack>
-			<PackagePath></PackagePat</Project>
+			<PackagePath></PackagePath>
+		</None>
+	</ItemGroup>
+</Project>
