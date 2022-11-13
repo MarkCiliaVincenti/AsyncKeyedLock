@@ -8,59 +8,139 @@ namespace AsyncKeyedLock
     /// <summary>
     /// AsyncKeyedLock class, inspired by <see href="https://stackoverflow.com/questions/31138179/asynchronous-locking-based-on-a-key/31194647#31194647">Stephen Cleary's solution</see>.
     /// </summary>
-    public class AsyncKeyedLocker : AsyncKeyedLocker<object>, IAsyncKeyedLocker
+    public sealed class AsyncKeyedLocker : AsyncKeyedLocker<object>
     {
         /// <summary>
         /// Constructor for AsyncKeyedLock.
         /// </summary>
-        public AsyncKeyedLocker()
-        {
-        }
+        [Obsolete("Unless you're mixing different types of objects, it is recommended to use the generics version AsyncKeyedLocker<T>.")]
+        public AsyncKeyedLocker() : base()
+        { }
 
         /// <summary>
         /// Constructor for AsyncKeyedLock.
         /// </summary>
         /// <param name="maxCount">The maximum number of requests for the semaphore that can be granted concurrently. Defaults to 1.</param>
-        public AsyncKeyedLocker(int maxCount)
-        {
-            MaxCount = maxCount;
-        }
+        [Obsolete("Unless you're mixing different types of objects, it is recommended to use the generics version AsyncKeyedLocker<T>.")]
+        public AsyncKeyedLocker(int maxCount) : base(maxCount)
+        { }
+
+        /// <summary>
+        /// Constructor for AsyncKeyedLock.
+        /// </summary>
+        /// <param name="concurrencyLevel">The estimated number of threads that will update the <see cref="AsyncKeyedLockerDictionary{TKey}"/> concurrently.</param>
+        /// <param name="capacity">The initial number of elements that the <see cref="AsyncKeyedLockerDictionary{TKey}"/> can contain.</param>
+        [Obsolete("Unless you're mixing different types of objects, it is recommended to use the generics version AsyncKeyedLocker<T>.")]
+        public AsyncKeyedLocker(int concurrencyLevel, int capacity) : base(concurrencyLevel, capacity)
+        { }
+
+        /// <summary>
+        /// Constructor for AsyncKeyedLock.
+        /// </summary>
+        /// <param name="maxCount">The maximum number of requests for the semaphore that can be granted concurrently. Defaults to 1.</param>
+        /// <param name="concurrencyLevel">The estimated number of threads that will update the <see cref="AsyncKeyedLockerDictionary{TKey}"/> concurrently.</param>
+        /// <param name="capacity">The initial number of elements that the <see cref="AsyncKeyedLockerDictionary{TKey}"/> can contain.</param>
+        [Obsolete("Unless you're mixing different types of objects, it is recommended to use the generics version AsyncKeyedLocker<T>.")]
+        public AsyncKeyedLocker(int maxCount, int concurrencyLevel, int capacity) : base (maxCount, concurrencyLevel, capacity)
+        { }
     }
 
     /// <summary>
-    /// AsyncKeyedLock class, adapted and improved from <see href="https://stackoverflow.com/questions/31138179/asynchronous-locking-based-on-a-key/31194647#31194647">Stephen Cleary's solution</see>.
+    /// Represents a thread-safe keyed locker that allows you to lock based on a key (keyed semaphores), only allowing a specified number of concurrent threads that share the same key.
     /// </summary>
-    public class AsyncKeyedLocker<TKey> : IAsyncKeyedLocker<TKey>
+    public class AsyncKeyedLocker<TKey> where TKey : notnull
     {
-        private readonly AsyncKeyedLockerDictionary<TKey> _semaphoreSlims;
-
-        /// <summary>
-        /// The dictionary of SemaphoreSlim objects.
-        /// </summary>
-        public AsyncKeyedLockerDictionary<TKey> SemaphoreSlims => _semaphoreSlims;
+        private readonly AsyncKeyedLockerDictionary<TKey> _dictionary;
 
         /// <summary>
         /// The maximum number of requests for the semaphore that can be granted concurrently. Defaults to 1.
         /// </summary>
-        public int MaxCount { get; set; } = 1;
+        public int MaxCount { get; internal set; } = 1;
 
         /// <summary>
-        /// Constructor for AsyncKeyedLock.
+        /// Initializes a new instance of the <see cref="AsyncKeyedLocker{TKey}" /> class, sets the <see cref="SemaphoreSlim"/> initial count to 1, has the default concurrency level, has the default initial capacity, and uses the default comparer for the key type.
         /// </summary>
         public AsyncKeyedLocker()
         {
-            _semaphoreSlims = new AsyncKeyedLockerDictionary<TKey>(1);
+            _dictionary = new AsyncKeyedLockerDictionary<TKey>();
         }
 
         /// <summary>
-        /// Constructor for AsyncKeyedLock.
+        /// Initializes a new instance of the <see cref="AsyncKeyedLocker{TKey}" /> class, uses the specified <see cref="SemaphoreSlim"/> initial count, has the default concurrency level, has the default initial capacity, and uses the default comparer for the key type.
         /// </summary>
-        /// <param name="maxCount">The maximum number of requests for the semaphore that can be granted concurrently. Defaults to 1.</param>
+        /// <param name="maxCount">The <see cref="SemaphoreSlim"/> initial count. Defaults to 1.</param>
         public AsyncKeyedLocker(int maxCount)
         {
             MaxCount = maxCount;
-            _semaphoreSlims = new AsyncKeyedLockerDictionary<TKey>(maxCount);
+            _dictionary = new AsyncKeyedLockerDictionary<TKey>(maxCount);
         }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="AsyncKeyedLocker{TKey}" /> class, sets the <see cref="SemaphoreSlim"/> initial count to 1, has the default concurrency level, has the default initial capacity, and uses the specified <see cref="IEqualityComparer{TKey}"/>.
+        /// </summary>
+        /// <param name="comparer">The equality comparison implementation to use when comparing keys.</param>
+        /// <exception cref="ArgumentNullException">comparer is null</exception>
+        public AsyncKeyedLocker(IEqualityComparer<TKey> comparer)
+        {
+            _dictionary = new AsyncKeyedLockerDictionary<TKey>(comparer);
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="AsyncKeyedLocker{TKey}" /> class, sets the <see cref="SemaphoreSlim"/> initial count to 1, has the specified concurrency level and capacity, and uses the default comparer for the key type.
+        /// </summary>
+        /// <param name="concurrencyLevel">The estimated number of threads that will update the <see cref="AsyncKeyedLocker{TKey}"/> concurrently.</param>
+        /// <param name="capacity">The initial number of elements that the <see cref="AsyncKeyedLocker{TKey}"/> can contain.</param>
+        public AsyncKeyedLocker(int concurrencyLevel, int capacity)
+        {
+            _dictionary = new AsyncKeyedLockerDictionary<TKey>(concurrencyLevel, capacity);
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="AsyncKeyedLocker{TKey}" /> class, uses the specified <see cref="SemaphoreSlim"/> initial count, has the specified concurrency level and capacity, and uses the default comparer for the key type.
+        /// </summary>
+        /// <param name="maxCount">The maximum number of requests for the semaphore that can be granted concurrently. Defaults to 1.</param>
+        /// <param name="concurrencyLevel">The estimated number of threads that will update the <see cref="AsyncKeyedLocker{TKey}"/> concurrently.</param>
+        /// <param name="capacity">The initial number of elements that the <see cref="AsyncKeyedLocker{TKey}"/> can contain.</param>
+        public AsyncKeyedLocker(int maxCount, int concurrencyLevel, int capacity)
+        {
+            MaxCount = maxCount;
+            _dictionary = new AsyncKeyedLockerDictionary<TKey>(concurrencyLevel, capacity);
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="AsyncKeyedLocker{TKey}" /> class, uses the specified <see cref="SemaphoreSlim"/> initial count, has the specified concurrency level and capacity, and uses the default comparer for the key type.
+        /// </summary>
+        /// <param name="concurrencyLevel">The estimated number of threads that will update the <see cref="AsyncKeyedLocker{TKey}"/> concurrently.</param>
+        /// <param name="capacity">The initial number of elements that the <see cref="AsyncKeyedLocker{TKey}"/> can contain.</param>
+        /// <param name="comparer">The equality comparison implementation to use when comparing keys.</param>
+        /// <exception cref="ArgumentNullException">comparer is null</exception>
+        public AsyncKeyedLocker(int concurrencyLevel, int capacity, IEqualityComparer<TKey> comparer)
+        {
+            _dictionary = new AsyncKeyedLockerDictionary<TKey>(concurrencyLevel, capacity, comparer);
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="AsyncKeyedLocker{TKey}" /> class, uses the specified <see cref="SemaphoreSlim"/> initial count, has the specified concurrency level and capacity, and uses the default comparer for the key type.
+        /// </summary>
+        /// <param name="maxCount">The maximum number of requests for the semaphore that can be granted concurrently. Defaults to 1.</param>
+        /// <param name="concurrencyLevel">The estimated number of threads that will update the <see cref="AsyncKeyedLocker{TKey}"/> concurrently.</param>
+        /// <param name="capacity">The initial number of elements that the <see cref="AsyncKeyedLocker{TKey}"/> can contain.</param>
+        /// <param name="comparer">The equality comparison implementation to use when comparing keys.</param>
+        /// <exception cref="ArgumentNullException">comparer is null</exception>
+        public AsyncKeyedLocker(int maxCount, int concurrencyLevel, int capacity, IEqualityComparer<TKey> comparer)
+        {
+            MaxCount = maxCount;
+            _dictionary = new AsyncKeyedLockerDictionary<TKey>(concurrencyLevel, capacity, comparer);
+        }
+
+        /// <summary>
+        /// Provider for <see cref="IAsyncKeyedLockReleaser{TKey}"/>
+        /// </summary>
+        /// <param name="key">The key for which a releaser should be obtained.</param>
+        /// <returns>A created or retrieved <see cref="IAsyncKeyedLockReleaser{TKey}"/>.</returns>
+        public IAsyncKeyedLockReleaser<TKey> GetOrAdd(TKey key) => _dictionary.GetOrAdd(key);
+        private void Release(IAsyncKeyedLockReleaser<TKey> releaser) => _dictionary.Release(releaser);
+
 
         #region Synchronous
         /// <summary>
@@ -70,9 +150,9 @@ namespace AsyncKeyedLock
         /// <returns>A disposable value.</returns>
         public IDisposable Lock(TKey key)
         {
-            var referenceCounter = SemaphoreSlims.GetOrAdd(key);
-            referenceCounter.SemaphoreSlim.Wait();
-            return referenceCounter.Releaser;
+            var releaser = GetOrAdd(key);
+            releaser.SemaphoreSlim.Wait();
+            return releaser;
         }
 
         /// <summary>
@@ -83,17 +163,17 @@ namespace AsyncKeyedLock
         /// <returns>A disposable value.</returns>
         public IDisposable Lock(TKey key, CancellationToken cancellationToken)
         {
-            var referenceCounter = SemaphoreSlims.GetOrAdd(key);
+            var releaser = GetOrAdd(key);
             try
             {
-                referenceCounter.SemaphoreSlim.Wait(cancellationToken);
+                releaser.SemaphoreSlim.Wait(cancellationToken);
             }
             catch (OperationCanceledException)
             {
-                SemaphoreSlims.Release(referenceCounter);
+                Release(releaser);
                 throw;
             }
-            return referenceCounter.Releaser;
+            return releaser;
         }
 
         /// <summary>
@@ -104,9 +184,9 @@ namespace AsyncKeyedLock
         /// <returns>A disposable value.</returns>
         public IDisposable Lock(TKey key, int millisecondsTimeout)
         {
-            var referenceCounter = SemaphoreSlims.GetOrAdd(key);
-            referenceCounter.SemaphoreSlim.Wait(millisecondsTimeout);
-            return referenceCounter.Releaser;
+            var releaser = GetOrAdd(key);
+            releaser.SemaphoreSlim.Wait(millisecondsTimeout);
+            return releaser;
         }
 
         /// <summary>
@@ -118,9 +198,9 @@ namespace AsyncKeyedLock
         /// <returns>A disposable value.</returns>
         public IDisposable Lock(TKey key, int millisecondsTimeout, out bool success)
         {
-            var referenceCounter = SemaphoreSlims.GetOrAdd(key);
-            success = referenceCounter.SemaphoreSlim.Wait(millisecondsTimeout);
-            return referenceCounter.Releaser;
+            var releaser = GetOrAdd(key);
+            success = releaser.SemaphoreSlim.Wait(millisecondsTimeout);
+            return releaser;
         }
 
         /// <summary>
@@ -131,9 +211,9 @@ namespace AsyncKeyedLock
         /// <returns>A disposable value.</returns>
         public IDisposable Lock(TKey key, TimeSpan timeout)
         {
-            var referenceCounter = SemaphoreSlims.GetOrAdd(key);
-            referenceCounter.SemaphoreSlim.Wait(timeout);
-            return referenceCounter.Releaser;
+            var releaser = GetOrAdd(key);
+            releaser.SemaphoreSlim.Wait(timeout);
+            return releaser;
         }
 
         /// <summary>
@@ -145,9 +225,9 @@ namespace AsyncKeyedLock
         /// <returns>A disposable value.</returns>
         public IDisposable Lock(TKey key, TimeSpan timeout, out bool success)
         {
-            var referenceCounter = SemaphoreSlims.GetOrAdd(key);
-            success = referenceCounter.SemaphoreSlim.Wait(timeout);
-            return referenceCounter.Releaser;
+            var releaser = GetOrAdd(key);
+            success = releaser.SemaphoreSlim.Wait(timeout);
+            return releaser;
         }
 
         /// <summary>
@@ -159,17 +239,17 @@ namespace AsyncKeyedLock
         /// <returns>A disposable value.</returns>
         public IDisposable Lock(TKey key, int millisecondsTimeout, CancellationToken cancellationToken)
         {
-            var referenceCounter = SemaphoreSlims.GetOrAdd(key);
+            var releaser = GetOrAdd(key);
             try
             {
-                referenceCounter.SemaphoreSlim.Wait(millisecondsTimeout, cancellationToken);
+                releaser.SemaphoreSlim.Wait(millisecondsTimeout, cancellationToken);
             }
             catch (OperationCanceledException)
             {
-                SemaphoreSlims.Release(referenceCounter);
+                Release(releaser);
                 throw;
             }
-            return referenceCounter.Releaser;
+            return releaser;
         }
 
         /// <summary>
@@ -182,17 +262,17 @@ namespace AsyncKeyedLock
         /// <returns>A disposable value.</returns>
         public IDisposable Lock(TKey key, int millisecondsTimeout, CancellationToken cancellationToken, out bool success)
         {
-            var referenceCounter = SemaphoreSlims.GetOrAdd(key);
+            var releaser = GetOrAdd(key);
             try
             {
-                success = referenceCounter.SemaphoreSlim.Wait(millisecondsTimeout, cancellationToken);
+                success = releaser.SemaphoreSlim.Wait(millisecondsTimeout, cancellationToken);
             }
             catch (OperationCanceledException)
             {
-                SemaphoreSlims.Release(referenceCounter);
+                Release(releaser);
                 throw;
             }
-            return referenceCounter.Releaser;
+            return releaser;
         }
 
         /// <summary>
@@ -204,17 +284,17 @@ namespace AsyncKeyedLock
         /// <returns>A disposable value.</returns>
         public IDisposable Lock(TKey key, TimeSpan timeout, CancellationToken cancellationToken)
         {
-            var referenceCounter = SemaphoreSlims.GetOrAdd(key);
+            var releaser = GetOrAdd(key);
             try
             {
-                referenceCounter.SemaphoreSlim.Wait(timeout, cancellationToken);
+                releaser.SemaphoreSlim.Wait(timeout, cancellationToken);
             }
             catch (OperationCanceledException)
             {
-                SemaphoreSlims.Release(referenceCounter);
+                Release(releaser);
                 throw;
             }
-            return referenceCounter.Releaser;
+            return releaser;
         }
 
         /// <summary>
@@ -227,17 +307,17 @@ namespace AsyncKeyedLock
         /// <returns>A disposable value.</returns>
         public IDisposable Lock(TKey key, TimeSpan timeout, CancellationToken cancellationToken, out bool success)
         {
-            var referenceCounter = SemaphoreSlims.GetOrAdd(key);
+            var releaser = GetOrAdd(key);
             try
             {
-                success = referenceCounter.SemaphoreSlim.Wait(timeout, cancellationToken);
+                success = releaser.SemaphoreSlim.Wait(timeout, cancellationToken);
             }
             catch (OperationCanceledException)
             {
-                SemaphoreSlims.Release(referenceCounter);
+                Release(releaser);
                 throw;
             }
-            return referenceCounter.Releaser;
+            return releaser;
         }
         #endregion Synchronous
 
@@ -251,10 +331,10 @@ namespace AsyncKeyedLock
         /// <returns>False if timed out, true if it successfully entered.</returns>
         public async Task<bool> TryLockAsync(TKey key, Action action, int millisecondsTimeout)
         {
-            var refCounter = SemaphoreSlims.GetOrAdd(key);
-            if (!await refCounter.SemaphoreSlim.WaitAsync(millisecondsTimeout).ConfigureAwait(false))
+            var releaser = GetOrAdd(key);
+            if (!await releaser.SemaphoreSlim.WaitAsync(millisecondsTimeout).ConfigureAwait(false))
             {
-                SemaphoreSlims.Release(refCounter);
+                Release(releaser);
                 return false;
             }
 
@@ -268,7 +348,7 @@ namespace AsyncKeyedLock
             }
             finally
             {
-                SemaphoreSlims.Release(refCounter);
+                Release(releaser);
             }
             return true;
         }
@@ -282,10 +362,10 @@ namespace AsyncKeyedLock
         /// <returns>False if timed out, true if it successfully entered.</returns>
         public async Task<bool> TryLockAsync(TKey key, Func<Task> task, int millisecondsTimeout)
         {
-            var refCounter = SemaphoreSlims.GetOrAdd(key);
-            if (!await refCounter.SemaphoreSlim.WaitAsync(millisecondsTimeout).ConfigureAwait(false))
+            var releaser = GetOrAdd(key);
+            if (!await releaser.SemaphoreSlim.WaitAsync(millisecondsTimeout).ConfigureAwait(false))
             {
-                SemaphoreSlims.Release(refCounter);
+                Release(releaser);
                 return false;
             }
 
@@ -299,7 +379,7 @@ namespace AsyncKeyedLock
             }
             finally
             {
-                SemaphoreSlims.Release(refCounter);
+                Release(releaser);
             }
             return true;
         }
@@ -313,10 +393,10 @@ namespace AsyncKeyedLock
         /// <returns>False if timed out, true if it successfully entered.</returns>
         public async Task<bool> TryLockAsync(TKey key, Action action, TimeSpan timeout)
         {
-            var refCounter = SemaphoreSlims.GetOrAdd(key);
-            if (!await refCounter.SemaphoreSlim.WaitAsync(timeout).ConfigureAwait(false))
+            var releaser = GetOrAdd(key);
+            if (!await releaser.SemaphoreSlim.WaitAsync(timeout).ConfigureAwait(false))
             {
-                SemaphoreSlims.Release(refCounter);
+                Release(releaser);
                 return false;
             }
 
@@ -330,7 +410,7 @@ namespace AsyncKeyedLock
             }
             finally
             {
-                SemaphoreSlims.Release(refCounter);
+                Release(releaser);
             }
             return true;
         }
@@ -344,10 +424,10 @@ namespace AsyncKeyedLock
         /// <returns>False if timed out, true if it successfully entered.</returns>
         public async Task<bool> TryLockAsync(TKey key, Func<Task> task, TimeSpan timeout)
         {
-            var refCounter = SemaphoreSlims.GetOrAdd(key);
-            if (!await refCounter.SemaphoreSlim.WaitAsync(timeout).ConfigureAwait(false))
+            var releaser = GetOrAdd(key);
+            if (!await releaser.SemaphoreSlim.WaitAsync(timeout).ConfigureAwait(false))
             {
-                SemaphoreSlims.Release(refCounter);
+                Release(releaser);
                 return false;
             }
 
@@ -361,7 +441,7 @@ namespace AsyncKeyedLock
             }
             finally
             {
-                SemaphoreSlims.Release(refCounter);
+                Release(releaser);
             }
             return true;
         }
@@ -376,18 +456,18 @@ namespace AsyncKeyedLock
         /// <returns>False if timed out, true if it successfully entered.</returns>
         public async Task<bool> TryLockAsync(TKey key, Action action, int millisecondsTimeout, CancellationToken cancellationToken)
         {
-            var refCounter = SemaphoreSlims.GetOrAdd(key);
+            var releaser = GetOrAdd(key);
             try
             {
-                if (!await refCounter.SemaphoreSlim.WaitAsync(millisecondsTimeout).ConfigureAwait(false))
+                if (!await releaser.SemaphoreSlim.WaitAsync(millisecondsTimeout, cancellationToken).ConfigureAwait(false))
                 {
-                    SemaphoreSlims.Release(refCounter);
+                    Release(releaser);
                     return false;
                 }
             }
             catch (OperationCanceledException)
             {
-                SemaphoreSlims.Release(refCounter);
+                Release(releaser);
                 throw;
             }
 
@@ -401,7 +481,7 @@ namespace AsyncKeyedLock
             }
             finally
             {
-                SemaphoreSlims.Release(refCounter);
+                Release(releaser);
             }
             return true;
         }
@@ -416,18 +496,18 @@ namespace AsyncKeyedLock
         /// <returns>False if timed out, true if it successfully entered.</returns>
         public async Task<bool> TryLockAsync(TKey key, Func<Task> task, int millisecondsTimeout, CancellationToken cancellationToken)
         {
-            var refCounter = SemaphoreSlims.GetOrAdd(key);
+            var releaser = GetOrAdd(key);
             try
             {
-                if (!await refCounter.SemaphoreSlim.WaitAsync(millisecondsTimeout).ConfigureAwait(false))
+                if (!await releaser.SemaphoreSlim.WaitAsync(millisecondsTimeout, cancellationToken).ConfigureAwait(false))
                 {
-                    SemaphoreSlims.Release(refCounter);
+                    Release(releaser);
                     return false;
                 }
             }
             catch (OperationCanceledException)
             {
-                SemaphoreSlims.Release(refCounter);
+                Release(releaser);
                 throw;
             }
 
@@ -441,7 +521,7 @@ namespace AsyncKeyedLock
             }
             finally
             {
-                SemaphoreSlims.Release(refCounter);
+                Release(releaser);
             }
             return true;
         }
@@ -456,18 +536,18 @@ namespace AsyncKeyedLock
         /// <returns>False if timed out, true if it successfully entered.</returns>
         public async Task<bool> TryLockAsync(TKey key, Action action, TimeSpan timeout, CancellationToken cancellationToken)
         {
-            var refCounter = SemaphoreSlims.GetOrAdd(key);
+            var releaser = GetOrAdd(key);
             try
             {
-                if (!await refCounter.SemaphoreSlim.WaitAsync(timeout).ConfigureAwait(false))
+                if (!await releaser.SemaphoreSlim.WaitAsync(timeout, cancellationToken).ConfigureAwait(false))
                 {
-                    SemaphoreSlims.Release(refCounter);
+                    Release(releaser);
                     return false;
                 }
             }
             catch (OperationCanceledException)
             {
-                SemaphoreSlims.Release(refCounter);
+                Release(releaser);
                 throw;
             }
 
@@ -481,7 +561,7 @@ namespace AsyncKeyedLock
             }
             finally
             {
-                SemaphoreSlims.Release(refCounter);
+                Release(releaser);
             }
             return true;
         }
@@ -496,18 +576,18 @@ namespace AsyncKeyedLock
         /// <returns>False if timed out, true if it successfully entered.</returns>
         public async Task<bool> TryLockAsync(TKey key, Func<Task> task, TimeSpan timeout, CancellationToken cancellationToken)
         {
-            var refCounter = SemaphoreSlims.GetOrAdd(key);
+            var releaser = GetOrAdd(key);
             try
             {
-                if (!await refCounter.SemaphoreSlim.WaitAsync(timeout).ConfigureAwait(false))
+                if (!await releaser.SemaphoreSlim.WaitAsync(timeout, cancellationToken).ConfigureAwait(false))
                 {
-                    SemaphoreSlims.Release(refCounter);
+                    Release(releaser);
                     return false;
                 }
             }
             catch (OperationCanceledException)
             {
-                SemaphoreSlims.Release(refCounter);
+                Release(releaser);
                 throw;
             }
 
@@ -521,7 +601,7 @@ namespace AsyncKeyedLock
             }
             finally
             {
-                SemaphoreSlims.Release(refCounter);
+                Release(releaser);
             }
             return true;
         }
@@ -535,9 +615,9 @@ namespace AsyncKeyedLock
         /// <returns>A disposable value.</returns>
         public async Task<IDisposable> LockAsync(TKey key)
         {
-            var referenceCounter = SemaphoreSlims.GetOrAdd(key);
-            await referenceCounter.SemaphoreSlim.WaitAsync().ConfigureAwait(false);
-            return referenceCounter.Releaser;
+            var releaser = GetOrAdd(key);
+            await releaser.SemaphoreSlim.WaitAsync().ConfigureAwait(false);
+            return releaser;
         }
 
         /// <summary>
@@ -548,17 +628,17 @@ namespace AsyncKeyedLock
         /// <returns>A disposable value.</returns>
         public async Task<IDisposable> LockAsync(TKey key, CancellationToken cancellationToken)
         {
-            var referenceCounter = SemaphoreSlims.GetOrAdd(key);
+            var releaser = GetOrAdd(key);
             try
             {
-                await referenceCounter.SemaphoreSlim.WaitAsync(cancellationToken).ConfigureAwait(false);
+                await releaser.SemaphoreSlim.WaitAsync(cancellationToken).ConfigureAwait(false);
             }
             catch (OperationCanceledException)
             {
-                SemaphoreSlims.Release(referenceCounter);
+                Release(releaser);
                 throw;
             }
-            return referenceCounter.Releaser;
+            return releaser;
         }
 
         /// <summary>
@@ -569,9 +649,9 @@ namespace AsyncKeyedLock
         /// <returns>A disposable value.</returns>
         public async Task<IDisposable> LockAsync(TKey key, int millisecondsTimeout)
         {
-            var referenceCounter = SemaphoreSlims.GetOrAdd(key);
-            await referenceCounter.SemaphoreSlim.WaitAsync(millisecondsTimeout).ConfigureAwait(false);
-            return referenceCounter.Releaser;
+            var releaser = GetOrAdd(key);
+            await releaser.SemaphoreSlim.WaitAsync(millisecondsTimeout).ConfigureAwait(false);
+            return releaser;
         }
 
         /// <summary>
@@ -582,9 +662,9 @@ namespace AsyncKeyedLock
         /// <returns>A disposable value.</returns>
         public async Task<IDisposable> LockAsync(TKey key, TimeSpan timeout)
         {
-            var referenceCounter = SemaphoreSlims.GetOrAdd(key);
-            await referenceCounter.SemaphoreSlim.WaitAsync(timeout).ConfigureAwait(false);
-            return referenceCounter.Releaser;
+            var releaser = GetOrAdd(key);
+            await releaser.SemaphoreSlim.WaitAsync(timeout).ConfigureAwait(false);
+            return releaser;
         }
 
         /// <summary>
@@ -596,17 +676,17 @@ namespace AsyncKeyedLock
         /// <returns>A disposable value.</returns>
         public async Task<IDisposable> LockAsync(TKey key, int millisecondsTimeout, CancellationToken cancellationToken)
         {
-            var referenceCounter = SemaphoreSlims.GetOrAdd(key);
+            var releaser = GetOrAdd(key);
             try
             {
-                await referenceCounter.SemaphoreSlim.WaitAsync(millisecondsTimeout, cancellationToken).ConfigureAwait(false);
+                await releaser.SemaphoreSlim.WaitAsync(millisecondsTimeout, cancellationToken).ConfigureAwait(false);
             }
             catch (OperationCanceledException)
             {
-                SemaphoreSlims.Release(referenceCounter);
+                Release(releaser);
                 throw;
             }
-            return referenceCounter.Releaser;
+            return releaser;
         }
 
         /// <summary>
@@ -618,17 +698,17 @@ namespace AsyncKeyedLock
         /// <returns>A disposable value.</returns>
         public async Task<IDisposable> LockAsync(TKey key, TimeSpan timeout, CancellationToken cancellationToken)
         {
-            var referenceCounter = SemaphoreSlims.GetOrAdd(key);
+            var releaser = GetOrAdd(key);
             try
             {
-                await referenceCounter.SemaphoreSlim.WaitAsync(timeout, cancellationToken).ConfigureAwait(false);
+                await releaser.SemaphoreSlim.WaitAsync(timeout, cancellationToken).ConfigureAwait(false);
             }
             catch (OperationCanceledException)
             {
-                SemaphoreSlims.Release(referenceCounter);
+                Release(releaser);
                 throw;
             }
-            return referenceCounter.Releaser;
+            return releaser;
         }
         #endregion
 
@@ -639,7 +719,7 @@ namespace AsyncKeyedLock
         /// <returns><see langword="true"/> if the key is in use; otherwise, false.</returns>
         public bool IsInUse(TKey key)
         {
-            return SemaphoreSlims.ContainsKey(key);
+            return _dictionary.ContainsKey(key);
         }
 
         /// <summary>
@@ -647,7 +727,7 @@ namespace AsyncKeyedLock
         /// </summary>
         /// <param name="key">The key requests are locked on.</param>
         /// <returns>The number of requests.</returns>
-        [Obsolete("This method should not longer be used as it is confusing with Semaphore terminology. Use <see cref=\"GetCurrentCount\"/> or <see cref=\"GetRemaningCount\"/> instead depending what you want to do.")]
+        [Obsolete("This method should not longer be used as it is confusing with Semaphore terminology. Use <see cref=\"GetCurrentCount\"/> or <see cref=\"GetRemaningCount\"/> instead depending what you want to do.", true)]
         public int GetCount(TKey key)
         {
             return GetRemainingCount(key);
@@ -660,9 +740,9 @@ namespace AsyncKeyedLock
         /// <returns>The number of requests concurrently locked for a given key.</returns>
         public int GetRemainingCount(TKey key)
         {
-            if (SemaphoreSlims.TryGetValue(key, out var referenceCounter))
+            if (_dictionary.TryGetValue(key, out var releaser))
             {
-                return referenceCounter.ReferenceCount;
+                return releaser.ReferenceCount;
             }
             return 0;
         }
@@ -675,21 +755,6 @@ namespace AsyncKeyedLock
         public int GetCurrentCount(TKey key)
         {
             return MaxCount - GetRemainingCount(key);
-        }
-
-        /// <summary>
-        /// Forces requests to be released from the semaphore.
-        /// </summary>
-        /// <param name="key">The key requests are locked on.</param>
-        /// <returns><see langword="true"/> if the key is successfully found and removed; otherwise, false.</returns>
-        public bool ForceRelease(TKey key)
-        {
-            if (SemaphoreSlims.TryGetValue(key, out var referenceCounter))
-            {
-                referenceCounter.SemaphoreSlim.Release(referenceCounter.ReferenceCount);
-                return SemaphoreSlims.TryRemove(key, out _);
-            }
-            return false;
         }
     }
 }

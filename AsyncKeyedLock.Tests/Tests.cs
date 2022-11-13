@@ -8,14 +8,15 @@ namespace AsyncKeyedLock.Tests
         [Fact]
         public async Task BasicTest()
         {
-            var range = 5000;
+            var locks = 5000;
+            var concurrency = 50;
             var asyncKeyedLocker = new AsyncKeyedLocker();
             var concurrentQueue = new ConcurrentQueue<(bool entered, int key)>();
 
-            var tasks = Enumerable.Range(1, range * 5)
+            var tasks = Enumerable.Range(1, locks * concurrency)
                 .Select(async i =>
                 {
-                    var key = Convert.ToInt32(Math.Ceiling((double)i / 5));
+                    var key = Convert.ToInt32(Math.Ceiling((double)i / concurrency));
                     using (await asyncKeyedLocker.LockAsync(key))
                     {
                         concurrentQueue.Enqueue((true, key));
@@ -25,11 +26,11 @@ namespace AsyncKeyedLock.Tests
                 });
             await Task.WhenAll(tasks.AsParallel());
 
-            bool valid = true;
+            bool valid = concurrentQueue.Count == locks * concurrency * 2;
 
             var entered = new HashSet<int>();
 
-            while (!concurrentQueue.IsEmpty)
+            while (valid && !concurrentQueue.IsEmpty)
             {
                 concurrentQueue.TryDequeue(out var result);
                 if (result.entered)
@@ -51,19 +52,22 @@ namespace AsyncKeyedLock.Tests
                     entered.Remove(result.key);
                 }
             }
+
+            Assert.True(valid);
         }
 
         [Fact]
         public async Task BasicTestGenerics()
         {
-            var range = 5000;
+            var locks = 5000;
+            var concurrency = 50;
             var asyncKeyedLocker = new AsyncKeyedLocker<int>();
             var concurrentQueue = new ConcurrentQueue<(bool entered, int key)>();
 
-            var tasks = Enumerable.Range(1, range * 5)
+            var tasks = Enumerable.Range(1, locks * concurrency)
                 .Select(async i =>
                 {
-                    var key = Convert.ToInt32(Math.Ceiling((double)i / 5));
+                    var key = Convert.ToInt32(Math.Ceiling((double)i / concurrency));
                     using (await asyncKeyedLocker.LockAsync(key))
                     {
                         concurrentQueue.Enqueue((true, key));
@@ -73,11 +77,11 @@ namespace AsyncKeyedLock.Tests
                 });
             await Task.WhenAll(tasks.AsParallel());
 
-            bool valid = true;
+            bool valid = concurrentQueue.Count == locks * concurrency * 2;
 
             var entered = new HashSet<int>();
 
-            while (!concurrentQueue.IsEmpty)
+            while (valid && !concurrentQueue.IsEmpty)
             {
                 concurrentQueue.TryDequeue(out var result);
                 if (result.entered)
@@ -99,6 +103,59 @@ namespace AsyncKeyedLock.Tests
                     entered.Remove(result.key);
                 }
             }
+
+            Assert.True(valid);
+        }
+
+        [Fact]
+        public async Task BasicTestGenericsString()
+        {
+            var locks = 5000;
+            var concurrency = 50;
+            var asyncKeyedLocker = new AsyncKeyedLocker<string>();
+            var concurrentQueue = new ConcurrentQueue<(bool entered, string key)>();
+
+            var tasks = Enumerable.Range(1, locks * concurrency)
+                .Select(async i =>
+                {
+                    var key = Convert.ToInt32(Math.Ceiling((double)i / 5)).ToString();
+                    using (await asyncKeyedLocker.LockAsync(key))
+                    {
+                        concurrentQueue.Enqueue((true, key));
+                        await Task.Delay(100);
+                        concurrentQueue.Enqueue((false, key));
+                    }
+                });
+            await Task.WhenAll(tasks.AsParallel());
+
+            bool valid = concurrentQueue.Count == locks * concurrency * 2;
+
+            var entered = new HashSet<string>();
+
+            while (valid && !concurrentQueue.IsEmpty)
+            {
+                concurrentQueue.TryDequeue(out var result);
+                if (result.entered)
+                {
+                    if (entered.Contains(result.key))
+                    {
+                        valid = false;
+                        break;
+                    }
+                    entered.Add(result.key);
+                }
+                else
+                {
+                    if (!entered.Contains(result.key))
+                    {
+                        valid = false;
+                        break;
+                    }
+                    entered.Remove(result.key);
+                }
+            }
+
+            Assert.True(valid);
         }
 
         [Fact]

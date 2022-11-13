@@ -3,32 +3,45 @@ using System.Threading;
 
 namespace AsyncKeyedLock
 {
-    /// <summary>
-    /// AsyncKeyedLock releaser class
-    /// </summary>
-    /// <typeparam name="TKey"></typeparam>
-    public sealed class AsyncKeyedLockReleaser<TKey> : IDisposable
+    internal class AsyncKeyedLockReleaser<TKey> : IAsyncKeyedLockReleaser<TKey>
     {
-        private readonly AsyncKeyedLockerDictionary<TKey> _asyncKeyedLockerDictionary;
-        private readonly AsyncKeyedLockReferenceCounter<TKey> _referenceCounter;
+        private readonly TKey _key;
+        public TKey Key => _key;
 
-        /// <summary>
-        /// Constructor for AsyncKeyedLock releaser.
-        /// </summary>
-        /// <param name="asyncKeyedLockerDictionary">The dictionary instance.</param>
-        /// <param name="referenceCounter">The reference counter instance.</param>
-        public AsyncKeyedLockReleaser(AsyncKeyedLockerDictionary<TKey> asyncKeyedLockerDictionary, AsyncKeyedLockReferenceCounter<TKey> referenceCounter)
+        private int _referenceCount = 1;
+
+        public int ReferenceCount
         {
-            _asyncKeyedLockerDictionary = asyncKeyedLockerDictionary;
-            _referenceCounter = referenceCounter;
+            get => _referenceCount;
+            set => _referenceCount = value;
         }
 
-        /// <summary>
-        /// Dispose and release.
-        /// </summary>     
+        private readonly SemaphoreSlim _semaphoreSlim;
+        public SemaphoreSlim SemaphoreSlim => _semaphoreSlim;
+
+        private readonly AsyncKeyedLockerDictionary<TKey> _dictionary;
+
+        public AsyncKeyedLockReleaser(TKey key, SemaphoreSlim semaphoreSlim, AsyncKeyedLockerDictionary<TKey> dictionary)
+        {
+            _key = key;
+            _semaphoreSlim = semaphoreSlim;
+            _dictionary = dictionary;
+        }
+
+        public bool TryIncrement()
+        {
+            if (Monitor.TryEnter(this))
+            {
+                _referenceCount++;
+                Monitor.Exit(this);
+                return true;
+            }
+            return false;
+        }
+
         public void Dispose()
         {
-            _asyncKeyedLockerDictionary.Release(_referenceCounter);
+            _dictionary.Release(this);
         }
     }
 }

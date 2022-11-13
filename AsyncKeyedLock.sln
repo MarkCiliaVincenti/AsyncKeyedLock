@@ -5,7 +5,7 @@ VisualStudioVersion = 17.1.31903.286
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AsyncKeyedLock", "AsyncKeyedLock\AsyncKeyedLock.csproj", "{0A7CB651-70B8-4C5C-8647-31B211273EAE}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AsyncKeyedLock.Tests", "AsyncKeyedLock.Tests\AsyncKeyedLock.Tests.csproj", "{0402C044-81BB-4029-BE63-168D3DFABA99}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AsyncKeyedLock.Tests", "AsyncKeyedLock.Tests\AsyncKeyedLock.Tests.csproj", "{0402C044-81BB-4029-BE63-168D3DFABA99}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

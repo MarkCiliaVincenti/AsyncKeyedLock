@@ -1,28 +1,25 @@
 # ![AsyncKeyedLock](https://raw.githubusercontent.com/MarkCiliaVincenti/AsyncKeyedLock/master/logo32.png) AsyncKeyedLock
 [![GitHub Workflow Status](https://img.shields.io/github/workflow/status/MarkCiliaVincenti/AsyncKeyedLock/.NET?logo=github&style=for-the-badge)](https://actions-badge.atrox.dev/MarkCiliaVincenti/AsyncKeyedLock/goto?ref=master) [![Nuget](https://img.shields.io/nuget/v/AsyncKeyedLock?label=AsyncKeyedLock&logo=nuget&style=for-the-badge)](https://www.nuget.org/packages/AsyncKeyedLock) [![Nuget](https://img.shields.io/nuget/dt/AsyncKeyedLock?logo=nuget&style=for-the-badge)](https://www.nuget.org/packages/AsyncKeyedLock)
 
-An asynchronous .NET Standard 2.0 library that allows you to lock based on a key (keyed semaphores), only allowing a defined number of concurrent threads that share the same key.
+An asynchronous .NET Standard 2.0 library that allows you to lock based on a key (keyed semaphores), limiting concurrent threads sharing the same key to a specified number.
 
-For example, if you're processing transactions, you may want to limit to only one transaction per user so that the order is maintained, but meanwhile allowing parallel processing of multiple users.
-
-## Benchmarks
-Tests show that AsyncKeyedLock is [faster than similar libraries, while consuming less memory](https://github.com/MarkCiliaVincenti/AsyncKeyedLockBenchmarks).
+For example, suppose you were processing financial transactions, but while working on one account you wouldn't want to concurrently process a transaction for the same account. Of course, you could just add a normal lock, but then you can only process one transaction at a time. If you're processing a transaction for account A, you may want to also be processing a separate transaction for account B. That's where AsyncKeyedLock comes in: it allows you to lock but only if the key matches.
 
 ## Installation
 The recommended means is to use [NuGet](https://www.nuget.org/packages/AsyncKeyedLock), but you could also download the source code from [here](https://github.com/MarkCiliaVincenti/AsyncKeyedLock/releases).
 
 ## Usage
-You need to start off with creating an instance of `AsyncKeyedLocker` or `AsyncKeyedLocker<T>`. The recommended way is to use the latter, which consumes less memory. The former uses `object` and may be slightly faster, but at the expense of higher memory usage.
+You need to start off with creating an instance of `AsyncKeyedLocker` or `AsyncKeyedLocker<T>`. The recommended way is to use the latter, which is faster and consumes less memory. The former uses `object` and can be used to mix different types of objects.
 
 ### Dependency injection
 ```csharp
-services.AddSingleton<IAsyncKeyedLocker, AsyncKeyedLocker>();
+services.AddSingleton<AsyncKeyedLocker>();
 ```
 
-or:
+or (recommended):
 
 ```csharp
-services.AddSingleton<IAsyncKeyedLocker<string>, AsyncKeyedLocker<string>>();
+services.AddSingleton<AsyncKeyedLocker<string>>();
 ```
 
 ### Variable instantiation
@@ -30,7 +27,7 @@ services.AddSingleton<IAsyncKeyedLocker<string>, AsyncKeyedLocker<string>>();
 var asyncKeyedLocker = new AsyncKeyedLocker();
 ```
 
-or:
+or (recommended):
 
 ```csharp
 var asyncKeyedLocker = new AsyncKeyedLocker<string>();
@@ -41,6 +38,8 @@ or if you would like to set the maximum number of requests for the semaphore tha
 ```csharp
 var asyncKeyedLocker = new AsyncKeyedLocker<string>(2);
 ```
+
+There are also AsyncKeyedLocker<TKey>() constructors which accept the parameters of ConcurrentDictionary, namely the concurrency level, the capacity and the IEqualityComparer<TKey> to use.
 
 ### Locking
 ```csharp
@@ -67,11 +66,6 @@ int myCurrentCount = asyncKeyedLocker.GetCurrentCount(myObject);
 If you would like to check whether any request is using a specific key:
 ```csharp
 bool isInUse = asyncKeyedLocker.IsInUse(myObject);
-```
-
-And if for some reason you need to force release the requests in the semaphore for a key:
-```csharp
-asyncKeyedLocker.ForceRelease(myObject);
 ```
 
 ## Credits

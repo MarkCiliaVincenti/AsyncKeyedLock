@@ -1,78 +1,77 @@
-﻿using System;
-using System.Collections.Concurrent;
+﻿using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.Reflection;
-using System.Text;
 using System.Threading;
 
 namespace AsyncKeyedLock
 {
-    /// <summary>
-    /// AsyncKeyedLockerDictionary class
-    /// </summary>
-    /// <typeparam name="TKey">The type for the dictionary key</typeparam>
-    public sealed class AsyncKeyedLockerDictionary<TKey> : ConcurrentDictionary<TKey, AsyncKeyedLockReferenceCounter<TKey>>
+    internal sealed class AsyncKeyedLockerDictionary<TKey> : ConcurrentDictionary<TKey, AsyncKeyedLockReleaser<TKey>>
     {
-        private readonly int _maxCount;
+        private readonly int _maxCount = 1;
 
-        /// <summary>
-        /// Constructor for AsyncKeyedLockerDictionary
-        /// </summary>
-        /// <param name="maxCount">The number of semaphore counts to allow.</param>
-        public AsyncKeyedLockerDictionary(int maxCount)
+        public AsyncKeyedLockerDictionary() : base()
+        {
+        }
+
+        public AsyncKeyedLockerDictionary(int maxCount) : base()
         {
             _maxCount = maxCount;
         }
 
-        /// <summary>
-        /// Provider for AsyncKeyedLockReferenceCounter
-        /// </summary>
-        /// <param name="key">The key for which a reference counter should be obtained.</param>
-        /// <returns>A created or retrieved reference counter</returns>
-        public AsyncKeyedLockReferenceCounter<TKey> GetOrAdd(TKey key)
+        public AsyncKeyedLockerDictionary(IEqualityComparer<TKey> comparer) : base(comparer)
         {
-            if (TryGetValue(key, out var firstReferenceCounter) && Monitor.TryEnter(firstReferenceCounter))
-            {
-                ++firstReferenceCounter.ReferenceCount;
-                Monitor.Exit(firstReferenceCounter);
-                return firstReferenceCounter;
-            }
-
-            firstReferenceCounter = new AsyncKeyedLockReferenceCounter<TKey>(key, new SemaphoreSlim(_maxCount), this);
-            if (TryAdd(key, firstReferenceCounter))
-            {
-                return firstReferenceCounter;
-            }
-
-            while (true)
-            {
-                if (TryGetValue(key, out var referenceCounter) && Monitor.TryEnter(referenceCounter))
-                {
-                    ++referenceCounter.ReferenceCount;
-                    Monitor.Exit(referenceCounter);
-                    return referenceCounter;
-                }
-
-                if (TryAdd(key, firstReferenceCounter))
-                {
-                    return firstReferenceCounter;
-                }
-            }
         }
 
-        /// <summary>
-        /// Dispose and release.
-        /// </summary>
-        /// <param name="referenceCounter">The reference counter instance.</param>
-        public void Release(AsyncKeyedLockReferenceCounter<TKey> referenceCounter)
+        public AsyncKeyedLockerDictionary(int concurrencyLevel, int capacity) : base(concurrencyLevel, capacity)
         {
-            while (!Monitor.TryEnter(referenceCounter)) { }
+        }
 
-            var remainingConsumers = --referenceCounter.ReferenceCount;
+        public AsyncKeyedLockerDictionary(int maxCount, int concurrencyLevel, int capacity) : base(concurrencyLevel, capacity)
+        {
+            _maxCount = maxCount;
+        }
 
-            if (remainingConsumers == 0)
+        public AsyncKeyedLockerDictionary(int concurrencyLevel, int capacity, IEqualityComparer<TKey> comparer) : base(concurrencyLevel, capacity, comparer)
+        {
+        }
+
+        public AsyncKeyedLockerDictionary(int maxCount, int concurrencyLevel, int capacity, IEqualityComparer<TKey> comparer) : base(concurrencyLevel, capacity, comparer)
+        {
+            _maxCount = maxCount;
+        }
+
+        public AsyncKeyedLockReleaser<TKey> GetOrAdd(TKey key)
+        {
+            if (TryGetValue(key, out var referenceCounter) && referenceCounter.TryIncrement())
+            {
+                return referenceCounter;
+            }
+
+            var toAddReferenceCounter = new AsyncKeyedLockReleaser<TKey>(key, new SemaphoreSlim(_maxCount), this);
+            if (TryAdd(key, toAddReferenceCounter))
+            {
+                return toAddReferenceCounter;
+            }
+
+            while (!TryGetValue(key, out referenceCounter) && referenceCounter.TryIncrement())
+            {
+                if (TryAdd(key, toAddReferenceCounter))
+                {
+                    return toAddReferenceCounter;
+                }
+            }
+
+            return referenceCounter;
+        }
+
+        public void Release(IAsyncKeyedLockReleaser<TKey> referenceCounter)
+        {
+            Monitor.Enter(referenceCounter);
+
+            if (--referenceCounter.ReferenceCount == 0)
             {
                 TryRemove(referenceCounter.Key, out _);
+                Monitor.Exit(referenceCounter);
+                return;
             }
 
             Monitor.Exit(referenceCounter);
