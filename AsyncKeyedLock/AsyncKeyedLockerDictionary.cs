@@ -52,7 +52,7 @@ namespace AsyncKeyedLock
                 return toAddReferenceCounter;
             }
 
-            while (!TryGetValue(key, out referenceCounter) && referenceCounter.TryIncrement())
+            while (!(TryGetValue(key, out referenceCounter) && referenceCounter.TryIncrement()))
             {
                 if (TryAdd(key, toAddReferenceCounter))
                 {
