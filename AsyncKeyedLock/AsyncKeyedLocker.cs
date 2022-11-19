@@ -193,10 +193,10 @@ namespace AsyncKeyedLock
         }
 
         /// <summary>
-        /// Provider for <see cref="IAsyncKeyedLockReleaser{TKey}"/>
+        /// Provider for <see cref="AsyncKeyedLockReleaser{TKey}"/>
         /// </summary>
         /// <param name="key">The key for which a releaser should be obtained.</param>
-        /// <returns>A created or retrieved <see cref="IAsyncKeyedLockReleaser{TKey}"/>.</returns>
+        /// <returns>A created or retrieved <see cref="AsyncKeyedLockReleaser{TKey}"/>.</returns>
         public AsyncKeyedLockReleaser<TKey> GetOrAdd(TKey key) => _dictionary.GetOrAdd(key);
         private void Release(AsyncKeyedLockReleaser<TKey> releaser) => _dictionary.Release(releaser);
 

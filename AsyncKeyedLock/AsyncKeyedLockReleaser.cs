@@ -46,7 +46,7 @@ namespace AsyncKeyedLock
             _dictionary = dictionary;
         }
 
-        public bool TryIncrement()
+        internal bool TryIncrement()
         {
             if (Monitor.TryEnter(this))
             {
