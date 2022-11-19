@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Threading;
 using System.Threading.Tasks;
@@ -6,43 +7,93 @@ using System.Threading.Tasks;
 namespace AsyncKeyedLock
 {
     /// <summary>
-    /// AsyncKeyedLock class, inspired by <see href="https://stackoverflow.com/questions/31138179/asynchronous-locking-based-on-a-key/31194647#31194647">Stephen Cleary's solution</see>.
+    /// AsyncKeyedLock class, originally inspired by <see href="https://stackoverflow.com/questions/31138179/asynchronous-locking-based-on-a-key/31194647#31194647">Stephen Cleary's solution</see>.
     /// </summary>
     public sealed class AsyncKeyedLocker : AsyncKeyedLocker<object>
     {
         /// <summary>
-        /// Constructor for AsyncKeyedLock.
+        /// Initializes a new instance of the <see cref="AsyncKeyedLocker" /> class accepting any object as key, sets the <see cref="SemaphoreSlim"/> initial count to 1, has the default concurrency level, has the default initial capacity, and uses the default comparer for the key type.
         /// </summary>
-        [Obsolete("Unless you're mixing different types of objects, it is recommended to use the generics version AsyncKeyedLocker<T>.")]
+        [Obsolete("Unless you're mixing different types of objects, it is recommended to use the generic version AsyncKeyedLocker<T>.")]
         public AsyncKeyedLocker() : base()
-        { }
+        {
+        }
 
         /// <summary>
-        /// Constructor for AsyncKeyedLock.
+        /// Initializes a new instance of the <see cref="AsyncKeyedLocker" /> class accepting any object as key, uses the specified <see cref="AsyncKeyedLockOptions"/>, has the default concurrency level, has the default initial capacity, and uses the default comparer for the key type.
         /// </summary>
-        /// <param name="maxCount">The maximum number of requests for the semaphore that can be granted concurrently. Defaults to 1.</param>
-        [Obsolete("Unless you're mixing different types of objects, it is recommended to use the generics version AsyncKeyedLocker<T>.")]
-        public AsyncKeyedLocker(int maxCount) : base(maxCount)
-        { }
+        /// <param name="options">The <see cref="AsyncKeyedLockOptions"/> to use.</param>
+        [Obsolete("Unless you're mixing different types of objects, it is recommended to use the generic version AsyncKeyedLocker<T>.")]
+        public AsyncKeyedLocker(AsyncKeyedLockOptions options) : base(options)
+        {
+        }
 
         /// <summary>
-        /// Constructor for AsyncKeyedLock.
+        /// Initializes a new instance of the <see cref="AsyncKeyedLocker{TKey}" /> class accepting any object as key, sets the <see cref="SemaphoreSlim"/> initial count to 1, has the default concurrency level, has the default initial capacity, and uses the specified <see cref="IEqualityComparer{TKey}"/>.
         /// </summary>
-        /// <param name="concurrencyLevel">The estimated number of threads that will update the <see cref="AsyncKeyedLockerDictionary{TKey}"/> concurrently.</param>
-        /// <param name="capacity">The initial number of elements that the <see cref="AsyncKeyedLockerDictionary{TKey}"/> can contain.</param>
-        [Obsolete("Unless you're mixing different types of objects, it is recommended to use the generics version AsyncKeyedLocker<T>.")]
+        /// <param name="comparer">The equality comparison implementation to use when comparing keys.</param>
+        /// <exception cref="ArgumentNullException">comparer is null</exception>
+        [Obsolete("Unless you're mixing different types of objects, it is recommended to use the generic version AsyncKeyedLocker<T>.")]
+        public AsyncKeyedLocker(IEqualityComparer<object> comparer) : base(comparer)
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="AsyncKeyedLocker{TKey}" /> class accepting any object as key, uses the specified <see cref="AsyncKeyedLockOptions"/>, has the default concurrency level, has the default initial capacity, and uses the specified <see cref="IEqualityComparer{TKey}"/>.
+        /// </summary>
+        /// <param name="options">The <see cref="AsyncKeyedLockOptions"/> to use.</param>
+        /// <param name="comparer">The equality comparison implementation to use when comparing keys.</param>
+        /// <exception cref="ArgumentNullException">comparer is null</exception>
+        [Obsolete("Unless you're mixing different types of objects, it is recommended to use the generic version AsyncKeyedLocker<T>.")]
+        public AsyncKeyedLocker(AsyncKeyedLockOptions options, IEqualityComparer<object> comparer) : base(options, comparer)
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="AsyncKeyedLocker{TKey}" /> class accepting any object as key, sets the <see cref="SemaphoreSlim"/> initial count to 1, has the specified concurrency level and capacity, and uses the default comparer for the key type.
+        /// </summary>
+        /// <param name="concurrencyLevel">The estimated number of threads that will update the <see cref="AsyncKeyedLocker{TKey}"/> concurrently.</param>
+        /// <param name="capacity">The initial number of elements that the <see cref="AsyncKeyedLocker{TKey}"/> can contain.</param>
+        [Obsolete("Unless you're mixing different types of objects, it is recommended to use the generic version AsyncKeyedLocker<T>.")]
         public AsyncKeyedLocker(int concurrencyLevel, int capacity) : base(concurrencyLevel, capacity)
-        { }
+        {
+        }
 
         /// <summary>
-        /// Constructor for AsyncKeyedLock.
+        /// Initializes a new instance of the <see cref="AsyncKeyedLocker{TKey}" /> class accepting any object as key, uses the specified <see cref="AsyncKeyedLockOptions"/>, has the specified concurrency level and capacity, and uses the default comparer for the key type.
         /// </summary>
-        /// <param name="maxCount">The maximum number of requests for the semaphore that can be granted concurrently. Defaults to 1.</param>
-        /// <param name="concurrencyLevel">The estimated number of threads that will update the <see cref="AsyncKeyedLockerDictionary{TKey}"/> concurrently.</param>
-        /// <param name="capacity">The initial number of elements that the <see cref="AsyncKeyedLockerDictionary{TKey}"/> can contain.</param>
-        [Obsolete("Unless you're mixing different types of objects, it is recommended to use the generics version AsyncKeyedLocker<T>.")]
-        public AsyncKeyedLocker(int maxCount, int concurrencyLevel, int capacity) : base (maxCount, concurrencyLevel, capacity)
-        { }
+        /// <param name="options">The <see cref="AsyncKeyedLockOptions"/> to use.</param>
+        /// <param name="concurrencyLevel">The estimated number of threads that will update the <see cref="AsyncKeyedLocker{TKey}"/> concurrently.</param>
+        /// <param name="capacity">The initial number of elements that the <see cref="AsyncKeyedLocker{TKey}"/> can contain.</param>
+        [Obsolete("Unless you're mixing different types of objects, it is recommended to use the generic version AsyncKeyedLocker<T>.")]
+        public AsyncKeyedLocker(AsyncKeyedLockOptions options, int concurrencyLevel, int capacity) : base(options, concurrencyLevel, capacity)
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="AsyncKeyedLocker{TKey}" /> class accepting any object as key, uses the specified <see cref="SemaphoreSlim"/> initial count, has the specified concurrency level and capacity, and uses the default comparer for the key type.
+        /// </summary>
+        /// <param name="concurrencyLevel">The estimated number of threads that will update the <see cref="AsyncKeyedLocker{TKey}"/> concurrently.</param>
+        /// <param name="capacity">The initial number of elements that the <see cref="AsyncKeyedLocker{TKey}"/> can contain.</param>
+        /// <param name="comparer">The equality comparison implementation to use when comparing keys.</param>
+        /// <exception cref="ArgumentNullException">comparer is null</exception>
+        [Obsolete("Unless you're mixing different types of objects, it is recommended to use the generic version AsyncKeyedLocker<T>.")]
+        public AsyncKeyedLocker(int concurrencyLevel, int capacity, IEqualityComparer<object> comparer) : base(concurrencyLevel, capacity, comparer)
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="AsyncKeyedLocker{TKey}" /> class accepting any object as key, uses the specified <see cref="AsyncKeyedLockOptions"/>, has the specified concurrency level and capacity, and uses the default comparer for the key type.
+        /// </summary>
+        /// <param name="options">The <see cref="AsyncKeyedLockOptions"/> to use.</param>
+        /// <param name="concurrencyLevel">The estimated number of threads that will update the <see cref="AsyncKeyedLocker{TKey}"/> concurrently.</param>
+        /// <param name="capacity">The initial number of elements that the <see cref="AsyncKeyedLocker{TKey}"/> can contain.</param>
+        /// <param name="comparer">The equality comparison implementation to use when comparing keys.</param>
+        /// <exception cref="ArgumentNullException">comparer is null</exception>
+        [Obsolete("Unless you're mixing different types of objects, it is recommended to use the generic version AsyncKeyedLocker<T>.")]
+        public AsyncKeyedLocker(AsyncKeyedLockOptions options, int concurrencyLevel, int capacity, IEqualityComparer<object> comparer) : base(options, concurrencyLevel, capacity, comparer)
+        {
+        }
     }
 
     /// <summary>
@@ -55,7 +106,7 @@ namespace AsyncKeyedLock
         /// <summary>
         /// The maximum number of requests for the semaphore that can be granted concurrently. Defaults to 1.
         /// </summary>
-        public int MaxCount { get; internal set; } = 1;
+        public int MaxCount => _dictionary.MaxCount;
 
         /// <summary>
         /// Initializes a new instance of the <see cref="AsyncKeyedLocker{TKey}" /> class, sets the <see cref="SemaphoreSlim"/> initial count to 1, has the default concurrency level, has the default initial capacity, and uses the default comparer for the key type.
@@ -66,13 +117,12 @@ namespace AsyncKeyedLock
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="AsyncKeyedLocker{TKey}" /> class, uses the specified <see cref="SemaphoreSlim"/> initial count, has the default concurrency level, has the default initial capacity, and uses the default comparer for the key type.
+        /// Initializes a new instance of the <see cref="AsyncKeyedLocker{TKey}" /> class, uses the specified <see cref="AsyncKeyedLockOptions"/>, has the default concurrency level, has the default initial capacity, and uses the default comparer for the key type.
         /// </summary>
-        /// <param name="maxCount">The <see cref="SemaphoreSlim"/> initial count. Defaults to 1.</param>
-        public AsyncKeyedLocker(int maxCount)
+        /// <param name="options">The <see cref="AsyncKeyedLockOptions"/> to use.</param>
+        public AsyncKeyedLocker(AsyncKeyedLockOptions options)
         {
-            MaxCount = maxCount;
-            _dictionary = new AsyncKeyedLockerDictionary<TKey>(maxCount);
+            _dictionary = new AsyncKeyedLockerDictionary<TKey>(options);
         }
 
         /// <summary>
@@ -86,6 +136,17 @@ namespace AsyncKeyedLock
         }
 
         /// <summary>
+        /// Initializes a new instance of the <see cref="AsyncKeyedLocker{TKey}" /> class, uses the specified <see cref="AsyncKeyedLockOptions"/>, has the default concurrency level, has the default initial capacity, and uses the specified <see cref="IEqualityComparer{TKey}"/>.
+        /// </summary>
+        /// <param name="options">The <see cref="AsyncKeyedLockOptions"/> to use.</param>
+        /// <param name="comparer">The equality comparison implementation to use when comparing keys.</param>
+        /// <exception cref="ArgumentNullException">comparer is null</exception>
+        public AsyncKeyedLocker(AsyncKeyedLockOptions options, IEqualityComparer<TKey> comparer)
+        {
+            _dictionary = new AsyncKeyedLockerDictionary<TKey>(options, comparer);
+        }
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="AsyncKeyedLocker{TKey}" /> class, sets the <see cref="SemaphoreSlim"/> initial count to 1, has the specified concurrency level and capacity, and uses the default comparer for the key type.
         /// </summary>
         /// <param name="concurrencyLevel">The estimated number of threads that will update the <see cref="AsyncKeyedLocker{TKey}"/> concurrently.</param>
@@ -96,15 +157,14 @@ namespace AsyncKeyedLock
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="AsyncKeyedLocker{TKey}" /> class, uses the specified <see cref="SemaphoreSlim"/> initial count, has the specified concurrency level and capacity, and uses the default comparer for the key type.
+        /// Initializes a new instance of the <see cref="AsyncKeyedLocker{TKey}" /> class, uses the specified <see cref="AsyncKeyedLockOptions"/>, has the specified concurrency level and capacity, and uses the default comparer for the key type.
         /// </summary>
-        /// <param name="maxCount">The maximum number of requests for the semaphore that can be granted concurrently. Defaults to 1.</param>
+        /// <param name="options">The <see cref="AsyncKeyedLockOptions"/> to use.</param>
         /// <param name="concurrencyLevel">The estimated number of threads that will update the <see cref="AsyncKeyedLocker{TKey}"/> concurrently.</param>
         /// <param name="capacity">The initial number of elements that the <see cref="AsyncKeyedLocker{TKey}"/> can contain.</param>
-        public AsyncKeyedLocker(int maxCount, int concurrencyLevel, int capacity)
+        public AsyncKeyedLocker(AsyncKeyedLockOptions options, int concurrencyLevel, int capacity)
         {
-            MaxCount = maxCount;
-            _dictionary = new AsyncKeyedLockerDictionary<TKey>(concurrencyLevel, capacity);
+            _dictionary = new AsyncKeyedLockerDictionary<TKey>(options, concurrencyLevel, capacity);
         }
 
         /// <summary>
@@ -120,17 +180,16 @@ namespace AsyncKeyedLock
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="AsyncKeyedLocker{TKey}" /> class, uses the specified <see cref="SemaphoreSlim"/> initial count, has the specified concurrency level and capacity, and uses the default comparer for the key type.
+        /// Initializes a new instance of the <see cref="AsyncKeyedLocker{TKey}" /> class, uses the specified <see cref="AsyncKeyedLockOptions"/>, has the specified concurrency level and capacity, and uses the default comparer for the key type.
         /// </summary>
-        /// <param name="maxCount">The maximum number of requests for the semaphore that can be granted concurrently. Defaults to 1.</param>
+        /// <param name="options">The <see cref="AsyncKeyedLockOptions"/> to use.</param>
         /// <param name="concurrencyLevel">The estimated number of threads that will update the <see cref="AsyncKeyedLocker{TKey}"/> concurrently.</param>
         /// <param name="capacity">The initial number of elements that the <see cref="AsyncKeyedLocker{TKey}"/> can contain.</param>
         /// <param name="comparer">The equality comparison implementation to use when comparing keys.</param>
         /// <exception cref="ArgumentNullException">comparer is null</exception>
-        public AsyncKeyedLocker(int maxCount, int concurrencyLevel, int capacity, IEqualityComparer<TKey> comparer)
+        public AsyncKeyedLocker(AsyncKeyedLockOptions options, int concurrencyLevel, int capacity, IEqualityComparer<TKey> comparer)
         {
-            MaxCount = maxCount;
-            _dictionary = new AsyncKeyedLockerDictionary<TKey>(concurrencyLevel, capacity, comparer);
+            _dictionary = new AsyncKeyedLockerDictionary<TKey>(options, concurrencyLevel, capacity, comparer);
         }
 
         /// <summary>
@@ -138,8 +197,8 @@ namespace AsyncKeyedLock
         /// </summary>
         /// <param name="key">The key for which a releaser should be obtained.</param>
         /// <returns>A created or retrieved <see cref="IAsyncKeyedLockReleaser{TKey}"/>.</returns>
-        public IAsyncKeyedLockReleaser<TKey> GetOrAdd(TKey key) => _dictionary.GetOrAdd(key);
-        private void Release(IAsyncKeyedLockReleaser<TKey> releaser) => _dictionary.Release(releaser);
+        public AsyncKeyedLockReleaser<TKey> GetOrAdd(TKey key) => _dictionary.GetOrAdd(key);
+        private void Release(AsyncKeyedLockReleaser<TKey> releaser) => _dictionary.Release(releaser);
 
 
         #region Synchronous

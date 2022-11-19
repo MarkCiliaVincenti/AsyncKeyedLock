@@ -36,10 +36,23 @@ var asyncKeyedLocker = new AsyncKeyedLocker<string>();
 or if you would like to set the maximum number of requests for the semaphore that can be granted concurrently (set to 1 by default):
 
 ```csharp
-var asyncKeyedLocker = new AsyncKeyedLocker<string>(2);
+var asyncKeyedLocker = new AsyncKeyedLocker<string>(new AsyncKeyedLockOptions(maxCount: 2));
 ```
 
 There are also AsyncKeyedLocker<TKey>() constructors which accept the parameters of ConcurrentDictionary, namely the concurrency level, the capacity and the IEqualityComparer<TKey> to use.
+
+### Pooling
+Whenever a lock needs to be acquired for a key that is not currently being processed, an `AsyncKeyedLockReleaser` object needs to exist for that key and added to a `ConcurrentDictionary`. In order to reduce allocations having to create objects only to dispose of them shortly after, `AsyncKeyedLock` allows for object pooling. Whenever a new key is needed, it is taken from the pool (rather than created from scratch). If the pool is empty, a new object is created. This means that the pool will not throttle or limit the number of keys being concurrently processed. Once a key is no longer in use, the `AsyncKeyedLockReleaser` object is returned back to the pool, unless the pool is already full up.
+
+Usage of the pool can lead to big performance gains, but it can also very easily lead to inferior performance. If the pool is too small, the benefit from using the pool might be outweighed by the extra overhead from the pool itself. If, on the other hand, the pool is too big, then that's a number of objects in memory for nothing, consuming memory.
+
+It is recommended to run benchmarks and tests if you intend on using pooling to make sure that you choose an optimal pool size.
+
+Setting the pool size can be done via the `AsyncKeyedLockOptions` in one of the overloaded constructors, such as this:
+
+```csharp
+var asyncKeyedLocker = new AsyncKeyedLocker<string>(new AsyncKeyedLockOptions(poolSize: 100));
+```
 
 ### Locking
 ```csharp
@@ -69,4 +82,4 @@ bool isInUse = asyncKeyedLocker.IsInUse(myObject);
 ```
 
 ## Credits
-This library was inspired by [Stephen Cleary's solution](https://stackoverflow.com/questions/31138179/asynchronous-locking-based-on-a-key/31194647#31194647).
+This library was originally inspired by [Stephen Cleary's solution](https://stackoverflow.com/questions/31138179/asynchronous-locking-based-on-a-key/31194647#31194647).

@@ -3,25 +3,43 @@ using System.Threading;
 
 namespace AsyncKeyedLock
 {
-    internal class AsyncKeyedLockReleaser<TKey> : IAsyncKeyedLockReleaser<TKey>
+    /// <summary>
+    /// Represents an <see cref="IDisposable"/> for AsyncKeyedLock.
+    /// </summary>
+    public class AsyncKeyedLockReleaser<TKey> : IDisposable
     {
-        private readonly TKey _key;
-        public TKey Key => _key;
+        private TKey _key;
+
+        /// <summary>
+        /// The key used for locking.
+        /// </summary>
+        public TKey Key
+        {
+            get => _key;
+            internal set => _key = value;
+        }
 
         private int _referenceCount = 1;
 
+        /// <summary>
+        /// The number of threads processing or waiting to process for the specific <see cref="Key"/>.
+        /// </summary>
         public int ReferenceCount
         {
             get => _referenceCount;
-            set => _referenceCount = value;
+            internal set => _referenceCount = value;
         }
 
         private readonly SemaphoreSlim _semaphoreSlim;
+
+        /// <summary>
+        /// The exposed <see cref="SemaphoreSlim"/> instance used to limit the number of threads that can access the lock concurrently.
+        /// </summary>
         public SemaphoreSlim SemaphoreSlim => _semaphoreSlim;
 
         private readonly AsyncKeyedLockerDictionary<TKey> _dictionary;
 
-        public AsyncKeyedLockReleaser(TKey key, SemaphoreSlim semaphoreSlim, AsyncKeyedLockerDictionary<TKey> dictionary)
+        internal AsyncKeyedLockReleaser(TKey key, SemaphoreSlim semaphoreSlim, AsyncKeyedLockerDictionary<TKey> dictionary)
         {
             _key = key;
             _semaphoreSlim = semaphoreSlim;
@@ -39,6 +57,9 @@ namespace AsyncKeyedLock
             return false;
         }
 
+        /// <summary>
+        /// Releases the <see cref="SemaphoreSlim"/> object once.
+        /// </summary>
         public void Dispose()
         {
             _dictionary.Release(this);
