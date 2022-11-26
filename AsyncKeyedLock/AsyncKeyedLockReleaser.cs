@@ -6,7 +6,7 @@ namespace AsyncKeyedLock
     /// <summary>
     /// Represents an <see cref="IDisposable"/> for AsyncKeyedLock.
     /// </summary>
-    public class AsyncKeyedLockReleaser<TKey> : IDisposable
+    public sealed class AsyncKeyedLockReleaser<TKey> : IDisposable
     {
         private TKey _key;
 

@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Concurrent;
+﻿using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Threading;
 
@@ -67,23 +66,6 @@ namespace AsyncKeyedLock
             }
         }
 
-        private AsyncKeyedLockReleaser<TKey> GetReleaser(TKey key)
-        {
-            if (_poolingEnabled)
-            {
-                return _pool.GetObject(key);
-            }
-            return new AsyncKeyedLockReleaser<TKey>(key, new SemaphoreSlim(MaxCount), this);
-        }
-
-        private void AddToPool(AsyncKeyedLockReleaser<TKey> item)
-        {
-            if (_poolingEnabled)
-            {
-                _pool.PutObject((AsyncKeyedLockReleaser<TKey>)item);
-            }
-        }
-
         public AsyncKeyedLockReleaser<TKey> GetOrAdd(TKey key)
         {
             if (TryGetValue(key, out var referenceCounter) && referenceCounter.TryIncrement())
@@ -91,21 +73,40 @@ namespace AsyncKeyedLock
                 return referenceCounter;
             }
 
-            var toAddReferenceCounter = GetReleaser(key);
-            if (TryAdd(key, toAddReferenceCounter))
+            if (_poolingEnabled)
             {
-                return toAddReferenceCounter;
-            }
-
-            while (!(TryGetValue(key, out referenceCounter) && referenceCounter.TryIncrement()))
-            {
+                var toAddReferenceCounter = _pool.GetObject(key);
                 if (TryAdd(key, toAddReferenceCounter))
                 {
                     return toAddReferenceCounter;
                 }
+
+                while (!(TryGetValue(key, out referenceCounter) && referenceCounter.TryIncrement()))
+                {
+                    if (TryAdd(key, toAddReferenceCounter))
+                    {
+                        return toAddReferenceCounter;
+                    }
+                }
+
+                _pool.PutObject(toAddReferenceCounter);
+                return referenceCounter;
             }
 
-            AddToPool(toAddReferenceCounter);
+            var toAddReferenceCounterNoPooling = new AsyncKeyedLockReleaser<TKey>(key, new SemaphoreSlim(MaxCount), this);
+            if (TryAdd(key, toAddReferenceCounterNoPooling))
+            {
+                return toAddReferenceCounterNoPooling;
+            }
+
+            while (!(TryGetValue(key, out referenceCounter) && referenceCounter.TryIncrement()))
+            {
+                if (TryAdd(key, toAddReferenceCounterNoPooling))
+                {
+                    return toAddReferenceCounterNoPooling;
+                }
+            }
+
             return referenceCounter;
         }
 
@@ -117,7 +118,10 @@ namespace AsyncKeyedLock
             {
                 TryRemove(referenceCounter.Key, out _);
                 Monitor.Exit(referenceCounter);
-                AddToPool(referenceCounter);
+                if (_poolingEnabled)
+                {
+                    _pool.PutObject(referenceCounter);
+                }
                 referenceCounter.SemaphoreSlim.Release();
                 return;
             }

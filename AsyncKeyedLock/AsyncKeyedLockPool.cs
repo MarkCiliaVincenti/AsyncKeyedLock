@@ -1,11 +1,9 @@
 ﻿using System;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
-using System.Text;
 
 namespace AsyncKeyedLock
 {
-    internal class AsyncKeyedLockPool<TKey>
+    internal sealed class AsyncKeyedLockPool<TKey>
     {
         private readonly BlockingCollection<AsyncKeyedLockReleaser<TKey>> _objects;
         private readonly Func<TKey, AsyncKeyedLockReleaser<TKey>> _objectGenerator;

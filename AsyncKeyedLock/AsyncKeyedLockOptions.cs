@@ -1,13 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Text;
-
-namespace AsyncKeyedLock
+﻿namespace AsyncKeyedLock
 {
     /// <summary>
     /// Options for the <see cref="AsyncKeyedLocker"/> constructors
     /// </summary>
-    public class AsyncKeyedLockOptions
+    public sealed class AsyncKeyedLockOptions
     {
         /// <summary>
         /// The maximum number of requests for the semaphore that can be granted concurrently. Defaults to 1.
