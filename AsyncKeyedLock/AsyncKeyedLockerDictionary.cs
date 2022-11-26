@@ -1,5 +1,6 @@
 ﻿using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using System.Threading;
 
 namespace AsyncKeyedLock
@@ -66,6 +67,7 @@ namespace AsyncKeyedLock
             }
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public AsyncKeyedLockReleaser<TKey> GetOrAdd(TKey key)
         {
             if (TryGetValue(key, out var referenceCounter) && referenceCounter.TryIncrement())
@@ -110,6 +112,7 @@ namespace AsyncKeyedLock
             return referenceCounter;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void Release(AsyncKeyedLockReleaser<TKey> referenceCounter)
         {
             Monitor.Enter(referenceCounter);

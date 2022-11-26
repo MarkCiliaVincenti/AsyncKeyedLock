@@ -50,7 +50,7 @@ namespace AsyncKeyedLock
         {
             if (Monitor.TryEnter(this))
             {
-                _referenceCount++;
+                ++_referenceCount;
                 Monitor.Exit(this);
                 return true;
             }

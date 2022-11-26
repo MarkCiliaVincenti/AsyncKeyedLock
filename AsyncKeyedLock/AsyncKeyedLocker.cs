@@ -1,12 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace AsyncKeyedLock
 {
     /// <summary>
-    /// AsyncKeyedLock class, originally inspired by <see href="https://stackoverflow.com/questions/31138179/asynchronous-locking-based-on-a-key/31194647#31194647">Stephen Cleary's solution</see>.
+    /// Represents a lock based on a key (keyed semaphores), limiting concurrent threads sharing the same key to a specified number.
     /// </summary>
     public sealed class AsyncKeyedLocker : AsyncKeyedLocker<object>
     {
@@ -196,7 +197,9 @@ namespace AsyncKeyedLock
         /// </summary>
         /// <param name="key">The key for which a releaser should be obtained.</param>
         /// <returns>A created or retrieved <see cref="AsyncKeyedLockReleaser{TKey}"/>.</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public AsyncKeyedLockReleaser<TKey> GetOrAdd(TKey key) => _dictionary.GetOrAdd(key);
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         private void Release(AsyncKeyedLockReleaser<TKey> releaser) => _dictionary.Release(releaser);
 
 
