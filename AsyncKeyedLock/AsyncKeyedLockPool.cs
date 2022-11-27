@@ -9,13 +9,23 @@ namespace AsyncKeyedLock
         private readonly BlockingCollection<AsyncKeyedLockReleaser<TKey>> _objects;
         private readonly Func<TKey, AsyncKeyedLockReleaser<TKey>> _objectGenerator;
 
-        public AsyncKeyedLockPool(Func<TKey, AsyncKeyedLockReleaser<TKey>> objectGenerator, int capacity)
+        public AsyncKeyedLockPool(Func<TKey, AsyncKeyedLockReleaser<TKey>> objectGenerator, int capacity, int initialFill = -1)
         {
             _objects = new BlockingCollection<AsyncKeyedLockReleaser<TKey>>(new ConcurrentBag<AsyncKeyedLockReleaser<TKey>>(), capacity);
             _objectGenerator = objectGenerator;
-            for (int i = 0; i < capacity; ++i)
+            if (initialFill < 0)
             {
-                _objects.Add(_objectGenerator(default));
+                for (int i = 0; i < capacity; ++i)
+                {
+                    _objects.Add(_objectGenerator(default));
+                }
+            }
+            else
+            {
+                for (int i = 0; i < initialFill; ++i)
+                {
+                    _objects.Add(_objectGenerator(default));
+                }
             }
         }
 

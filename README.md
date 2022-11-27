@@ -54,6 +54,12 @@ Setting the pool size can be done via the `AsyncKeyedLockOptions` in one of the 
 var asyncKeyedLocker = new AsyncKeyedLocker<string>(new AsyncKeyedLockOptions(poolSize: 100));
 ```
 
+You can also set the initial pool fill (by default this is set to the pool size):
+
+```csharp
+var asyncKeyedLocker = new AsyncKeyedLocker<string>(new AsyncKeyedLockOptions(poolSize: 100, poolInitialFill: 50));
+```
+
 ### Locking
 ```csharp
 using (var lockObj = await asyncKeyedLocker.LockAsync(myObject))
