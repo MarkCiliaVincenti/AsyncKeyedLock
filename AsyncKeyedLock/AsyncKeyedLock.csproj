@@ -12,7 +12,7 @@
 		<PackageReleaseNotes>Switched to using ValueTask, helping reduce allocations.</PackageReleaseNotes>
 		<Description>An asynchronous .NET Standard 2.0 library that allows you to lock based on a key (keyed semaphores), limiting concurrent threads sharing the same key to a specified number.</Description>
 		<Copyright>© 2022 Mark Cilia Vincenti</Copyright>
-		<PackageTags>async,lock,key,semaphore,dictionary,pooling,duplicate</PackageTags>
+		<PackageTags>async,lock,key,keyed,semaphore,dictionary,pooling,duplicate,synchronization</PackageTags>
 		<RepositoryType>git</RepositoryType>
 		<GeneratePackageOnBuild>false</GeneratePackageOnBuild>
 		<AssemblyVersion>5.1.0.0</AssemblyVersion>
