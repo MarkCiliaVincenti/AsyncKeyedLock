@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Runtime.CompilerServices;
 using System.Threading;
 
 namespace AsyncKeyedLock
@@ -46,6 +47,7 @@ namespace AsyncKeyedLock
             _dictionary = dictionary;
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal bool TryIncrement()
         {
             if (Monitor.TryEnter(this))
