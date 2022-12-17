@@ -38,9 +38,9 @@ namespace AsyncKeyedLock
         /// </summary>
         public SemaphoreSlim SemaphoreSlim => _semaphoreSlim;
 
-        private readonly AsyncKeyedLockerDictionary<TKey> _dictionary;
+        private readonly AsyncKeyedLockDictionary<TKey> _dictionary;
 
-        internal AsyncKeyedLockReleaser(TKey key, SemaphoreSlim semaphoreSlim, AsyncKeyedLockerDictionary<TKey> dictionary)
+        internal AsyncKeyedLockReleaser(TKey key, SemaphoreSlim semaphoreSlim, AsyncKeyedLockDictionary<TKey> dictionary)
         {
             _key = key;
             _semaphoreSlim = semaphoreSlim;

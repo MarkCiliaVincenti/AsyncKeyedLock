@@ -3,7 +3,7 @@
     /// <summary>
     /// Options for the <see cref="AsyncKeyedLocker"/> constructors
     /// </summary>
-    public sealed class AsyncKeyedLockOptions
+    public struct AsyncKeyedLockOptions
     {
         /// <summary>
         /// The maximum number of requests for the semaphore that can be granted concurrently. Defaults to 1.

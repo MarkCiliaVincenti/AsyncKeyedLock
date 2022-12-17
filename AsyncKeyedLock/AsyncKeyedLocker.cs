@@ -101,7 +101,7 @@ namespace AsyncKeyedLock
     /// </summary>
     public class AsyncKeyedLocker<TKey> where TKey : notnull
     {
-        private readonly AsyncKeyedLockerDictionary<TKey> _dictionary;
+        private readonly AsyncKeyedLockDictionary<TKey> _dictionary;
 
         /// <summary>
         /// The maximum number of requests for the semaphore that can be granted concurrently. Defaults to 1.
@@ -113,26 +113,40 @@ namespace AsyncKeyedLock
         /// </summary>
         public AsyncKeyedLocker()
         {
-            _dictionary = new AsyncKeyedLockerDictionary<TKey>();
+            _dictionary = new AsyncKeyedLockDictionary<TKey>();
         }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="AsyncKeyedLocker{TKey}" /> class, uses the specified <see cref="AsyncKeyedLockOptions"/>, has the default concurrency level, has the default initial capacity, and uses the default comparer for the key type.
         /// </summary>
         /// <param name="options">The <see cref="AsyncKeyedLockOptions"/> to use.</param>
+        /// <exception cref="ArgumentOutOfRangeException">Parameter is out of range.</exception>
         public AsyncKeyedLocker(AsyncKeyedLockOptions options)
         {
-            _dictionary = new AsyncKeyedLockerDictionary<TKey>(options);
+            _dictionary = new AsyncKeyedLockDictionary<TKey>(options);
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="AsyncKeyedLocker{TKey}" /> class, uses the specified <see cref="AsyncKeyedLockOptions"/>, has the default concurrency level, has the default initial capacity, and uses the default comparer for the key type.
+        /// </summary>
+        /// <param name="options">The <see cref="AsyncKeyedLockOptions"/> to use.</param>
+        /// <exception cref="ArgumentOutOfRangeException">Parameter is out of range.</exception>
+        public AsyncKeyedLocker(Action<AsyncKeyedLockOptions> options)
+        {
+            AsyncKeyedLockOptions optionsParam = new();
+            options(optionsParam);
+
+            _dictionary = new AsyncKeyedLockDictionary<TKey>(optionsParam);
         }
 
         /// <summary>
         /// Initializes a new instance of the <see cref="AsyncKeyedLocker{TKey}" /> class, sets the <see cref="SemaphoreSlim"/> initial count to 1, has the default concurrency level, has the default initial capacity, and uses the specified <see cref="IEqualityComparer{TKey}"/>.
         /// </summary>
         /// <param name="comparer">The equality comparison implementation to use when comparing keys.</param>
-        /// <exception cref="ArgumentNullException">comparer is null</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="comparer"/> is null.</exception>
         public AsyncKeyedLocker(IEqualityComparer<TKey> comparer)
         {
-            _dictionary = new AsyncKeyedLockerDictionary<TKey>(comparer);
+            _dictionary = new AsyncKeyedLockDictionary<TKey>(comparer);
         }
 
         /// <summary>
@@ -140,10 +154,11 @@ namespace AsyncKeyedLock
         /// </summary>
         /// <param name="options">The <see cref="AsyncKeyedLockOptions"/> to use.</param>
         /// <param name="comparer">The equality comparison implementation to use when comparing keys.</param>
-        /// <exception cref="ArgumentNullException">comparer is null</exception>
+        /// <exception cref="ArgumentOutOfRangeException">Parameter is out of range.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="comparer"/> is null.</exception>
         public AsyncKeyedLocker(AsyncKeyedLockOptions options, IEqualityComparer<TKey> comparer)
         {
-            _dictionary = new AsyncKeyedLockerDictionary<TKey>(options, comparer);
+            _dictionary = new AsyncKeyedLockDictionary<TKey>(options, comparer);
         }
 
         /// <summary>
@@ -151,9 +166,10 @@ namespace AsyncKeyedLock
         /// </summary>
         /// <param name="concurrencyLevel">The estimated number of threads that will update the <see cref="AsyncKeyedLocker{TKey}"/> concurrently.</param>
         /// <param name="capacity">The initial number of elements that the <see cref="AsyncKeyedLocker{TKey}"/> can contain.</param>
+        /// <exception cref="ArgumentOutOfRangeException">Parameter is out of range.</exception>
         public AsyncKeyedLocker(int concurrencyLevel, int capacity)
         {
-            _dictionary = new AsyncKeyedLockerDictionary<TKey>(concurrencyLevel, capacity);
+            _dictionary = new AsyncKeyedLockDictionary<TKey>(concurrencyLevel, capacity);
         }
 
         /// <summary>
@@ -162,9 +178,10 @@ namespace AsyncKeyedLock
         /// <param name="options">The <see cref="AsyncKeyedLockOptions"/> to use.</param>
         /// <param name="concurrencyLevel">The estimated number of threads that will update the <see cref="AsyncKeyedLocker{TKey}"/> concurrently.</param>
         /// <param name="capacity">The initial number of elements that the <see cref="AsyncKeyedLocker{TKey}"/> can contain.</param>
+        /// <exception cref="ArgumentOutOfRangeException">Parameter is out of range.</exception>
         public AsyncKeyedLocker(AsyncKeyedLockOptions options, int concurrencyLevel, int capacity)
         {
-            _dictionary = new AsyncKeyedLockerDictionary<TKey>(options, concurrencyLevel, capacity);
+            _dictionary = new AsyncKeyedLockDictionary<TKey>(options, concurrencyLevel, capacity);
         }
 
         /// <summary>
@@ -173,10 +190,11 @@ namespace AsyncKeyedLock
         /// <param name="concurrencyLevel">The estimated number of threads that will update the <see cref="AsyncKeyedLocker{TKey}"/> concurrently.</param>
         /// <param name="capacity">The initial number of elements that the <see cref="AsyncKeyedLocker{TKey}"/> can contain.</param>
         /// <param name="comparer">The equality comparison implementation to use when comparing keys.</param>
-        /// <exception cref="ArgumentNullException">comparer is null</exception>
+        /// <exception cref="ArgumentOutOfRangeException">Parameter is out of range.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="comparer"/> is null.</exception>
         public AsyncKeyedLocker(int concurrencyLevel, int capacity, IEqualityComparer<TKey> comparer)
         {
-            _dictionary = new AsyncKeyedLockerDictionary<TKey>(concurrencyLevel, capacity, comparer);
+            _dictionary = new AsyncKeyedLockDictionary<TKey>(concurrencyLevel, capacity, comparer);
         }
 
         /// <summary>
@@ -186,10 +204,11 @@ namespace AsyncKeyedLock
         /// <param name="concurrencyLevel">The estimated number of threads that will update the <see cref="AsyncKeyedLocker{TKey}"/> concurrently.</param>
         /// <param name="capacity">The initial number of elements that the <see cref="AsyncKeyedLocker{TKey}"/> can contain.</param>
         /// <param name="comparer">The equality comparison implementation to use when comparing keys.</param>
-        /// <exception cref="ArgumentNullException">comparer is null</exception>
+        /// <exception cref="ArgumentOutOfRangeException">Parameter is out of range.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="comparer"/> is null.</exception>
         public AsyncKeyedLocker(AsyncKeyedLockOptions options, int concurrencyLevel, int capacity, IEqualityComparer<TKey> comparer)
         {
-            _dictionary = new AsyncKeyedLockerDictionary<TKey>(options, concurrencyLevel, capacity, comparer);
+            _dictionary = new AsyncKeyedLockDictionary<TKey>(options, concurrencyLevel, capacity, comparer);
         }
 
         /// <summary>

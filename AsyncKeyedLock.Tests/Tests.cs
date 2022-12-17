@@ -417,7 +417,8 @@ namespace AsyncKeyedLock.Tests
         public async Task Test2AtATimeGenerics()
         {
             var range = 4;
-            var asyncKeyedLocker = new AsyncKeyedLocker<int>(new AsyncKeyedLockOptions(2));
+            //var asyncKeyedLocker = new AsyncKeyedLocker<int>(new AsyncKeyedLockOptions(2));
+            var asyncKeyedLocker = new AsyncKeyedLocker<int>(o => o.MaxCount = 2);
             var concurrentQueue = new ConcurrentQueue<int>();
 
             var tasks = Enumerable.Range(1, range * 4)
