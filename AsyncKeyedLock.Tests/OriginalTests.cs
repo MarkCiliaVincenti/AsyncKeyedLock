@@ -3,7 +3,7 @@ using Xunit;
 
 namespace AsyncKeyedLock.Tests
 {
-    public class Tests
+    public class OriginalTests
     {
         [Fact]
         public async Task BasicTest()
@@ -19,8 +19,9 @@ namespace AsyncKeyedLock.Tests
                     var key = Convert.ToInt32(Math.Ceiling((double)i / concurrency));
                     using (await asyncKeyedLocker.LockAsync(key))
                     {
+                        await Task.Delay(20);
                         concurrentQueue.Enqueue((true, key));
-                        await Task.Delay(100);
+                        await Task.Delay(80);
                         concurrentQueue.Enqueue((false, key));
                     }
                 });
@@ -70,8 +71,9 @@ namespace AsyncKeyedLock.Tests
                     var key = Convert.ToInt32(Math.Ceiling((double)i / concurrency));
                     using (await asyncKeyedLocker.LockAsync(key))
                     {
+                        await Task.Delay(20);
                         concurrentQueue.Enqueue((true, key));
-                        await Task.Delay(10);
+                        await Task.Delay(80);
                         concurrentQueue.Enqueue((false, key));
                     }
                 });
@@ -121,8 +123,65 @@ namespace AsyncKeyedLock.Tests
                     var key = Convert.ToInt32(Math.Ceiling((double)i / concurrency));
                     using (await asyncKeyedLocker.LockAsync(key))
                     {
+                        await Task.Delay(20);
                         concurrentQueue.Enqueue((true, key));
-                        await Task.Delay(10);
+                        await Task.Delay(80);
+                        concurrentQueue.Enqueue((false, key));
+                    }
+                });
+            await Task.WhenAll(tasks.AsParallel());
+
+            bool valid = concurrentQueue.Count == locks * concurrency * 2;
+
+            var entered = new HashSet<int>();
+
+            while (valid && !concurrentQueue.IsEmpty)
+            {
+                concurrentQueue.TryDequeue(out var result);
+                if (result.entered)
+                {
+                    if (entered.Contains(result.key))
+                    {
+                        valid = false;
+                        break;
+                    }
+                    entered.Add(result.key);
+                }
+                else
+                {
+                    if (!entered.Contains(result.key))
+                    {
+                        valid = false;
+                        break;
+                    }
+                    entered.Remove(result.key);
+                }
+            }
+
+            Assert.True(valid);
+        }
+
+        [Fact]
+        public async Task BasicTestGenericsPooling50kUnfilled()
+        {
+            var locks = 50_000;
+            var concurrency = 50;
+            var asyncKeyedLocker = new AsyncKeyedLocker<int>(o =>
+                {
+                    o.PoolSize = 50_000;
+                    o.PoolInitialFill = 0;
+                }, Environment.ProcessorCount, 50_000);
+            var concurrentQueue = new ConcurrentQueue<(bool entered, int key)>();
+
+            var tasks = Enumerable.Range(1, locks * concurrency)
+                .Select(async i =>
+                {
+                    var key = Convert.ToInt32(Math.Ceiling((double)i / concurrency));
+                    using (await asyncKeyedLocker.LockAsync(key))
+                    {
+                        await Task.Delay(20);
+                        concurrentQueue.Enqueue((true, key));
+                        await Task.Delay(80);
                         concurrentQueue.Enqueue((false, key));
                     }
                 });
@@ -172,8 +231,9 @@ namespace AsyncKeyedLock.Tests
                     var key = Convert.ToInt32(Math.Ceiling((double)i / concurrency));
                     using (await asyncKeyedLocker.LockAsync(key))
                     {
+                        await Task.Delay(20);
                         concurrentQueue.Enqueue((true, key));
-                        await Task.Delay(10);
+                        await Task.Delay(80);
                         concurrentQueue.Enqueue((false, key));
                     }
                 });
@@ -223,8 +283,9 @@ namespace AsyncKeyedLock.Tests
                     var key = Convert.ToInt32(Math.Ceiling((double)i / concurrency));
                     using (await asyncKeyedLocker.LockAsync(key))
                     {
+                        await Task.Delay(20);
                         concurrentQueue.Enqueue((true, key));
-                        await Task.Delay(10);
+                        await Task.Delay(80);
                         concurrentQueue.Enqueue((false, key));
                     }
                 });
@@ -274,8 +335,9 @@ namespace AsyncKeyedLock.Tests
                     var key = Convert.ToInt32(Math.Ceiling((double)i / 5)).ToString();
                     using (await asyncKeyedLocker.LockAsync(key))
                     {
+                        await Task.Delay(20);
                         concurrentQueue.Enqueue((true, key));
-                        await Task.Delay(100);
+                        await Task.Delay(80);
                         concurrentQueue.Enqueue((false, key));
                     }
                 });

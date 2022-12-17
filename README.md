@@ -36,7 +36,11 @@ var asyncKeyedLocker = new AsyncKeyedLocker<string>();
 or if you would like to set the maximum number of requests for the semaphore that can be granted concurrently (set to 1 by default):
 
 ```csharp
-var asyncKeyedLocker = new AsyncKeyedLocker<string>(new AsyncKeyedLockOptions(maxCount: 2));
+// using AsyncKeyedLockOptions
+var asyncKeyedLocker1 = new AsyncKeyedLocker<string>(new AsyncKeyedLockOptions(maxCount: 2));
+
+// using Action<AsyncKeyedLockOptions>
+var asyncKeyedLocker2 = new AsyncKeyedLocker<string>(o => o.MaxCount = 2);
 ```
 
 There are also AsyncKeyedLocker<TKey>() constructors which accept the parameters of ConcurrentDictionary, namely the concurrency level, the capacity and the IEqualityComparer<TKey> to use.
@@ -51,26 +55,45 @@ It is recommended to run benchmarks and tests if you intend on using pooling to 
 Setting the pool size can be done via the `AsyncKeyedLockOptions` in one of the overloaded constructors, such as this:
 
 ```csharp
-var asyncKeyedLocker = new AsyncKeyedLocker<string>(new AsyncKeyedLockOptions(poolSize: 100));
+// using AsyncKeyedLockOptions
+var asyncKeyedLocker1 = new AsyncKeyedLocker<string>(new AsyncKeyedLockOptions(poolSize: 100));
+
+// using Action<AsyncKeyedLockOptions>
+var asyncKeyedLocker2 = new AsyncKeyedLocker<string>(o => o.PoolSize = 100);
 ```
 
 You can also set the initial pool fill (by default this is set to the pool size):
 
 ```csharp
+// using AsyncKeyedLockOptions
 var asyncKeyedLocker = new AsyncKeyedLocker<string>(new AsyncKeyedLockOptions(poolSize: 100, poolInitialFill: 50));
+
+// using Action<AsyncKeyedLockOptions>
+var asyncKeyedLocker = new AsyncKeyedLocker<string>(o =>
+{
+	o.PoolSize = 100;
+	o.PoolInitialFill = 50;
+});
 ```
 
 ### Locking
 ```csharp
+// without cancellation token
 using (var lockObj = await asyncKeyedLocker.LockAsync(myObject))
+{
+	...
+}
+
+// with cancellation token
+using (var lockObj = await asyncKeyedLocker.LockAsync(myObject, cancellationToken))
 {
 	...
 }
 ```
 
-There are other overloaded methods for `LockAsync` which allow you to use `CancellationToken`, milliseconds timeout, `System.TimeSpan` or a combination of these. In the case of timeouts, you can also use `TryLockAsync` methods which will call a `Func<Task>` or `Action` if the timeout is not expired, whilst returning a boolean representing whether or not it waited successfully.
+In the case you need to use timeouts, you can also use `TryLockAsync` methods which will call a `Func<Task>` or `Action` if the timeout is not expired, whilst returning a boolean representing whether or not it waited successfully.
 
-There are also synchronous `Lock` methods available, including out parameters for checking whether or not the timeout was reached.
+There are also synchronous `Lock` and `TryLock` methods available.
 
 If you would like to see how many concurrent requests there are for a semaphore for a given key:
 ```csharp

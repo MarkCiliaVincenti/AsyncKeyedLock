@@ -142,5 +142,24 @@ namespace AsyncKeyedLock
             Monitor.Exit(releaser);
             releaser.SemaphoreSlim.Release();
         }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public void ReleaseWithoutSemaphoreRelease(AsyncKeyedLockReleaser<TKey> releaser)
+        {
+            Monitor.Enter(releaser);
+
+            if (--releaser.ReferenceCount == 0)
+            {
+                TryRemove(releaser.Key, out _);
+                Monitor.Exit(releaser);
+                if (_poolingEnabled)
+                {
+                    _pool.PutObject(releaser);
+                }
+                return;
+            }
+
+            Monitor.Exit(releaser);
+        }
     }
 }
