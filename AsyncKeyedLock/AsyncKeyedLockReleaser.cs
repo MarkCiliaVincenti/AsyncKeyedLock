@@ -66,5 +66,17 @@ namespace AsyncKeyedLock
         {
             _dictionary.Release(this);
         }
+
+        internal void Dispose(bool enteredSemaphore)
+        {
+            if (enteredSemaphore)
+            {
+                _dictionary.Release(this);
+            }
+            else
+            {
+                _dictionary.ReleaseWithoutSemaphoreRelease(this);
+            }
+        }
     }
 }

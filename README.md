@@ -91,7 +91,9 @@ using (var lockObj = await asyncKeyedLocker.LockAsync(myObject, cancellationToke
 }
 ```
 
-In the case you need to use timeouts, you can also use `TryLockAsync` methods which will call a `Func<Task>` or `Action` if the timeout is not expired, whilst returning a boolean representing whether or not it waited successfully.
+You can also use timeouts with overloaded methods to set the maximum time to wait, either in milliseconds or as a `TimeSpan`.
+
+In the case you need to use timeouts to instead give up if unable to obtain a lock by a certain amount of time, you can also use `TryLockAsync` methods which will call a `Func<Task>` or `Action` if the timeout is not expired, whilst returning a boolean representing whether or not it waited successfully.
 
 There are also synchronous `Lock` and `TryLock` methods available.
 

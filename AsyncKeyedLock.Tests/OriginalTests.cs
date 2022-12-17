@@ -6,6 +6,38 @@ namespace AsyncKeyedLock.Tests
     public class OriginalTests
     {
         [Fact]
+        public async Task TestTimeout()
+        {
+            var asyncKeyedLocker = new AsyncKeyedLocker<string>();
+            using (var myFirstLock = await asyncKeyedLocker.LockAsync("test"))
+            {
+                using (var myLock = await asyncKeyedLocker.LockAsync("test", 0))
+                {
+                    var myTimeoutReleaser = (AsyncKeyedLockTimeoutReleaser<string>)myLock;
+                    Assert.False(myTimeoutReleaser.EnteredSemaphore);
+                }
+                Assert.True(asyncKeyedLocker.IsInUse("test"));
+            }
+            Assert.False(asyncKeyedLocker.IsInUse("test"));
+        }
+
+        [Fact]
+        public async Task TestTimeoutWithTimeSpan()
+        {
+            var asyncKeyedLocker = new AsyncKeyedLocker<string>();
+            using (var myFirstLock = await asyncKeyedLocker.LockAsync("test"))
+            {
+                using (var myLock = await asyncKeyedLocker.LockAsync("test", TimeSpan.Zero))
+                {
+                    var myTimeoutReleaser = (AsyncKeyedLockTimeoutReleaser<string>)myLock;
+                    Assert.False(myTimeoutReleaser.EnteredSemaphore);
+                }
+                Assert.True(asyncKeyedLocker.IsInUse("test"));
+            }
+            Assert.False(asyncKeyedLocker.IsInUse("test"));
+        }
+
+        [Fact]
         public async Task BasicTest()
         {
             var locks = 5000;
