@@ -12,7 +12,7 @@ namespace AsyncKeyedLock
     public sealed class AsyncKeyedLocker : AsyncKeyedLocker<object>
     {
         /// <summary>
-        /// Initializes a new instance of the <see cref="AsyncKeyedLocker" /> class accepting any object as key, sets the <see cref="SemaphoreSlim"/> initial count to 1, has the default concurrency level, has the default initial capacity, and uses the default comparer for the key type.
+        /// Initializes a new instance of the <see cref="AsyncKeyedLocker" /> class, sets the <see cref="SemaphoreSlim"/> initial count to 1, has the default concurrency level, has the default initial capacity, and uses the default comparer for the key type.
         /// </summary>
         [Obsolete("Unless you're mixing different types of objects, it is recommended to use the generic version AsyncKeyedLocker<T>.")]
         public AsyncKeyedLocker() : base()
@@ -20,78 +20,132 @@ namespace AsyncKeyedLock
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="AsyncKeyedLocker" /> class accepting any object as key, uses the specified <see cref="AsyncKeyedLockOptions"/>, has the default concurrency level, has the default initial capacity, and uses the default comparer for the key type.
+        /// Initializes a new instance of the <see cref="AsyncKeyedLocker" /> class, uses the specified <see cref="AsyncKeyedLockOptions"/>, has the default concurrency level, has the default initial capacity, and uses the default comparer for the key type.
         /// </summary>
         /// <param name="options">The <see cref="AsyncKeyedLockOptions"/> to use.</param>
+        /// <exception cref="ArgumentOutOfRangeException">Parameter is out of range.</exception>
         [Obsolete("Unless you're mixing different types of objects, it is recommended to use the generic version AsyncKeyedLocker<T>.")]
         public AsyncKeyedLocker(AsyncKeyedLockOptions options) : base(options)
         {
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="AsyncKeyedLocker{TKey}" /> class accepting any object as key, sets the <see cref="SemaphoreSlim"/> initial count to 1, has the default concurrency level, has the default initial capacity, and uses the specified <see cref="IEqualityComparer{TKey}"/>.
+        /// Initializes a new instance of the <see cref="AsyncKeyedLocker" /> class, uses the specified <see cref="AsyncKeyedLockOptions"/>, has the default concurrency level, has the default initial capacity, and uses the default comparer for the key type.
+        /// </summary>
+        /// <param name="options">The <see cref="AsyncKeyedLockOptions"/> to use.</param>
+        /// <exception cref="ArgumentOutOfRangeException">Parameter is out of range.</exception>
+        [Obsolete("Unless you're mixing different types of objects, it is recommended to use the generic version AsyncKeyedLocker<T>.")]
+        public AsyncKeyedLocker(Action<AsyncKeyedLockOptions> options) : base(options)
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="AsyncKeyedLocker" /> class, sets the <see cref="SemaphoreSlim"/> initial count to 1, has the default concurrency level, has the default initial capacity, and uses the specified <see cref="IEqualityComparer{TKey}"/>.
         /// </summary>
         /// <param name="comparer">The equality comparison implementation to use when comparing keys.</param>
-        /// <exception cref="ArgumentNullException">comparer is null</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="comparer"/> is null.</exception>
         [Obsolete("Unless you're mixing different types of objects, it is recommended to use the generic version AsyncKeyedLocker<T>.")]
         public AsyncKeyedLocker(IEqualityComparer<object> comparer) : base(comparer)
         {
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="AsyncKeyedLocker{TKey}" /> class accepting any object as key, uses the specified <see cref="AsyncKeyedLockOptions"/>, has the default concurrency level, has the default initial capacity, and uses the specified <see cref="IEqualityComparer{TKey}"/>.
+        /// Initializes a new instance of the <see cref="AsyncKeyedLocker" /> class, uses the specified <see cref="AsyncKeyedLockOptions"/>, has the default concurrency level, has the default initial capacity, and uses the specified <see cref="IEqualityComparer{TKey}"/>.
         /// </summary>
         /// <param name="options">The <see cref="AsyncKeyedLockOptions"/> to use.</param>
         /// <param name="comparer">The equality comparison implementation to use when comparing keys.</param>
-        /// <exception cref="ArgumentNullException">comparer is null</exception>
+        /// <exception cref="ArgumentOutOfRangeException">Parameter is out of range.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="comparer"/> is null.</exception>
         [Obsolete("Unless you're mixing different types of objects, it is recommended to use the generic version AsyncKeyedLocker<T>.")]
         public AsyncKeyedLocker(AsyncKeyedLockOptions options, IEqualityComparer<object> comparer) : base(options, comparer)
         {
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="AsyncKeyedLocker{TKey}" /> class accepting any object as key, sets the <see cref="SemaphoreSlim"/> initial count to 1, has the specified concurrency level and capacity, and uses the default comparer for the key type.
+        /// Initializes a new instance of the <see cref="AsyncKeyedLocker" /> class, uses the specified <see cref="AsyncKeyedLockOptions"/>, has the default concurrency level, has the default initial capacity, and uses the specified <see cref="IEqualityComparer{TKey}"/>.
         /// </summary>
-        /// <param name="concurrencyLevel">The estimated number of threads that will update the <see cref="AsyncKeyedLocker{TKey}"/> concurrently.</param>
-        /// <param name="capacity">The initial number of elements that the <see cref="AsyncKeyedLocker{TKey}"/> can contain.</param>
+        /// <param name="options">The <see cref="AsyncKeyedLockOptions"/> to use.</param>
+        /// <param name="comparer">The equality comparison implementation to use when comparing keys.</param>
+        /// <exception cref="ArgumentOutOfRangeException">Parameter is out of range.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="comparer"/> is null.</exception>
+        [Obsolete("Unless you're mixing different types of objects, it is recommended to use the generic version AsyncKeyedLocker<T>.")]
+        public AsyncKeyedLocker(Action<AsyncKeyedLockOptions> options, IEqualityComparer<object> comparer) : base(options, comparer)
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="AsyncKeyedLocker" /> class, sets the <see cref="SemaphoreSlim"/> initial count to 1, has the specified concurrency level and capacity, and uses the default comparer for the key type.
+        /// </summary>
+        /// <param name="concurrencyLevel">The estimated number of threads that will update the <see cref="AsyncKeyedLocker"/> concurrently.</param>
+        /// <param name="capacity">The initial number of elements that the <see cref="AsyncKeyedLocker"/> can contain.</param>
+        /// <exception cref="ArgumentOutOfRangeException">Parameter is out of range.</exception>
         [Obsolete("Unless you're mixing different types of objects, it is recommended to use the generic version AsyncKeyedLocker<T>.")]
         public AsyncKeyedLocker(int concurrencyLevel, int capacity) : base(concurrencyLevel, capacity)
         {
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="AsyncKeyedLocker{TKey}" /> class accepting any object as key, uses the specified <see cref="AsyncKeyedLockOptions"/>, has the specified concurrency level and capacity, and uses the default comparer for the key type.
+        /// Initializes a new instance of the <see cref="AsyncKeyedLocker" /> class, uses the specified <see cref="AsyncKeyedLockOptions"/>, has the specified concurrency level and capacity, and uses the default comparer for the key type.
         /// </summary>
         /// <param name="options">The <see cref="AsyncKeyedLockOptions"/> to use.</param>
-        /// <param name="concurrencyLevel">The estimated number of threads that will update the <see cref="AsyncKeyedLocker{TKey}"/> concurrently.</param>
-        /// <param name="capacity">The initial number of elements that the <see cref="AsyncKeyedLocker{TKey}"/> can contain.</param>
+        /// <param name="concurrencyLevel">The estimated number of threads that will update the <see cref="AsyncKeyedLocker"/> concurrently.</param>
+        /// <param name="capacity">The initial number of elements that the <see cref="AsyncKeyedLocker"/> can contain.</param>
+        /// <exception cref="ArgumentOutOfRangeException">Parameter is out of range.</exception>
         [Obsolete("Unless you're mixing different types of objects, it is recommended to use the generic version AsyncKeyedLocker<T>.")]
         public AsyncKeyedLocker(AsyncKeyedLockOptions options, int concurrencyLevel, int capacity) : base(options, concurrencyLevel, capacity)
         {
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="AsyncKeyedLocker{TKey}" /> class accepting any object as key, uses the specified <see cref="SemaphoreSlim"/> initial count, has the specified concurrency level and capacity, and uses the default comparer for the key type.
+        /// Initializes a new instance of the <see cref="AsyncKeyedLocker" /> class, uses the specified <see cref="AsyncKeyedLockOptions"/>, has the specified concurrency level and capacity, and uses the default comparer for the key type.
         /// </summary>
-        /// <param name="concurrencyLevel">The estimated number of threads that will update the <see cref="AsyncKeyedLocker{TKey}"/> concurrently.</param>
-        /// <param name="capacity">The initial number of elements that the <see cref="AsyncKeyedLocker{TKey}"/> can contain.</param>
+        /// <param name="options">The <see cref="AsyncKeyedLockOptions"/> to use.</param>
+        /// <param name="concurrencyLevel">The estimated number of threads that will update the <see cref="AsyncKeyedLocker"/> concurrently.</param>
+        /// <param name="capacity">The initial number of elements that the <see cref="AsyncKeyedLocker"/> can contain.</param>
+        /// <exception cref="ArgumentOutOfRangeException">Parameter is out of range.</exception>
+        [Obsolete("Unless you're mixing different types of objects, it is recommended to use the generic version AsyncKeyedLocker<T>.")]
+        public AsyncKeyedLocker(Action<AsyncKeyedLockOptions> options, int concurrencyLevel, int capacity) : base(options, concurrencyLevel, capacity)
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="AsyncKeyedLocker" /> class, uses the specified <see cref="SemaphoreSlim"/> initial count, has the specified concurrency level and capacity, and uses the default comparer for the key type.
+        /// </summary>
+        /// <param name="concurrencyLevel">The estimated number of threads that will update the <see cref="AsyncKeyedLocker"/> concurrently.</param>
+        /// <param name="capacity">The initial number of elements that the <see cref="AsyncKeyedLocker"/> can contain.</param>
         /// <param name="comparer">The equality comparison implementation to use when comparing keys.</param>
-        /// <exception cref="ArgumentNullException">comparer is null</exception>
+        /// <exception cref="ArgumentOutOfRangeException">Parameter is out of range.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="comparer"/> is null.</exception>
         [Obsolete("Unless you're mixing different types of objects, it is recommended to use the generic version AsyncKeyedLocker<T>.")]
         public AsyncKeyedLocker(int concurrencyLevel, int capacity, IEqualityComparer<object> comparer) : base(concurrencyLevel, capacity, comparer)
         {
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="AsyncKeyedLocker{TKey}" /> class accepting any object as key, uses the specified <see cref="AsyncKeyedLockOptions"/>, has the specified concurrency level and capacity, and uses the default comparer for the key type.
+        /// Initializes a new instance of the <see cref="AsyncKeyedLocker" /> class, uses the specified <see cref="AsyncKeyedLockOptions"/>, has the specified concurrency level and capacity, and uses the default comparer for the key type.
         /// </summary>
         /// <param name="options">The <see cref="AsyncKeyedLockOptions"/> to use.</param>
-        /// <param name="concurrencyLevel">The estimated number of threads that will update the <see cref="AsyncKeyedLocker{TKey}"/> concurrently.</param>
-        /// <param name="capacity">The initial number of elements that the <see cref="AsyncKeyedLocker{TKey}"/> can contain.</param>
+        /// <param name="concurrencyLevel">The estimated number of threads that will update the <see cref="AsyncKeyedLocker"/> concurrently.</param>
+        /// <param name="capacity">The initial number of elements that the <see cref="AsyncKeyedLocker"/> can contain.</param>
         /// <param name="comparer">The equality comparison implementation to use when comparing keys.</param>
-        /// <exception cref="ArgumentNullException">comparer is null</exception>
+        /// <exception cref="ArgumentOutOfRangeException">Parameter is out of range.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="comparer"/> is null.</exception>
         [Obsolete("Unless you're mixing different types of objects, it is recommended to use the generic version AsyncKeyedLocker<T>.")]
         public AsyncKeyedLocker(AsyncKeyedLockOptions options, int concurrencyLevel, int capacity, IEqualityComparer<object> comparer) : base(options, concurrencyLevel, capacity, comparer)
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="AsyncKeyedLocker" /> class, uses the specified <see cref="AsyncKeyedLockOptions"/>, has the specified concurrency level and capacity, and uses the default comparer for the key type.
+        /// </summary>
+        /// <param name="options">The <see cref="AsyncKeyedLockOptions"/> to use.</param>
+        /// <param name="concurrencyLevel">The estimated number of threads that will update the <see cref="AsyncKeyedLocker"/> concurrently.</param>
+        /// <param name="capacity">The initial number of elements that the <see cref="AsyncKeyedLocker"/> can contain.</param>
+        /// <param name="comparer">The equality comparison implementation to use when comparing keys.</param>
+        /// <exception cref="ArgumentOutOfRangeException">Parameter is out of range.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="comparer"/> is null.</exception>
+        [Obsolete("Unless you're mixing different types of objects, it is recommended to use the generic version AsyncKeyedLocker<T>.")]
+        public AsyncKeyedLocker(Action<AsyncKeyedLockOptions> options, int concurrencyLevel, int capacity, IEqualityComparer<object> comparer) : base(options, concurrencyLevel, capacity, comparer)
         {
         }
     }
@@ -127,6 +181,19 @@ namespace AsyncKeyedLock
         }
 
         /// <summary>
+        /// Initializes a new instance of the <see cref="AsyncKeyedLocker{TKey}" /> class, uses the specified <see cref="AsyncKeyedLockOptions"/>, has the default concurrency level, has the default initial capacity, and uses the default comparer for the key type.
+        /// </summary>
+        /// <param name="options">The <see cref="AsyncKeyedLockOptions"/> to use.</param>
+        /// <exception cref="ArgumentOutOfRangeException">Parameter is out of range.</exception>
+        public AsyncKeyedLocker(Action<AsyncKeyedLockOptions> options)
+        {
+            AsyncKeyedLockOptions optionsParam = new();
+            options(optionsParam);
+
+            _dictionary = new AsyncKeyedLockDictionary<TKey>(optionsParam);
+        }
+
+        /// <summary>
         /// Initializes a new instance of the <see cref="AsyncKeyedLocker{TKey}" /> class, sets the <see cref="SemaphoreSlim"/> initial count to 1, has the default concurrency level, has the default initial capacity, and uses the specified <see cref="IEqualityComparer{TKey}"/>.
         /// </summary>
         /// <param name="comparer">The equality comparison implementation to use when comparing keys.</param>
@@ -146,6 +213,21 @@ namespace AsyncKeyedLock
         public AsyncKeyedLocker(AsyncKeyedLockOptions options, IEqualityComparer<TKey> comparer)
         {
             _dictionary = new AsyncKeyedLockDictionary<TKey>(options, comparer);
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="AsyncKeyedLocker{TKey}" /> class, uses the specified <see cref="AsyncKeyedLockOptions"/>, has the default concurrency level, has the default initial capacity, and uses the specified <see cref="IEqualityComparer{TKey}"/>.
+        /// </summary>
+        /// <param name="options">The <see cref="AsyncKeyedLockOptions"/> to use.</param>
+        /// <param name="comparer">The equality comparison implementation to use when comparing keys.</param>
+        /// <exception cref="ArgumentOutOfRangeException">Parameter is out of range.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="comparer"/> is null.</exception>
+        public AsyncKeyedLocker(Action<AsyncKeyedLockOptions> options, IEqualityComparer<TKey> comparer)
+        {
+            AsyncKeyedLockOptions optionsParam = new();
+            options(optionsParam);
+
+            _dictionary = new AsyncKeyedLockDictionary<TKey>(optionsParam, comparer);
         }
 
         /// <summary>
@@ -169,6 +251,21 @@ namespace AsyncKeyedLock
         public AsyncKeyedLocker(AsyncKeyedLockOptions options, int concurrencyLevel, int capacity)
         {
             _dictionary = new AsyncKeyedLockDictionary<TKey>(options, concurrencyLevel, capacity);
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="AsyncKeyedLocker{TKey}" /> class, uses the specified <see cref="AsyncKeyedLockOptions"/>, has the specified concurrency level and capacity, and uses the default comparer for the key type.
+        /// </summary>
+        /// <param name="options">The <see cref="AsyncKeyedLockOptions"/> to use.</param>
+        /// <param name="concurrencyLevel">The estimated number of threads that will update the <see cref="AsyncKeyedLocker{TKey}"/> concurrently.</param>
+        /// <param name="capacity">The initial number of elements that the <see cref="AsyncKeyedLocker{TKey}"/> can contain.</param>
+        /// <exception cref="ArgumentOutOfRangeException">Parameter is out of range.</exception>
+        public AsyncKeyedLocker(Action<AsyncKeyedLockOptions> options, int concurrencyLevel, int capacity)
+        {
+            AsyncKeyedLockOptions optionsParam = new();
+            options(optionsParam);
+
+            _dictionary = new AsyncKeyedLockDictionary<TKey>(optionsParam, concurrencyLevel, capacity);
         }
 
         /// <summary>
@@ -196,6 +293,23 @@ namespace AsyncKeyedLock
         public AsyncKeyedLocker(AsyncKeyedLockOptions options, int concurrencyLevel, int capacity, IEqualityComparer<TKey> comparer)
         {
             _dictionary = new AsyncKeyedLockDictionary<TKey>(options, concurrencyLevel, capacity, comparer);
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="AsyncKeyedLocker{TKey}" /> class, uses the specified <see cref="AsyncKeyedLockOptions"/>, has the specified concurrency level and capacity, and uses the default comparer for the key type.
+        /// </summary>
+        /// <param name="options">The <see cref="AsyncKeyedLockOptions"/> to use.</param>
+        /// <param name="concurrencyLevel">The estimated number of threads that will update the <see cref="AsyncKeyedLocker{TKey}"/> concurrently.</param>
+        /// <param name="capacity">The initial number of elements that the <see cref="AsyncKeyedLocker{TKey}"/> can contain.</param>
+        /// <param name="comparer">The equality comparison implementation to use when comparing keys.</param>
+        /// <exception cref="ArgumentOutOfRangeException">Parameter is out of range.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="comparer"/> is null.</exception>
+        public AsyncKeyedLocker(Action<AsyncKeyedLockOptions> options, int concurrencyLevel, int capacity, IEqualityComparer<TKey> comparer)
+        {
+            AsyncKeyedLockOptions optionsParam = new();
+            options(optionsParam);
+
+            _dictionary = new AsyncKeyedLockDictionary<TKey>(optionsParam, concurrencyLevel, capacity, comparer);
         }
 
         /// <summary>

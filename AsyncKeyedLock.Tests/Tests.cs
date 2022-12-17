@@ -112,7 +112,7 @@ namespace AsyncKeyedLock.Tests
         {
             var locks = 50_000;
             var concurrency = 50;
-            var asyncKeyedLocker = new AsyncKeyedLocker<int>(new AsyncKeyedLockOptions(poolSize: 50_000), Environment.ProcessorCount, 50_000);
+            var asyncKeyedLocker = new AsyncKeyedLocker<int>(o => o.PoolSize = 50_000, Environment.ProcessorCount, 50_000);
             var concurrentQueue = new ConcurrentQueue<(bool entered, int key)>();
 
             var tasks = Enumerable.Range(1, locks * concurrency)
@@ -163,7 +163,7 @@ namespace AsyncKeyedLock.Tests
         {
             var locks = 50_000;
             var concurrency = 50;
-            var asyncKeyedLocker = new AsyncKeyedLocker<int>(new AsyncKeyedLockOptions(poolSize: Environment.ProcessorCount), Environment.ProcessorCount, 50_000);
+            var asyncKeyedLocker = new AsyncKeyedLocker<int>(o => o.PoolSize = Environment.ProcessorCount, Environment.ProcessorCount, 50_000);
             var concurrentQueue = new ConcurrentQueue<(bool entered, int key)>();
 
             var tasks = Enumerable.Range(1, locks * concurrency)
@@ -214,7 +214,7 @@ namespace AsyncKeyedLock.Tests
         {
             var locks = 50_000;
             var concurrency = 50;
-            var asyncKeyedLocker = new AsyncKeyedLocker<int>(new AsyncKeyedLockOptions(poolSize: 10_000), Environment.ProcessorCount, 50_000);
+            var asyncKeyedLocker = new AsyncKeyedLocker<int>(o => o.PoolSize = 10_000, Environment.ProcessorCount, 50_000);
             var concurrentQueue = new ConcurrentQueue<(bool entered, int key)>();
 
             var tasks = Enumerable.Range(1, locks * concurrency)
@@ -349,7 +349,7 @@ namespace AsyncKeyedLock.Tests
         public async Task Test2AtATime()
         {
             var range = 4;
-            var asyncKeyedLocker = new AsyncKeyedLocker(new AsyncKeyedLockOptions(2));
+            var asyncKeyedLocker = new AsyncKeyedLocker(o => o.MaxCount = 2);
             var concurrentQueue = new ConcurrentQueue<int>();
 
             var tasks = Enumerable.Range(1, range * 4)
@@ -417,7 +417,7 @@ namespace AsyncKeyedLock.Tests
         public async Task Test2AtATimeGenerics()
         {
             var range = 4;
-            var asyncKeyedLocker = new AsyncKeyedLocker<int>(new AsyncKeyedLockOptions(2));
+            var asyncKeyedLocker = new AsyncKeyedLocker<int>(o => o.MaxCount = 2);
             var concurrentQueue = new ConcurrentQueue<int>();
 
             var tasks = Enumerable.Range(1, range * 4)
