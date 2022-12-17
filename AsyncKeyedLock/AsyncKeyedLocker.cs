@@ -127,19 +127,6 @@ namespace AsyncKeyedLock
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="AsyncKeyedLocker{TKey}" /> class, uses the specified <see cref="AsyncKeyedLockOptions"/>, has the default concurrency level, has the default initial capacity, and uses the default comparer for the key type.
-        /// </summary>
-        /// <param name="options">The <see cref="AsyncKeyedLockOptions"/> to use.</param>
-        /// <exception cref="ArgumentOutOfRangeException">Parameter is out of range.</exception>
-        public AsyncKeyedLocker(Action<AsyncKeyedLockOptions> options)
-        {
-            AsyncKeyedLockOptions optionsParam = new();
-            options(optionsParam);
-
-            _dictionary = new AsyncKeyedLockDictionary<TKey>(optionsParam);
-        }
-
-        /// <summary>
         /// Initializes a new instance of the <see cref="AsyncKeyedLocker{TKey}" /> class, sets the <see cref="SemaphoreSlim"/> initial count to 1, has the default concurrency level, has the default initial capacity, and uses the specified <see cref="IEqualityComparer{TKey}"/>.
         /// </summary>
         /// <param name="comparer">The equality comparison implementation to use when comparing keys.</param>
