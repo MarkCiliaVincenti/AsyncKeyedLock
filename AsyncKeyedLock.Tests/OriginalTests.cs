@@ -22,6 +22,21 @@ namespace AsyncKeyedLock.Tests
         }
 
         [Fact]
+        public void TestTimeoutWithTimeSpanSynchronous()
+        {
+            var asyncKeyedLocker = new AsyncKeyedLocker<string>();
+            using (var myFirstLock = asyncKeyedLocker.Lock("test"))
+            {
+                using (var myLock = asyncKeyedLocker.Lock("test", TimeSpan.Zero, out bool entered))
+                {
+                    Assert.False(entered);
+                }
+                Assert.True(asyncKeyedLocker.IsInUse("test"));
+            }
+            Assert.False(asyncKeyedLocker.IsInUse("test"));
+        }
+
+        [Fact]
         public async Task TestTimeoutWithTimeSpan()
         {
             var asyncKeyedLocker = new AsyncKeyedLocker<string>();
