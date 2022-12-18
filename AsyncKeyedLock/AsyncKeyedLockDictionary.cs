@@ -18,7 +18,7 @@ namespace AsyncKeyedLock
 
         public AsyncKeyedLockDictionary(AsyncKeyedLockOptions options) : base()
         {
-            if (options.MaxCount <= 1) throw new ArgumentOutOfRangeException(nameof(options), options.MaxCount, $"{nameof(options.MaxCount)} should be greater than or equal to 1.");
+            if (options.MaxCount < 1) throw new ArgumentOutOfRangeException(nameof(options), options.MaxCount, $"{nameof(options.MaxCount)} should be greater than or equal to 1.");
 
             MaxCount = options.MaxCount;
             if (options.PoolSize > 0)
@@ -34,7 +34,7 @@ namespace AsyncKeyedLock
 
         public AsyncKeyedLockDictionary(AsyncKeyedLockOptions options, IEqualityComparer<TKey> comparer) : base(comparer)
         {
-            if (options.MaxCount <= 1) throw new ArgumentOutOfRangeException(nameof(options), options.MaxCount, $"{nameof(options.MaxCount)} should be greater than or equal to 1.");
+            if (options.MaxCount < 1) throw new ArgumentOutOfRangeException(nameof(options), options.MaxCount, $"{nameof(options.MaxCount)} should be greater than or equal to 1.");
 
             MaxCount = options.MaxCount;
             if (options.PoolSize > 0)
