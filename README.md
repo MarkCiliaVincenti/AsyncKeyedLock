@@ -79,13 +79,13 @@ var asyncKeyedLocker = new AsyncKeyedLocker<string>(o =>
 ### Locking
 ```csharp
 // without cancellation token
-using (var lockObj = await asyncKeyedLocker.LockAsync(myObject))
+using (await asyncKeyedLocker.LockAsync(myObject))
 {
 	...
 }
 
 // with cancellation token
-using (var lockObj = await asyncKeyedLocker.LockAsync(myObject, cancellationToken))
+using (await asyncKeyedLocker.LockAsync(myObject, cancellationToken))
 {
 	...
 }
