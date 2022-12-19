@@ -9,7 +9,7 @@ namespace AsyncKeyedLock.Tests
         public async Task TestTimeout()
         {
             var asyncKeyedLocker = new AsyncKeyedLocker<string>();
-            using (var myFirstLock = await asyncKeyedLocker.LockAsync("test"))
+            using (await asyncKeyedLocker.LockAsync("test"))
             {
                 using (var myLock = await asyncKeyedLocker.LockAsync("test", 0))
                 {
@@ -25,9 +25,9 @@ namespace AsyncKeyedLock.Tests
         public void TestTimeoutWithTimeSpanSynchronous()
         {
             var asyncKeyedLocker = new AsyncKeyedLocker<string>();
-            using (var myFirstLock = asyncKeyedLocker.Lock("test"))
+            using (asyncKeyedLocker.Lock("test"))
             {
-                using (var myLock = asyncKeyedLocker.Lock("test", TimeSpan.Zero, out bool entered))
+                using (asyncKeyedLocker.Lock("test", TimeSpan.Zero, out bool entered))
                 {
                     Assert.False(entered);
                 }
@@ -40,7 +40,7 @@ namespace AsyncKeyedLock.Tests
         public async Task TestTimeoutWithTimeSpan()
         {
             var asyncKeyedLocker = new AsyncKeyedLocker<string>();
-            using (var myFirstLock = await asyncKeyedLocker.LockAsync("test"))
+            using (await asyncKeyedLocker.LockAsync("test"))
             {
                 using (var myLock = await asyncKeyedLocker.LockAsync("test", TimeSpan.Zero))
                 {
