@@ -22,6 +22,7 @@ namespace AsyncKeyedLock
             }
             else
             {
+                initialFill = Math.Min(initialFill, capacity);
                 for (int i = 0; i < initialFill; ++i)
                 {
                     _objects.Add(_objectGenerator(default));
