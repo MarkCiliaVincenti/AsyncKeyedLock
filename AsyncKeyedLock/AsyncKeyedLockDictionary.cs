@@ -10,7 +10,7 @@ namespace AsyncKeyedLock
     {
         public int MaxCount { get; private set; } = 1;
         private readonly AsyncKeyedLockPool<TKey> _pool;
-        private readonly bool _poolingEnabled;
+        internal bool PoolingEnabled { get; private set; }
 
         public AsyncKeyedLockDictionary() : base()
         {
@@ -23,7 +23,7 @@ namespace AsyncKeyedLock
             MaxCount = options.MaxCount;
             if (options.PoolSize > 0)
             {
-                _poolingEnabled = true;
+                PoolingEnabled = true;
                 _pool = new AsyncKeyedLockPool<TKey>((key) => new AsyncKeyedLockReleaser<TKey>(key, new SemaphoreSlim(MaxCount, MaxCount), this), options.PoolSize);
             }
         }
@@ -39,7 +39,7 @@ namespace AsyncKeyedLock
             MaxCount = options.MaxCount;
             if (options.PoolSize > 0)
             {
-                _poolingEnabled = true;
+                PoolingEnabled = true;
                 _pool = new AsyncKeyedLockPool<TKey>((key) => new AsyncKeyedLockReleaser<TKey>(key, new SemaphoreSlim(MaxCount, MaxCount), this), options.PoolSize);
             }
         }
@@ -55,7 +55,7 @@ namespace AsyncKeyedLock
             MaxCount = options.MaxCount;
             if (options.PoolSize > 0)
             {
-                _poolingEnabled = true;
+                PoolingEnabled = true;
                 _pool = new AsyncKeyedLockPool<TKey>((key) => new AsyncKeyedLockReleaser<TKey>(key, new SemaphoreSlim(MaxCount, MaxCount), this), options.PoolSize);
             }
         }
@@ -72,7 +72,7 @@ namespace AsyncKeyedLock
             MaxCount = options.MaxCount;
             if (options.PoolSize > 0)
             {
-                _poolingEnabled = true;
+                PoolingEnabled = true;
                 _pool = new AsyncKeyedLockPool<TKey>((key) => new AsyncKeyedLockReleaser<TKey>(key, new SemaphoreSlim(MaxCount, MaxCount), this), options.PoolSize);
             }
         }
@@ -80,29 +80,43 @@ namespace AsyncKeyedLock
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public AsyncKeyedLockReleaser<TKey> GetOrAdd(TKey key)
         {
-            if (TryGetValue(key, out var releaser) && releaser.TryIncrement())
+            if (PoolingEnabled)
             {
-                return releaser;
-            }
+                if (TryGetValue(key, out var releaser) && releaser.TryIncrement(key))
+                {
+                    return releaser;
+                }
 
-            if (_poolingEnabled)
-            {
                 var releaserToAdd = _pool.GetObject(key);
                 if (TryAdd(key, releaserToAdd))
                 {
                     return releaserToAdd;
                 }
 
-                while (!TryGetValue(key, out releaser) || !releaser.TryIncrement())
+                releaser = GetOrAdd(key, releaserToAdd);
+                if (ReferenceEquals(releaser, releaserToAdd))
                 {
-                    if (TryAdd(key, releaserToAdd))
-                    {
-                        return releaserToAdd;
-                    }
+                    return releaser;
                 }
 
-                _pool.PutObject(releaserToAdd);
-                return releaser;
+                while (true)
+                {
+                    releaser = GetOrAdd(key, releaserToAdd);
+                    if (ReferenceEquals(releaser, releaserToAdd))
+                    {
+                        return releaser;
+                    }
+                    if (releaser.TryIncrement(key))
+                    {
+                        _pool.PutObject(releaserToAdd);
+                        return releaser;
+                    }
+                }
+            }
+
+            if (TryGetValue(key, out var releaserNoPooling) && releaserNoPooling.TryIncrementNoPooling())
+            {
+                return releaserNoPooling;
             }
 
             var releaserToAddNoPooling = new AsyncKeyedLockReleaser<TKey>(key, new SemaphoreSlim(MaxCount, MaxCount), this);
@@ -111,15 +125,14 @@ namespace AsyncKeyedLock
                 return releaserToAddNoPooling;
             }
 
-            while (!TryGetValue(key, out releaser) || !releaser.TryIncrement())
+            while (true)
             {
-                if (TryAdd(key, releaserToAddNoPooling))
+                releaserNoPooling = GetOrAdd(key, releaserToAddNoPooling);
+                if (ReferenceEquals(releaserNoPooling, releaserToAddNoPooling) || releaserNoPooling.TryIncrementNoPooling())
                 {
-                    return releaserToAddNoPooling;
+                    return releaserNoPooling;
                 }
             }
-
-            return releaser;
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -131,7 +144,7 @@ namespace AsyncKeyedLock
             {
                 TryRemove(releaser.Key, out _);
                 Monitor.Exit(releaser);
-                if (_poolingEnabled)
+                if (PoolingEnabled)
                 {
                     _pool.PutObject(releaser);
                 }
@@ -152,7 +165,7 @@ namespace AsyncKeyedLock
             {
                 TryRemove(releaser.Key, out _);
                 Monitor.Exit(releaser);
-                if (_poolingEnabled)
+                if (PoolingEnabled)
                 {
                     _pool.PutObject(releaser);
                 }

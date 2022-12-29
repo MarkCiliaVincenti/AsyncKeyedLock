@@ -48,7 +48,24 @@ namespace AsyncKeyedLock
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal bool TryIncrement()
+        internal bool TryIncrement(TKey key)
+        {
+            if (Monitor.TryEnter(this))
+            {
+                if (_referenceCount == 0 || !_key.Equals(key)) // rare race conditions
+                {
+                    Monitor.Exit(this);
+                    return false;
+                }
+                ++_referenceCount;
+                Monitor.Exit(this);
+                return true;
+            }
+            return false;
+        }
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        internal bool TryIncrementNoPooling()
         {
             if (Monitor.TryEnter(this))
             {
