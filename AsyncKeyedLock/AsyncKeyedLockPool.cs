@@ -44,6 +44,7 @@ namespace AsyncKeyedLock
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void PutObject(AsyncKeyedLockReleaser<TKey> item)
         {
+            item.ReferenceCount = 1;
             _objects.TryAdd(item);
         }
     }

@@ -52,6 +52,11 @@ namespace AsyncKeyedLock
         {
             if (Monitor.TryEnter(this))
             {
+                if (_referenceCount == 0) // rare race condition
+                {
+                    Monitor.Exit(this);
+                    return false;
+                }
                 ++_referenceCount;
                 Monitor.Exit(this);
                 return true;

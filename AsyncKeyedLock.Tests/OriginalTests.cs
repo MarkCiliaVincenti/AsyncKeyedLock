@@ -118,9 +118,7 @@ namespace AsyncKeyedLock.Tests
                     var key = Convert.ToInt32(Math.Ceiling((double)i / concurrency));
                     using (await asyncKeyedLocker.LockAsync(key))
                     {
-                        await Task.Delay(20);
                         concurrentQueue.Enqueue((true, key));
-                        await Task.Delay(80);
                         concurrentQueue.Enqueue((false, key));
                     }
                 });
@@ -170,9 +168,7 @@ namespace AsyncKeyedLock.Tests
                     var key = Convert.ToInt32(Math.Ceiling((double)i / concurrency));
                     using (await asyncKeyedLocker.LockAsync(key))
                     {
-                        await Task.Delay(20);
                         concurrentQueue.Enqueue((true, key));
-                        await Task.Delay(80);
                         concurrentQueue.Enqueue((false, key));
                     }
                 });
@@ -226,9 +222,7 @@ namespace AsyncKeyedLock.Tests
                     var key = Convert.ToInt32(Math.Ceiling((double)i / concurrency));
                     using (await asyncKeyedLocker.LockAsync(key))
                     {
-                        await Task.Delay(20);
                         concurrentQueue.Enqueue((true, key));
-                        await Task.Delay(80);
                         concurrentQueue.Enqueue((false, key));
                     }
                 });
@@ -278,9 +272,7 @@ namespace AsyncKeyedLock.Tests
                     var key = Convert.ToInt32(Math.Ceiling((double)i / concurrency));
                     using (await asyncKeyedLocker.LockAsync(key))
                     {
-                        await Task.Delay(20);
                         concurrentQueue.Enqueue((true, key));
-                        await Task.Delay(80);
                         concurrentQueue.Enqueue((false, key));
                     }
                 });
@@ -330,9 +322,7 @@ namespace AsyncKeyedLock.Tests
                     var key = Convert.ToInt32(Math.Ceiling((double)i / concurrency));
                     using (await asyncKeyedLocker.LockAsync(key))
                     {
-                        await Task.Delay(20);
                         concurrentQueue.Enqueue((true, key));
-                        await Task.Delay(80);
                         concurrentQueue.Enqueue((false, key));
                     }
                 });
@@ -382,9 +372,7 @@ namespace AsyncKeyedLock.Tests
                     var key = Convert.ToInt32(Math.Ceiling((double)i / 5)).ToString();
                     using (await asyncKeyedLocker.LockAsync(key))
                     {
-                        await Task.Delay(20);
                         concurrentQueue.Enqueue((true, key));
-                        await Task.Delay(80);
                         concurrentQueue.Enqueue((false, key));
                     }
                 });
