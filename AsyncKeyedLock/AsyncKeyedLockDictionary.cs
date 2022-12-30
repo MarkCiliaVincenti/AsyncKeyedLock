@@ -90,11 +90,6 @@ namespace AsyncKeyedLock
                 var releaserToAdd = _pool.GetObject(key);
                 if (TryAdd(key, releaserToAdd))
                 {
-                    if (releaserToAdd.IsPooled)
-                    {
-                        releaserToAdd.Key = key;
-                        releaserToAdd.IsPooled = false;
-                    }
                     return releaserToAdd;
                 }
 
@@ -109,11 +104,6 @@ namespace AsyncKeyedLock
                     releaser = GetOrAdd(key, releaserToAdd);
                     if (ReferenceEquals(releaser, releaserToAdd))
                     {
-                        if (releaserToAdd.IsPooled)
-                        {
-                            releaserToAdd.Key = key;
-                            releaserToAdd.IsPooled = false;
-                        }
                         return releaser;
                     }
                     if (releaser.TryIncrement())

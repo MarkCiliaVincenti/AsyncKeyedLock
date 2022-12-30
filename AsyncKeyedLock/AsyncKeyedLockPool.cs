@@ -39,6 +39,8 @@ namespace AsyncKeyedLock
         {
             if (_objects.TryTake(out var item))
             {
+                item.Key = key;
+                item.IsPooled = false;
                 return item;
             }
             return _objectGenerator(key);
