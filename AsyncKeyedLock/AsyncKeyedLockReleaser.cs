@@ -9,6 +9,8 @@ namespace AsyncKeyedLock
     /// </summary>
     public sealed class AsyncKeyedLockReleaser<TKey> : IDisposable
     {
+        internal bool IsPooled { get; set; } = false;
+
         private TKey _key;
 
         /// <summary>
@@ -48,11 +50,11 @@ namespace AsyncKeyedLock
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal bool TryIncrement(TKey key)
+        internal bool TryIncrement()
         {
             if (Monitor.TryEnter(this))
             {
-                if (_referenceCount == 0 || !_key.Equals(key)) // rare race conditions
+                if (IsPooled) // rare race condition
                 {
                     Monitor.Exit(this);
                     return false;

@@ -17,7 +17,9 @@ namespace AsyncKeyedLock
             {
                 for (int i = 0; i < capacity; ++i)
                 {
-                    _objects.Add(_objectGenerator(default));
+                    var releaser = _objectGenerator(default);
+                    releaser.IsPooled = true;
+                    _objects.Add(releaser);
                 }
             }
             else
@@ -25,7 +27,9 @@ namespace AsyncKeyedLock
                 initialFill = Math.Min(initialFill, capacity);
                 for (int i = 0; i < initialFill; ++i)
                 {
-                    _objects.Add(_objectGenerator(default));
+                    var releaser = _objectGenerator(default);
+                    releaser.IsPooled = true;
+                    _objects.Add(releaser);
                 }
             }
         }
@@ -35,7 +39,6 @@ namespace AsyncKeyedLock
         {
             if (_objects.TryTake(out var item))
             {
-                item.Key = key;
                 return item;
             }
             return _objectGenerator(key);
@@ -44,7 +47,6 @@ namespace AsyncKeyedLock
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void PutObject(AsyncKeyedLockReleaser<TKey> item)
         {
-            item.ReferenceCount = 1;
             _objects.TryAdd(item);
         }
     }

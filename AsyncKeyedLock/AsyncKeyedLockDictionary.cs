@@ -82,7 +82,7 @@ namespace AsyncKeyedLock
         {
             if (PoolingEnabled)
             {
-                if (TryGetValue(key, out var releaser) && releaser.TryIncrement(key))
+                if (TryGetValue(key, out var releaser) && releaser.TryIncrement())
                 {
                     return releaser;
                 }
@@ -90,6 +90,11 @@ namespace AsyncKeyedLock
                 var releaserToAdd = _pool.GetObject(key);
                 if (TryAdd(key, releaserToAdd))
                 {
+                    if (releaserToAdd.IsPooled)
+                    {
+                        releaserToAdd.Key = key;
+                        releaserToAdd.IsPooled = false;
+                    }
                     return releaserToAdd;
                 }
 
@@ -104,9 +109,14 @@ namespace AsyncKeyedLock
                     releaser = GetOrAdd(key, releaserToAdd);
                     if (ReferenceEquals(releaser, releaserToAdd))
                     {
+                        if (releaserToAdd.IsPooled)
+                        {
+                            releaserToAdd.Key = key;
+                            releaserToAdd.IsPooled = false;
+                        }
                         return releaser;
                     }
-                    if (releaser.TryIncrement(key))
+                    if (releaser.TryIncrement())
                     {
                         _pool.PutObject(releaserToAdd);
                         return releaser;
@@ -143,10 +153,16 @@ namespace AsyncKeyedLock
             if (--releaser.ReferenceCount == 0)
             {
                 TryRemove(releaser.Key, out _);
-                Monitor.Exit(releaser);
                 if (PoolingEnabled)
                 {
+                    releaser.IsPooled = true;
+                    Monitor.Exit(releaser);
+                    releaser.ReferenceCount = 1;
                     _pool.PutObject(releaser);
+                }
+                else
+                {
+                    Monitor.Exit(releaser);
                 }
                 releaser.SemaphoreSlim.Release();
                 return;
@@ -164,10 +180,16 @@ namespace AsyncKeyedLock
             if (--releaser.ReferenceCount == 0)
             {
                 TryRemove(releaser.Key, out _);
-                Monitor.Exit(releaser);
                 if (PoolingEnabled)
                 {
+                    releaser.IsPooled = true;
+                    Monitor.Exit(releaser);
+                    releaser.ReferenceCount = 1;
                     _pool.PutObject(releaser);
+                }
+                else
+                {
+                    Monitor.Exit(releaser);
                 }
                 return;
             }

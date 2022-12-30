@@ -1,4 +1,6 @@
+using ListShuffle;
 using System.Collections.Concurrent;
+using System.Threading.Tasks;
 using Xunit;
 
 namespace AsyncKeyedLock.Tests
@@ -152,6 +154,58 @@ namespace AsyncKeyedLock.Tests
             }
 
             Assert.True(valid);
+        }
+
+        [Fact]
+        public async Task BenchmarkSimulationTest()
+        {
+            AsyncKeyedLocker<string> AsyncKeyedLocker;
+            ParallelQuery<Task>? AsyncKeyedLockerTasks = null;
+            Dictionary<int, List<int>> _shuffledIntegers = new();
+
+            var NumberOfLocks = 200;
+            var Contention = 100;
+            var GuidReversals = 0;
+
+            if (!_shuffledIntegers.TryGetValue(Contention * NumberOfLocks, out var ShuffledIntegers))
+            {
+                ShuffledIntegers = Enumerable.Range(0, Contention * NumberOfLocks).ToList();
+                ShuffledIntegers.Shuffle();
+                _shuffledIntegers[Contention * NumberOfLocks] = ShuffledIntegers;
+            }
+
+            if (NumberOfLocks != Contention)
+            {
+                AsyncKeyedLocker = new AsyncKeyedLocker<string>(o => o.PoolSize = NumberOfLocks, Environment.ProcessorCount, NumberOfLocks);
+                AsyncKeyedLockerTasks = ShuffledIntegers
+                    .Select(async i =>
+                    {
+                        var key = i % NumberOfLocks;
+
+                        using (var myLock = await AsyncKeyedLocker.LockAsync(key.ToString()).ConfigureAwait(false))
+                        {
+                            for (int j = 0; j < GuidReversals; j++)
+                            {
+                                Guid guid = Guid.NewGuid();
+                                var guidString = guid.ToString();
+                                guidString = guidString.Reverse().ToString();
+#pragma warning disable CS8602 // Dereference of a possibly null reference.
+                                if (guidString.Length != 53)
+                                {
+                                    throw new Exception($"Not 53 but {guidString?.Length}");
+                                }
+#pragma warning restore CS8602 // Dereference of a possibly null reference.
+                            }
+                        }
+
+                        await Task.Yield();
+                    }).AsParallel();
+            }
+
+            if (NumberOfLocks != Contention)
+            {
+                await Task.WhenAll(AsyncKeyedLockerTasks).ConfigureAwait(false);
+            }
         }
 
         [Fact]
