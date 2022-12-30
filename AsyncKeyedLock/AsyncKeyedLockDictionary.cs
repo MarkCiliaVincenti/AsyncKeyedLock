@@ -82,7 +82,7 @@ namespace AsyncKeyedLock
         {
             if (PoolingEnabled)
             {
-                if (TryGetValue(key, out var releaser) && releaser.TryIncrement())
+                if (TryGetValue(key, out var releaser) && releaser.TryIncrement(key))
                 {
                     return releaser;
                 }
@@ -100,7 +100,7 @@ namespace AsyncKeyedLock
                     {
                         return releaser;
                     }
-                    if (releaser.TryIncrement())
+                    if (releaser.TryIncrement(key))
                     {
                         releaser.IsPooled = true;
                         _pool.PutObject(releaserToAdd);
