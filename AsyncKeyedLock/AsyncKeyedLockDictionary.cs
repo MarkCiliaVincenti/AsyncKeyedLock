@@ -93,12 +93,6 @@ namespace AsyncKeyedLock
                     return releaserToAdd;
                 }
 
-                releaser = GetOrAdd(key, releaserToAdd);
-                if (ReferenceEquals(releaser, releaserToAdd))
-                {
-                    return releaser;
-                }
-
                 while (true)
                 {
                     releaser = GetOrAdd(key, releaserToAdd);
@@ -108,6 +102,7 @@ namespace AsyncKeyedLock
                     }
                     if (releaser.TryIncrement())
                     {
+                        releaser.IsPooled = true;
                         _pool.PutObject(releaserToAdd);
                         return releaser;
                     }
