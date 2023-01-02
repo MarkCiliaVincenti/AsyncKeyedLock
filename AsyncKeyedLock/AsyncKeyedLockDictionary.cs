@@ -102,7 +102,7 @@ namespace AsyncKeyedLock
                     }
                     if (releaser.TryIncrement(key))
                     {
-                        releaser.IsPooled = true;
+                        releaser.IsNotInUse = true;
                         _pool.PutObject(releaserToAdd);
                         return releaser;
                     }
@@ -135,24 +135,20 @@ namespace AsyncKeyedLock
         {
             Monitor.Enter(releaser);
 
-            if (--releaser.ReferenceCount == 0)
+            if (releaser.ReferenceCount == 1)
             {
                 TryRemove(releaser.Key, out _);
+                releaser.IsNotInUse = true;
+                Monitor.Exit(releaser);
                 if (PoolingEnabled)
                 {
-                    releaser.IsPooled = true;
-                    Monitor.Exit(releaser);
-                    releaser.ReferenceCount = 1;
                     _pool.PutObject(releaser);
-                }
-                else
-                {
-                    Monitor.Exit(releaser);
                 }
                 releaser.SemaphoreSlim.Release();
                 return;
             }
 
+            --releaser.ReferenceCount;
             Monitor.Exit(releaser);
             releaser.SemaphoreSlim.Release();
         }
@@ -162,23 +158,18 @@ namespace AsyncKeyedLock
         {
             Monitor.Enter(releaser);
 
-            if (--releaser.ReferenceCount == 0)
+            if (releaser.ReferenceCount == 1)
             {
                 TryRemove(releaser.Key, out _);
+                releaser.IsNotInUse = true;
+                Monitor.Exit(releaser);
                 if (PoolingEnabled)
                 {
-                    releaser.IsPooled = true;
-                    Monitor.Exit(releaser);
-                    releaser.ReferenceCount = 1;
                     _pool.PutObject(releaser);
-                }
-                else
-                {
-                    Monitor.Exit(releaser);
                 }
                 return;
             }
-
+            --releaser.ReferenceCount;
             Monitor.Exit(releaser);
         }
     }

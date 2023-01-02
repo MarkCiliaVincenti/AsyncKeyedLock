@@ -9,7 +9,7 @@ namespace AsyncKeyedLock
     /// </summary>
     public sealed class AsyncKeyedLockReleaser<TKey> : IDisposable
     {
-        internal bool IsPooled { get; set; } = false;
+        internal bool IsNotInUse { get; set; } = false;
 
         private TKey _key;
 
@@ -54,7 +54,7 @@ namespace AsyncKeyedLock
         {
             if (Monitor.TryEnter(this))
             {
-                if (IsPooled || !_key.Equals(key)) // rare race condition
+                if (IsNotInUse || !_key.Equals(key)) // rare race condition
                 {
                     Monitor.Exit(this);
                     return false;
@@ -71,7 +71,7 @@ namespace AsyncKeyedLock
         {
             if (Monitor.TryEnter(this))
             {
-                if (_referenceCount == 0) // rare race condition
+                if (IsNotInUse) // rare race condition
                 {
                     Monitor.Exit(this);
                     return false;
@@ -86,11 +86,13 @@ namespace AsyncKeyedLock
         /// <summary>
         /// Releases the <see cref="SemaphoreSlim"/> object once.
         /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void Dispose()
         {
             _dictionary.Release(this);
         }
 
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal void Dispose(bool enteredSemaphore)
         {
             if (enteredSemaphore)

@@ -18,7 +18,7 @@ namespace AsyncKeyedLock
                 for (int i = 0; i < capacity; ++i)
                 {
                     var releaser = _objectGenerator(default);
-                    releaser.IsPooled = true;
+                    releaser.IsNotInUse = true;
                     _objects.Add(releaser);
                 }
             }
@@ -28,7 +28,7 @@ namespace AsyncKeyedLock
                 for (int i = 0; i < initialFill; ++i)
                 {
                     var releaser = _objectGenerator(default);
-                    releaser.IsPooled = true;
+                    releaser.IsNotInUse = true;
                     _objects.Add(releaser);
                 }
             }
@@ -40,7 +40,7 @@ namespace AsyncKeyedLock
             if (_objects.TryTake(out var item))
             {
                 item.Key = key;
-                item.IsPooled = false;
+                item.IsNotInUse = false;
                 return item;
             }
             return _objectGenerator(key);
