@@ -1060,7 +1060,29 @@ namespace AsyncKeyedLock
         /// <returns><see langword="true"/> if the key is in use; otherwise, false.</returns>
         public bool IsInUse(TKey key)
         {
-            return _dictionary.ContainsKey(key);
+            if (!_dictionary.TryGetValue(key, out var result))
+            {
+                return false;
+            }
+            if (_dictionary.PoolingEnabled)
+            {
+                Monitor.Enter(result);
+                if (result.IsNotInUse || !result.Key.Equals(key))
+                {
+                    Monitor.Exit(result);
+                    return false;
+                }
+                Monitor.Exit(result);
+                return true;
+            }
+            Monitor.Enter(result);
+            if (result.IsNotInUse)
+            {
+                Monitor.Exit(result);
+                return false;
+            }
+            Monitor.Exit(result);
+            return true;
         }
 
         /// <summary>

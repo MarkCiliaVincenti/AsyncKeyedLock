@@ -114,5 +114,3 @@ bool isInUse = asyncKeyedLocker.IsInUse(myObject);
 
 ## Credits
 This library was originally inspired by [Stephen Cleary's solution](https://stackoverflow.com/questions/31138179/asynchronous-locking-based-on-a-key/31194647#31194647), but has gone through a lot of changes since.
-
-Check out our [list of contributors](https://github.com/MarkCiliaVincenti/AsyncKeyedLock/blob/master/CONTRIBUTORS.md).
