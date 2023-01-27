@@ -8,16 +8,16 @@
 		<PackageProjectUrl>https://github.com/MarkCiliaVincenti/AsyncKeyedLock</PackageProjectUrl>
 		<Copyright>MIT</Copyright>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
-		<Version>6.1.1-beta</Version>
+		<Version>6.1.1-rc</Version>
 		<PackageIcon>logo.png</PackageIcon>
-		<PackageReleaseNotes>Enabled deterministic build allowing you to step into and debug the code.</PackageReleaseNotes>
+		<PackageReleaseNotes>Enabled deterministic build allowing you to step into and debug the code. Fixed an issue with PoolInitialFill being ignored.</PackageReleaseNotes>
 		<Description>An asynchronous .NET Standard 2.0 library that allows you to lock based on a key (keyed semaphores), limiting concurrent threads sharing the same key to a specified number.</Description>
 		<Copyright>© 2023 Mark Cilia Vincenti</Copyright>
 		<PackageTags>async,lock,key,keyed,semaphore,dictionary,pooling,duplicate,synchronization</PackageTags>
 		<RepositoryType>git</RepositoryType>
 		<GeneratePackageOnBuild>false</GeneratePackageOnBuild>
-		<AssemblyVersion>6.1.0.1</AssemblyVersion>
-		<FileVersion>6.1.0.1</FileVersion>
+		<AssemblyVersion>6.1.0.2</AssemblyVersion>
+		<FileVersion>6.1.0.2</FileVersion>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
 		<IsPackable>true</IsPackable>
 		<IsTrimmable>true</IsTrimmable>
@@ -50,9 +50,7 @@
 			<Pack>False</Pack>
 			<PackagePath>\</PackagePath>
 		</None>
-	</ItemGroup>
-
-	<ItemGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
+	</ItememGroup Condition="'$(TargetFramework)' == 'netstandard2.0'">
 		<PackageReference Include="System.Threading.Tasks.Extensions" Version="4.5.4" />
 	</ItemGroup>
 
