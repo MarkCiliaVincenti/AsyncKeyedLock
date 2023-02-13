@@ -200,10 +200,7 @@ namespace AsyncKeyedLock.Tests
 
                         await Task.Yield();
                     }).AsParallel();
-            }
 
-            if (NumberOfLocks != Contention)
-            {
                 await Task.WhenAll(AsyncKeyedLockerTasks).ConfigureAwait(false);
             }
         }
