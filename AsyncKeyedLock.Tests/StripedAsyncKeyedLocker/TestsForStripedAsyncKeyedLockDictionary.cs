@@ -90,8 +90,10 @@ public class TestsForStripedAsyncKeyedLockDictionary
 
                 var currentTaskId = Task.CurrentId ?? -1;
                 if (runningTasksIndex.TryGetValue(key, out var otherThread))
+                {
                     throw new Exception($"Thread #{currentTaskId} acquired a lock using key ${key} " +
                                         $"but another thread #{otherThread} is also still running using this key!");
+                }
 
                 runningTasksIndex[key] = currentTaskId;
 
@@ -160,8 +162,10 @@ public class TestsForStripedAsyncKeyedLockDictionary
                 }
 
                 if (runningTasksIndex.TryGetValue(key, out var otherThread))
+                {
                     throw new Exception($"Task [{currentTaskId,3}] has a lock for key ${key} " +
                                         $"but another task [{otherThread,3}] also has an active lock for this key!");
+                }
 
                 runningTasksIndex[key] = currentTaskId;
 

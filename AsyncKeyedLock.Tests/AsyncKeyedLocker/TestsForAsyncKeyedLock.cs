@@ -84,8 +84,10 @@ public class TestsForAsyncKeyedLock
 
                     var currentTaskId = Task.CurrentId ?? -1;
                     if (runningTasksIndex.TryGetValue(key, out var otherThread))
+                    {
                         throw new Exception($"Thread #{currentTaskId} acquired a lock using key ${key} " +
                                             $"but another thread #{otherThread} is also still running using this key!");
+                    }
 
                     runningTasksIndex[key] = currentTaskId;
 
@@ -131,9 +133,15 @@ public class TestsForAsyncKeyedLock
                 .ToList();
 
             // Act
-            foreach (var thread in threads) thread.Start();
+            foreach (var thread in threads)
+            {
+                thread.Start();
+            }
 
-            foreach (var thread in threads) thread.Join();
+            foreach (var thread in threads)
+            {
+                thread.Join();
+            }
 
             maxParallelism.Should().BeGreaterThan(10);
 
@@ -172,9 +180,15 @@ public class TestsForAsyncKeyedLock
                 .ToList();
 
             // Act
-            foreach (var thread in threads) thread.Start();
+            foreach (var thread in threads)
+            {
+                thread.Start();
+            }
 
-            foreach (var thread in threads) thread.Join();
+            foreach (var thread in threads)
+            {
+                thread.Join();
+            }
 
             // Assert
             maxParallelism.Should().BeLessOrEqualTo(10);
@@ -192,8 +206,10 @@ public class TestsForAsyncKeyedLock
 
                     var currentThreadId = Thread.CurrentThread.ManagedThreadId;
                     if (runningThreadsIndex.TryGetValue(key, out var otherThread))
+                    {
                         throw new Exception($"Thread #{currentThreadId} acquired a lock using key ${key} " +
                                             $"but another thread #{otherThread} is also still running using this key!");
+                    }
 
                     runningThreadsIndex[key] = currentThreadId;
 
