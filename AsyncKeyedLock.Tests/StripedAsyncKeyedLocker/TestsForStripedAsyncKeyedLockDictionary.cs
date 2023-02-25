@@ -2,12 +2,12 @@
 using System.Collections.Concurrent;
 using Xunit;
 
-namespace AsyncKeyedLock.Tests;
+namespace AsyncKeyedLock.Tests.StripedAsyncKeyedLocker;
 
 /// <summary>
 /// Adapted from https://github.com/amoerie/keyed-semaphores/blob/main/KeyedSemaphores.Tests/TestsForKeyedSemaphoresCollection.cs
 /// </summary>
-public class TestsForAsyncKeyedLockDictionary
+public class TestsForStripedAsyncKeyedLockDictionary
 {
     [Fact]
     public async Task ShouldRunThreadsWithDistinctKeysInParallel()
@@ -16,8 +16,7 @@ public class TestsForAsyncKeyedLockDictionary
         var currentParallelism = 0;
         var maxParallelism = 0;
         var parallelismLock = new object();
-        var asyncKeyedLocks = new AsyncKeyedLocker<string>();
-        var index = asyncKeyedLocks.Index;
+        var stripedAyncKeyedLocks = new StripedAsyncKeyedLocker<int>();
 
         // 100 threads, 100 keys
         var threads = Enumerable.Range(0, 100)
@@ -28,11 +27,14 @@ public class TestsForAsyncKeyedLockDictionary
         await Task.WhenAll(threads).ConfigureAwait(false);
 
         maxParallelism.Should().BeGreaterThan(10);
-        index.Should().BeEmpty();
+        foreach (var key in Enumerable.Range(0, 100))
+        {
+            stripedAyncKeyedLocks.IsInUse(key).Should().BeFalse();
+        }
 
         async Task OccupyTheLockALittleBit(int key)
         {
-            using (await asyncKeyedLocks.LockAsync(key.ToString()))
+            using (await stripedAyncKeyedLocks.LockAsync(key))
             {
                 var incrementedCurrentParallelism = Interlocked.Increment(ref currentParallelism);
 
@@ -59,8 +61,7 @@ public class TestsForAsyncKeyedLockDictionary
         var parallelismLock = new object();
         var currentParallelism = 0;
         var maxParallelism = 0;
-        var asyncKeyedLocks = new AsyncKeyedLocker<int>();
-        var index = asyncKeyedLocks.Index;
+        var stripedAyncKeyedLocks = new StripedAsyncKeyedLocker<int>();
 
         // 100 threads, 10 keys
         var threads = Enumerable.Range(0, 100)
@@ -71,11 +72,14 @@ public class TestsForAsyncKeyedLockDictionary
         await Task.WhenAll(threads).ConfigureAwait(false);
 
         maxParallelism.Should().BeLessOrEqualTo(10);
-        index.Should().BeEmpty();
+        foreach (var key in Enumerable.Range(0, 100))
+        {
+            stripedAyncKeyedLocks.IsInUse(key % 10).Should().BeFalse();
+        }
 
         async Task OccupyTheLockALittleBit(int key)
         {
-            using (await asyncKeyedLocks.LockAsync(key))
+            using (await stripedAyncKeyedLocks.LockAsync(key))
             {
                 var incrementedCurrentParallelism = Interlocked.Increment(ref currentParallelism);
 
@@ -125,8 +129,7 @@ public class TestsForAsyncKeyedLockDictionary
         var currentParallelism = 0;
         var maxParallelism = 0;
         var random = new Random();
-        var asyncKeyedLocks = new AsyncKeyedLocker<int>();
-        var index = asyncKeyedLocks.Index;
+        var stripedAyncKeyedLocks = new StripedAsyncKeyedLocker<int>();
 
         // Many threads, 1 key
         var threads = Enumerable.Range(0, 100)
@@ -137,7 +140,7 @@ public class TestsForAsyncKeyedLockDictionary
         await Task.WhenAll(threads).ConfigureAwait(false);
 
         maxParallelism.Should().Be(1);
-        index.Should().BeEmpty();
+        stripedAyncKeyedLocks.IsInUse(1).Should().BeFalse();
 
 
         async Task OccupyTheLockALittleBit(int key)
@@ -147,7 +150,7 @@ public class TestsForAsyncKeyedLockDictionary
 
             await Task.Delay(delay).ConfigureAwait(false);
 
-            using (await asyncKeyedLocks.LockAsync(key))
+            using (await stripedAyncKeyedLocks.LockAsync(key))
             {
                 var incrementedCurrentParallelism = Interlocked.Increment(ref currentParallelism);
 
@@ -190,8 +193,7 @@ public class TestsForAsyncKeyedLockDictionary
         var currentParallelism = 0;
         var maxParallelism = 0;
         var parallelismLock = new object();
-        var asyncKeyedLocks = new AsyncKeyedLocker<string>();
-        var index = asyncKeyedLocks.Index;
+        var stripedAyncKeyedLocks = new StripedAsyncKeyedLocker<int>();
 
         // 100 threads, 100 keys
         var threads = Enumerable.Range(0, 100)
@@ -202,11 +204,14 @@ public class TestsForAsyncKeyedLockDictionary
         await Task.WhenAll(threads).ConfigureAwait(false);
 
         maxParallelism.Should().BeGreaterThan(10);
-        index.Should().BeEmpty();
+        foreach (var key in Enumerable.Range(0, 100))
+        {
+            stripedAyncKeyedLocks.IsInUse(key).Should().BeFalse();
+        }
 
         async Task OccupyTheLockALittleBit(int key)
         {
-            using (await asyncKeyedLocks.LockAsync(key.ToString()))
+            using (await stripedAyncKeyedLocks.LockAsync(key))
             {
                 var incrementedCurrentParallelism = Interlocked.Increment(ref currentParallelism);
 
@@ -221,6 +226,41 @@ public class TestsForAsyncKeyedLockDictionary
 
                 Interlocked.Decrement(ref currentParallelism);
             }
+        }
+    }
+
+    [Fact]
+    public async Task IsInUseShouldReturnTrueWhenLockedAndFalseWhenNotLocked()
+    {
+        // Arrange
+        var stripedAyncKeyedLocks = new StripedAsyncKeyedLocker<int>();
+
+        // 10 threads, 10 keys
+        var threads = Enumerable.Range(0, 10)
+            .Select(i => Task.Run(async () => await OccupyTheLockALittleBit(i).ConfigureAwait(false)))
+            .ToList();
+
+        // Act
+        await Task.WhenAll(threads).ConfigureAwait(false);
+        foreach (var key in Enumerable.Range(0, 10))
+        {
+            stripedAyncKeyedLocks.IsInUse(key).Should().BeFalse();
+        }
+
+        async Task OccupyTheLockALittleBit(int key)
+        {
+            stripedAyncKeyedLocks.IsInUse(key).Should().BeFalse();
+
+            using (await stripedAyncKeyedLocks.LockAsync(key))
+            {
+                const int delay = 250;
+
+                await Task.Delay(TimeSpan.FromMilliseconds(delay)).ConfigureAwait(false);
+
+                stripedAyncKeyedLocks.IsInUse(key).Should().BeTrue();
+            }
+
+            stripedAyncKeyedLocks.IsInUse(key).Should().BeFalse();
         }
     }
 }

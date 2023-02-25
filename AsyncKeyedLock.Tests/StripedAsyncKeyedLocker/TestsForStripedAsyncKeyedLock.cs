@@ -2,16 +2,16 @@
 using System.Collections.Concurrent;
 using Xunit;
 
-namespace AsyncKeyedLock.Tests;
+namespace AsyncKeyedLock.Tests.StripedAsyncKeyedLocker;
 
 /// <summary>
 /// Adapted from https://github.com/amoerie/keyed-semaphores/blob/main/KeyedSemaphores.Tests/TestsForKeyedSemaphore.cs
 /// </summary>
-public class TestsForAsyncKeyedLock
+public class TestsForStripedAsyncKeyedLock
 {
-    private static readonly AsyncKeyedLocker<string> _asyncKeyedLocker = new AsyncKeyedLocker<string>();
+    private static readonly StripedAsyncKeyedLocker<string> _stripedAsyncKeyedLocker = new StripedAsyncKeyedLocker<string>();
 
-    public class Async : TestsForAsyncKeyedLock
+    public class Async : TestsForStripedAsyncKeyedLock
     {
         [Fact]
         public async Task ShouldRunThreadsWithDistinctKeysInParallel()
@@ -33,7 +33,7 @@ public class TestsForAsyncKeyedLock
 
             async Task OccupyTheLockALittleBit(int key)
             {
-                using (await _asyncKeyedLocker.LockAsync(key.ToString()))
+                using (await _stripedAsyncKeyedLocker.LockAsync(key.ToString()))
                 {
                     var incrementedCurrentParallelism = Interlocked.Increment(ref currentParallelism);
 
@@ -72,7 +72,7 @@ public class TestsForAsyncKeyedLock
 
             async Task OccupyTheLockALittleBit(int key)
             {
-                using (await _asyncKeyedLocker.LockAsync(key.ToString()))
+                using (await _stripedAsyncKeyedLocker.LockAsync(key.ToString()))
                 {
                     var incrementedCurrentParallelism = Interlocked.Increment(ref currentParallelism);
 
@@ -115,7 +115,7 @@ public class TestsForAsyncKeyedLock
         }
     }
 
-    public class Sync : TestsForAsyncKeyedLock
+    public class Sync : TestsForStripedAsyncKeyedLock
     {
         [Fact]
         public void ShouldRunThreadsWithDistinctKeysInParallel()
@@ -139,7 +139,7 @@ public class TestsForAsyncKeyedLock
 
             void OccupyTheLockALittleBit(int key)
             {
-                using (_asyncKeyedLocker.Lock(key.ToString()))
+                using (_stripedAsyncKeyedLocker.Lock(key.ToString()))
                 {
                     var incrementedCurrentParallelism = Interlocked.Increment(ref currentParallelism);
 
@@ -181,7 +181,7 @@ public class TestsForAsyncKeyedLock
 
             void OccupyTheLockALittleBit(int key)
             {
-                using (_asyncKeyedLocker.Lock(key.ToString()))
+                using (_stripedAsyncKeyedLocker.Lock(key.ToString()))
                 {
                     var incrementedCurrentParallelism = Interlocked.Increment(ref currentParallelism);
 
