@@ -13,6 +13,9 @@ namespace AsyncKeyedLock
     /// <typeparam name="TKey"></typeparam>
     public sealed class StripedAsyncKeyedLocker<TKey> where TKey : notnull
     {
+        /// <summary>
+        /// The maximum number of requests for the semaphore that can be granted concurrently. Defaults to 1.
+        /// </summary>
         public int MaxCount { get; private set; }
         private readonly StripedAsyncKeyedLockReleaser[] _releasers;
         private readonly IEqualityComparer<TKey> _comparer;
