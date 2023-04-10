@@ -153,7 +153,7 @@ namespace AsyncKeyedLock
     /// <summary>
     /// Represents a thread-safe keyed locker that allows you to lock based on a key (keyed semaphores), only allowing a specified number of concurrent threads that share the same key.
     /// </summary>
-    public class AsyncKeyedLocker<TKey> where TKey : notnull
+    public class AsyncKeyedLocker<TKey> : IDisposable where TKey : notnull
     {
         private readonly AsyncKeyedLockDictionary<TKey> _dictionary;
         /// <summary>
@@ -1012,6 +1012,14 @@ namespace AsyncKeyedLock
         public int GetCurrentCount(TKey key)
         {
             return MaxCount - GetRemainingCount(key);
+        }
+
+        /// <summary>
+        /// Disposes the AsyncKeyedLocker.
+        /// </summary>
+        public void Dispose()
+        {
+            _dictionary.Dispose();
         }
     }
 }

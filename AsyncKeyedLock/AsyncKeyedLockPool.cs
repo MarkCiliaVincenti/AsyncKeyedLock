@@ -4,7 +4,7 @@ using System.Runtime.CompilerServices;
 
 namespace AsyncKeyedLock
 {
-    internal sealed class AsyncKeyedLockPool<TKey>
+    internal sealed class AsyncKeyedLockPool<TKey> : IDisposable
     {
         private readonly BlockingCollection<AsyncKeyedLockReleaser<TKey>> _objects;
         private readonly Func<TKey, AsyncKeyedLockReleaser<TKey>> _objectGenerator;
@@ -32,6 +32,11 @@ namespace AsyncKeyedLock
                     _objects.Add(releaser);
                 }
             }
+        }
+
+        public void Dispose()
+        {
+            _objects.Dispose();
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]

@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
@@ -6,7 +7,7 @@ using System.Threading;
 
 namespace AsyncKeyedLock
 {
-    internal sealed class AsyncKeyedLockDictionary<TKey> : ConcurrentDictionary<TKey, AsyncKeyedLockReleaser<TKey>>
+    internal sealed class AsyncKeyedLockDictionary<TKey> : ConcurrentDictionary<TKey, AsyncKeyedLockReleaser<TKey>>, IDisposable
     {
         public int MaxCount { get; private set; } = 1;
         private readonly AsyncKeyedLockPool<TKey> _pool;
@@ -171,6 +172,26 @@ namespace AsyncKeyedLock
             }
             --releaser.ReferenceCount;
             Monitor.Exit(releaser);
+        }
+
+        public void Dispose()
+        {
+            foreach (var semaphore in Values)
+            {
+                try
+                {
+                    semaphore.Dispose();
+                }
+                catch
+                {
+                    // do nothing
+                }
+            }
+            Clear();
+            if (PoolingEnabled)
+            {
+                _pool.Dispose();
+            }
         }
     }
 }
