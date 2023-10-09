@@ -20,11 +20,11 @@ public class TestsForStripedAsyncKeyedLockDictionary
 
         // 100 threads, 100 keys
         var threads = Enumerable.Range(0, 100)
-            .Select(i => Task.Run(async () => await OccupyTheLockALittleBit(i).ConfigureAwait(false)))
+            .Select(i => Task.Run(async () => await OccupyTheLockALittleBit(i)))
             .ToList();
 
         // Act
-        await Task.WhenAll(threads).ConfigureAwait(false);
+        await Task.WhenAll(threads);
 
         maxParallelism.Should().BeGreaterThan(10);
         foreach (var key in Enumerable.Range(0, 100))
@@ -46,7 +46,7 @@ public class TestsForStripedAsyncKeyedLockDictionary
                 const int delay = 250;
 
 
-                await Task.Delay(TimeSpan.FromMilliseconds(delay)).ConfigureAwait(false);
+                await Task.Delay(TimeSpan.FromMilliseconds(delay));
 
                 Interlocked.Decrement(ref currentParallelism);
             }
@@ -65,11 +65,11 @@ public class TestsForStripedAsyncKeyedLockDictionary
 
         // 100 threads, 10 keys
         var threads = Enumerable.Range(0, 100)
-            .Select(i => Task.Run(async () => await OccupyTheLockALittleBit(i % 10).ConfigureAwait(false)))
+            .Select(i => Task.Run(async () => await OccupyTheLockALittleBit(i % 10)))
             .ToList();
 
         // Act + Assert
-        await Task.WhenAll(threads).ConfigureAwait(false);
+        await Task.WhenAll(threads);
 
         maxParallelism.Should().BeLessOrEqualTo(10);
         foreach (var key in Enumerable.Range(0, 100))
@@ -99,7 +99,7 @@ public class TestsForStripedAsyncKeyedLockDictionary
 
                 const int delay = 10;
 
-                await Task.Delay(TimeSpan.FromMilliseconds(delay)).ConfigureAwait(false);
+                await Task.Delay(TimeSpan.FromMilliseconds(delay));
 
                 if (!runningTasksIndex.TryRemove(key, out var value))
                 {
@@ -135,11 +135,11 @@ public class TestsForStripedAsyncKeyedLockDictionary
 
         // Many threads, 1 key
         var threads = Enumerable.Range(0, 100)
-            .Select(_ => Task.Run(async () => await OccupyTheLockALittleBit(1).ConfigureAwait(false)))
+            .Select(_ => Task.Run(async () => await OccupyTheLockALittleBit(1)))
             .ToList();
 
         // Act + Assert
-        await Task.WhenAll(threads).ConfigureAwait(false);
+        await Task.WhenAll(threads);
 
         maxParallelism.Should().Be(1);
         stripedAyncKeyedLocks.IsInUse(1).Should().BeFalse();
@@ -150,7 +150,7 @@ public class TestsForStripedAsyncKeyedLockDictionary
             var currentTaskId = Task.CurrentId ?? -1;
             var delay = random.Next(500);
 
-            await Task.Delay(delay).ConfigureAwait(false);
+            await Task.Delay(delay);
 
             using (await stripedAyncKeyedLocks.LockAsync(key))
             {
@@ -201,11 +201,11 @@ public class TestsForStripedAsyncKeyedLockDictionary
 
         // 100 threads, 100 keys
         var threads = Enumerable.Range(0, 100)
-            .Select(i => Task.Run(async () => await OccupyTheLockALittleBit(i).ConfigureAwait(false)))
+            .Select(i => Task.Run(async () => await OccupyTheLockALittleBit(i)))
             .ToList();
 
         // Act
-        await Task.WhenAll(threads).ConfigureAwait(false);
+        await Task.WhenAll(threads);
 
         maxParallelism.Should().BeGreaterThan(10);
         foreach (var key in Enumerable.Range(0, 100))
@@ -226,7 +226,7 @@ public class TestsForStripedAsyncKeyedLockDictionary
 
                 const int delay = 250;
 
-                await Task.Delay(TimeSpan.FromMilliseconds(delay)).ConfigureAwait(false);
+                await Task.Delay(TimeSpan.FromMilliseconds(delay));
 
                 Interlocked.Decrement(ref currentParallelism);
             }
@@ -241,11 +241,11 @@ public class TestsForStripedAsyncKeyedLockDictionary
 
         // 10 threads, 10 keys
         var threads = Enumerable.Range(0, 10)
-            .Select(i => Task.Run(async () => await OccupyTheLockALittleBit(i).ConfigureAwait(false)))
+            .Select(i => Task.Run(async () => await OccupyTheLockALittleBit(i)))
             .ToList();
 
         // Act
-        await Task.WhenAll(threads).ConfigureAwait(false);
+        await Task.WhenAll(threads);
         foreach (var key in Enumerable.Range(0, 10))
         {
             stripedAyncKeyedLocks.IsInUse(key).Should().BeFalse();
@@ -259,7 +259,7 @@ public class TestsForStripedAsyncKeyedLockDictionary
             {
                 const int delay = 250;
 
-                await Task.Delay(TimeSpan.FromMilliseconds(delay)).ConfigureAwait(false);
+                await Task.Delay(TimeSpan.FromMilliseconds(delay));
 
                 stripedAyncKeyedLocks.IsInUse(key).Should().BeTrue();
             }

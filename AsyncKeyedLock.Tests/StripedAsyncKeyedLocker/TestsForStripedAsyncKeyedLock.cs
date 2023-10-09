@@ -23,11 +23,11 @@ public class TestsForStripedAsyncKeyedLock
 
             // 100 threads, 100 keys
             var threads = Enumerable.Range(0, 100)
-                .Select(i => Task.Run(async () => await OccupyTheLockALittleBit(i).ConfigureAwait(false)))
+                .Select(i => Task.Run(async () => await OccupyTheLockALittleBit(i)))
                 .ToList();
 
             // Act
-            await Task.WhenAll(threads).ConfigureAwait(false);
+            await Task.WhenAll(threads);
 
             maxParallelism.Should().BeGreaterThan(10);
 
@@ -44,7 +44,7 @@ public class TestsForStripedAsyncKeyedLock
 
                     const int delay = 250;
 
-                    await Task.Delay(TimeSpan.FromMilliseconds(delay)).ConfigureAwait(false);
+                    await Task.Delay(TimeSpan.FromMilliseconds(delay));
 
                     Interlocked.Decrement(ref currentParallelism);
                 }
@@ -62,11 +62,11 @@ public class TestsForStripedAsyncKeyedLock
 
             // 100 threads, 10 keys
             var threads = Enumerable.Range(0, 100)
-                .Select(i => Task.Run(async () => await OccupyTheLockALittleBit(i % 10).ConfigureAwait(false)))
+                .Select(i => Task.Run(async () => await OccupyTheLockALittleBit(i % 10)))
                 .ToList();
 
             // Act + Assert
-            await Task.WhenAll(threads).ConfigureAwait(false);
+            await Task.WhenAll(threads);
 
             maxParallelism.Should().BeLessOrEqualTo(10);
 
@@ -93,7 +93,7 @@ public class TestsForStripedAsyncKeyedLock
 
                     const int delay = 10;
 
-                    await Task.Delay(TimeSpan.FromMilliseconds(delay)).ConfigureAwait(false);
+                    await Task.Delay(TimeSpan.FromMilliseconds(delay));
 
                     if (!runningTasksIndex.TryRemove(key, out var value))
                     {

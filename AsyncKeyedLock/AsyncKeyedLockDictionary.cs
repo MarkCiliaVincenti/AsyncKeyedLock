@@ -103,7 +103,7 @@ namespace AsyncKeyedLock
                     }
                     if (releaser.TryIncrement(key))
                     {
-                        releaser.IsNotInUse = true;
+                        releaserToAdd.IsNotInUse = true;
                         _pool.PutObject(releaserToAdd);
                         return releaser;
                     }

@@ -1,6 +1,5 @@
 using ListShuffle;
 using System.Collections.Concurrent;
-using System.Threading.Tasks;
 using Xunit;
 
 namespace AsyncKeyedLock.Tests.StripedAsyncKeyedLocker
@@ -180,7 +179,7 @@ namespace AsyncKeyedLock.Tests.StripedAsyncKeyedLocker
                     {
                         var key = i % NumberOfLocks;
 
-                        using (var myLock = await AsyncKeyedLocker.LockAsync(key.ToString()).ConfigureAwait(false))
+                        using (var myLock = await AsyncKeyedLocker.LockAsync(key.ToString()))
                         {
                             for (int j = 0; j < GuidReversals; j++)
                             {
@@ -199,7 +198,7 @@ namespace AsyncKeyedLock.Tests.StripedAsyncKeyedLocker
                         await Task.Yield();
                     }).AsParallel();
 
-                await Task.WhenAll(AsyncKeyedLockerTasks).ConfigureAwait(false);
+                await Task.WhenAll(AsyncKeyedLockerTasks);
             }
         }
 
