@@ -599,11 +599,12 @@ namespace AsyncKeyedLock
         /// <param name="key">The key to lock on.</param>
         /// <param name="action">The synchronous action.</param>
         /// <param name="millisecondsTimeout">The number of milliseconds to wait, <see cref="Timeout.Infinite"/> (-1) to wait indefinitely, or zero to test the state of the wait handle and return immediately.</param>
+        /// <param name="continueOnCapturedContext">true to attempt to marshal the continuation back to the original context captured; otherwise, false. Defaults to false.</param>
         /// <returns>False if timed out, true if it successfully entered.</returns>
-        public async ValueTask<bool> TryLockAsync(TKey key, Action action, int millisecondsTimeout)
+        public async ValueTask<bool> TryLockAsync(TKey key, Action action, int millisecondsTimeout, bool continueOnCapturedContext = false)
         {
             var releaser = GetOrAdd(key);
-            if (!await releaser.SemaphoreSlim.WaitAsync(millisecondsTimeout).ConfigureAwait(false))
+            if (!await releaser.SemaphoreSlim.WaitAsync(millisecondsTimeout).ConfigureAwait(continueOnCapturedContext))
             {
                 ReleaseWithoutSemaphoreRelease(releaser);
                 return false;
@@ -626,11 +627,12 @@ namespace AsyncKeyedLock
         /// <param name="key">The key to lock on.</param>
         /// <param name="task">The asynchronous task.</param>
         /// <param name="millisecondsTimeout">The number of milliseconds to wait, <see cref="Timeout.Infinite"/> (-1) to wait indefinitely, or zero to test the state of the wait handle and return immediately.</param>
+        /// <param name="continueOnCapturedContext">true to attempt to marshal the continuation back to the original context captured; otherwise, false. Defaults to false.</param>
         /// <returns>False if timed out, true if it successfully entered.</returns>
-        public async ValueTask<bool> TryLockAsync(TKey key, Func<Task> task, int millisecondsTimeout)
+        public async ValueTask<bool> TryLockAsync(TKey key, Func<Task> task, int millisecondsTimeout, bool continueOnCapturedContext = false)
         {
             var releaser = GetOrAdd(key);
-            if (!await releaser.SemaphoreSlim.WaitAsync(millisecondsTimeout).ConfigureAwait(false))
+            if (!await releaser.SemaphoreSlim.WaitAsync(millisecondsTimeout).ConfigureAwait(continueOnCapturedContext))
             {
                 ReleaseWithoutSemaphoreRelease(releaser);
                 return false;
@@ -638,7 +640,7 @@ namespace AsyncKeyedLock
 
             try
             {
-                await task().ConfigureAwait(false);
+                await task().ConfigureAwait(continueOnCapturedContext);
             }
             finally
             {
@@ -653,11 +655,12 @@ namespace AsyncKeyedLock
         /// <param name="key">The key to lock on.</param>
         /// <param name="action">The synchronous action.</param>
         /// <param name="timeout">A <see cref="TimeSpan"/> that represents the number of milliseconds to wait, a <see cref="TimeSpan"/> that represents -1 milliseconds to wait indefinitely, or a <see cref="TimeSpan"/> that represents 0 milliseconds to test the wait handle and return immediately.</param>
+        /// <param name="continueOnCapturedContext">true to attempt to marshal the continuation back to the original context captured; otherwise, false. Defaults to false.</param>
         /// <returns>False if timed out, true if it successfully entered.</returns>
-        public async ValueTask<bool> TryLockAsync(TKey key, Action action, TimeSpan timeout)
+        public async ValueTask<bool> TryLockAsync(TKey key, Action action, TimeSpan timeout, bool continueOnCapturedContext = false)
         {
             var releaser = GetOrAdd(key);
-            if (!await releaser.SemaphoreSlim.WaitAsync(timeout).ConfigureAwait(false))
+            if (!await releaser.SemaphoreSlim.WaitAsync(timeout).ConfigureAwait(continueOnCapturedContext))
             {
                 ReleaseWithoutSemaphoreRelease(releaser);
                 return false;
@@ -680,11 +683,12 @@ namespace AsyncKeyedLock
         /// <param name="key">The key to lock on.</param>
         /// <param name="task">The asynchronous task.</param>
         /// <param name="timeout">A <see cref="TimeSpan"/> that represents the number of milliseconds to wait, a <see cref="TimeSpan"/> that represents -1 milliseconds to wait indefinitely, or a <see cref="TimeSpan"/> that represents 0 milliseconds to test the wait handle and return immediately.</param>
+        /// <param name="continueOnCapturedContext">true to attempt to marshal the continuation back to the original context captured; otherwise, false. Defaults to false.</param>
         /// <returns>False if timed out, true if it successfully entered.</returns>
-        public async ValueTask<bool> TryLockAsync(TKey key, Func<Task> task, TimeSpan timeout)
+        public async ValueTask<bool> TryLockAsync(TKey key, Func<Task> task, TimeSpan timeout, bool continueOnCapturedContext = false)
         {
             var releaser = GetOrAdd(key);
-            if (!await releaser.SemaphoreSlim.WaitAsync(timeout).ConfigureAwait(false))
+            if (!await releaser.SemaphoreSlim.WaitAsync(timeout).ConfigureAwait(continueOnCapturedContext))
             {
                 ReleaseWithoutSemaphoreRelease(releaser);
                 return false;
@@ -692,7 +696,7 @@ namespace AsyncKeyedLock
 
             try
             {
-                await task().ConfigureAwait(false);
+                await task().ConfigureAwait(continueOnCapturedContext);
             }
             finally
             {
@@ -708,13 +712,14 @@ namespace AsyncKeyedLock
         /// <param name="action">The synchronous action.</param>
         /// <param name="millisecondsTimeout">The number of milliseconds to wait, <see cref="Timeout.Infinite"/> (-1) to wait indefinitely, or zero to test the state of the wait handle and return immediately.</param>
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> to observe.</param>
+        /// <param name="continueOnCapturedContext">true to attempt to marshal the continuation back to the original context captured; otherwise, false. Defaults to false.</param>
         /// <returns>False if timed out, true if it successfully entered.</returns>
-        public async ValueTask<bool> TryLockAsync(TKey key, Action action, int millisecondsTimeout, CancellationToken cancellationToken)
+        public async ValueTask<bool> TryLockAsync(TKey key, Action action, int millisecondsTimeout, CancellationToken cancellationToken, bool continueOnCapturedContext = false)
         {
             var releaser = GetOrAdd(key);
             try
             {
-                if (!await releaser.SemaphoreSlim.WaitAsync(millisecondsTimeout, cancellationToken).ConfigureAwait(false))
+                if (!await releaser.SemaphoreSlim.WaitAsync(millisecondsTimeout, cancellationToken).ConfigureAwait(continueOnCapturedContext))
                 {
                     ReleaseWithoutSemaphoreRelease(releaser);
                     return false;
@@ -744,13 +749,14 @@ namespace AsyncKeyedLock
         /// <param name="task">The asynchronous task.</param>
         /// <param name="millisecondsTimeout">The number of milliseconds to wait, <see cref="Timeout.Infinite"/> (-1) to wait indefinitely, or zero to test the state of the wait handle and return immediately.</param>
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> to observe.</param>
+        /// <param name="continueOnCapturedContext">true to attempt to marshal the continuation back to the original context captured; otherwise, false. Defaults to false.</param>
         /// <returns>False if timed out, true if it successfully entered.</returns>
-        public async ValueTask<bool> TryLockAsync(TKey key, Func<Task> task, int millisecondsTimeout, CancellationToken cancellationToken)
+        public async ValueTask<bool> TryLockAsync(TKey key, Func<Task> task, int millisecondsTimeout, CancellationToken cancellationToken, bool continueOnCapturedContext = false)
         {
             var releaser = GetOrAdd(key);
             try
             {
-                if (!await releaser.SemaphoreSlim.WaitAsync(millisecondsTimeout, cancellationToken).ConfigureAwait(false))
+                if (!await releaser.SemaphoreSlim.WaitAsync(millisecondsTimeout, cancellationToken).ConfigureAwait(continueOnCapturedContext))
                 {
                     ReleaseWithoutSemaphoreRelease(releaser);
                     return false;
@@ -764,7 +770,7 @@ namespace AsyncKeyedLock
 
             try
             {
-                await task().ConfigureAwait(false);
+                await task().ConfigureAwait(continueOnCapturedContext);
             }
             finally
             {
@@ -780,13 +786,14 @@ namespace AsyncKeyedLock
         /// <param name="action">The synchronous action.</param>
         /// <param name="timeout">A <see cref="TimeSpan"/> that represents the number of milliseconds to wait, a <see cref="TimeSpan"/> that represents -1 milliseconds to wait indefinitely, or a <see cref="TimeSpan"/> that represents 0 milliseconds to test the wait handle and return immediately.</param>
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> to observe.</param>
+        /// <param name="continueOnCapturedContext">true to attempt to marshal the continuation back to the original context captured; otherwise, false. Defaults to false.</param>
         /// <returns>False if timed out, true if it successfully entered.</returns>
-        public async ValueTask<bool> TryLockAsync(TKey key, Action action, TimeSpan timeout, CancellationToken cancellationToken)
+        public async ValueTask<bool> TryLockAsync(TKey key, Action action, TimeSpan timeout, CancellationToken cancellationToken, bool continueOnCapturedContext = false)
         {
             var releaser = GetOrAdd(key);
             try
             {
-                if (!await releaser.SemaphoreSlim.WaitAsync(timeout, cancellationToken).ConfigureAwait(false))
+                if (!await releaser.SemaphoreSlim.WaitAsync(timeout, cancellationToken).ConfigureAwait(continueOnCapturedContext))
                 {
                     ReleaseWithoutSemaphoreRelease(releaser);
                     return false;
@@ -816,13 +823,14 @@ namespace AsyncKeyedLock
         /// <param name="task">The asynchronous task.</param>
         /// <param name="timeout">A <see cref="TimeSpan"/> that represents the number of milliseconds to wait, a <see cref="TimeSpan"/> that represents -1 milliseconds to wait indefinitely, or a <see cref="TimeSpan"/> that represents 0 milliseconds to test the wait handle and return immediately.</param>
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> to observe.</param>
+        /// <param name="continueOnCapturedContext">true to attempt to marshal the continuation back to the original context captured; otherwise, false. Defaults to false.</param>
         /// <returns>False if timed out, true if it successfully entered.</returns>
-        public async ValueTask<bool> TryLockAsync(TKey key, Func<Task> task, TimeSpan timeout, CancellationToken cancellationToken)
+        public async ValueTask<bool> TryLockAsync(TKey key, Func<Task> task, TimeSpan timeout, CancellationToken cancellationToken, bool continueOnCapturedContext = false)
         {
             var releaser = GetOrAdd(key);
             try
             {
-                if (!await releaser.SemaphoreSlim.WaitAsync(timeout, cancellationToken).ConfigureAwait(false))
+                if (!await releaser.SemaphoreSlim.WaitAsync(timeout, cancellationToken).ConfigureAwait(continueOnCapturedContext))
                 {
                     ReleaseWithoutSemaphoreRelease(releaser);
                     return false;
@@ -836,7 +844,7 @@ namespace AsyncKeyedLock
 
             try
             {
-                await task().ConfigureAwait(false);
+                await task().ConfigureAwait(continueOnCapturedContext);
             }
             finally
             {
@@ -851,11 +859,12 @@ namespace AsyncKeyedLock
         /// Asynchronously lock based on a key.
         /// </summary>
         /// <param name="key">The key to lock on.</param>
+        /// <param name="continueOnCapturedContext">true to attempt to marshal the continuation back to the original context captured; otherwise, false. Defaults to false.</param>
         /// <returns>A disposable value.</returns>
-        public async ValueTask<IDisposable> LockAsync(TKey key)
+        public async ValueTask<IDisposable> LockAsync(TKey key, bool continueOnCapturedContext = false)
         {
             var releaser = GetOrAdd(key);
-            await releaser.SemaphoreSlim.WaitAsync().ConfigureAwait(false);
+            await releaser.SemaphoreSlim.WaitAsync().ConfigureAwait(continueOnCapturedContext);
             return releaser;
         }
 
@@ -864,13 +873,14 @@ namespace AsyncKeyedLock
         /// </summary>
         /// <param name="key">The key to lock on.</param>
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> to observe.</param>
+        /// <param name="continueOnCapturedContext">true to attempt to marshal the continuation back to the original context captured; otherwise, false. Defaults to false.</param>
         /// <returns>A disposable value.</returns>
-        public async ValueTask<IDisposable> LockAsync(TKey key, CancellationToken cancellationToken)
+        public async ValueTask<IDisposable> LockAsync(TKey key, CancellationToken cancellationToken, bool continueOnCapturedContext = false)
         {
             var releaser = GetOrAdd(key);
             try
             {
-                await releaser.SemaphoreSlim.WaitAsync(cancellationToken).ConfigureAwait(false);
+                await releaser.SemaphoreSlim.WaitAsync(cancellationToken).ConfigureAwait(continueOnCapturedContext);
             }
             catch (OperationCanceledException)
             {
@@ -885,11 +895,12 @@ namespace AsyncKeyedLock
         /// </summary>
         /// <param name="key">The key to lock on.</param>
         /// <param name="millisecondsTimeout">The number of milliseconds to wait, <see cref="Timeout.Infinite"/> (-1) to wait indefinitely, or zero to test the state of the wait handle and return immediately.</param>
+        /// <param name="continueOnCapturedContext">true to attempt to marshal the continuation back to the original context captured; otherwise, false. Defaults to false.</param>
         /// <returns>A disposable value of type <see cref="AsyncKeyedLockTimeoutReleaser{TKey}"/>.</returns>
-        public async ValueTask<AsyncKeyedLockTimeoutReleaser<TKey>> LockAsync(TKey key, int millisecondsTimeout)
+        public async ValueTask<AsyncKeyedLockTimeoutReleaser<TKey>> LockAsync(TKey key, int millisecondsTimeout, bool continueOnCapturedContext = false)
         {
             var releaser = GetOrAdd(key);
-            return new AsyncKeyedLockTimeoutReleaser<TKey>(await releaser.SemaphoreSlim.WaitAsync(millisecondsTimeout).ConfigureAwait(false), releaser);
+            return new AsyncKeyedLockTimeoutReleaser<TKey>(await releaser.SemaphoreSlim.WaitAsync(millisecondsTimeout).ConfigureAwait(continueOnCapturedContext), releaser);
         }
 
         /// <summary>
@@ -897,11 +908,12 @@ namespace AsyncKeyedLock
         /// </summary>
         /// <param name="key">The key to lock on.</param>
         /// <param name="timeout">A <see cref="TimeSpan"/> that represents the number of milliseconds to wait, a <see cref="TimeSpan"/> that represents -1 milliseconds to wait indefinitely, or a <see cref="TimeSpan"/> that represents 0 milliseconds to test the wait handle and return immediately.</param>
+        /// <param name="continueOnCapturedContext">true to attempt to marshal the continuation back to the original context captured; otherwise, false. Defaults to false.</param>
         /// <returns>A disposable value of type <see cref="AsyncKeyedLockTimeoutReleaser{TKey}"/>.</returns>
-        public async ValueTask<AsyncKeyedLockTimeoutReleaser<TKey>> LockAsync(TKey key, TimeSpan timeout)
+        public async ValueTask<AsyncKeyedLockTimeoutReleaser<TKey>> LockAsync(TKey key, TimeSpan timeout, bool continueOnCapturedContext = false)
         {
             var releaser = GetOrAdd(key);
-            return new AsyncKeyedLockTimeoutReleaser<TKey>(await releaser.SemaphoreSlim.WaitAsync(timeout).ConfigureAwait(false), releaser);
+            return new AsyncKeyedLockTimeoutReleaser<TKey>(await releaser.SemaphoreSlim.WaitAsync(timeout).ConfigureAwait(continueOnCapturedContext), releaser);
         }
 
         /// <summary>
@@ -910,13 +922,14 @@ namespace AsyncKeyedLock
         /// <param name="key">The key to lock on.</param>
         /// <param name="millisecondsTimeout">The number of milliseconds to wait, <see cref="Timeout.Infinite"/> (-1) to wait indefinitely, or zero to test the state of the wait handle and return immediately.</param>
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> to observe.</param>
+        /// <param name="continueOnCapturedContext">true to attempt to marshal the continuation back to the original context captured; otherwise, false. Defaults to false.</param>
         /// <returns>A disposable value of type <see cref="AsyncKeyedLockTimeoutReleaser{TKey}"/>.</returns>
-        public async ValueTask<AsyncKeyedLockTimeoutReleaser<TKey>> LockAsync(TKey key, int millisecondsTimeout, CancellationToken cancellationToken)
+        public async ValueTask<AsyncKeyedLockTimeoutReleaser<TKey>> LockAsync(TKey key, int millisecondsTimeout, CancellationToken cancellationToken, bool continueOnCapturedContext = false)
         {
             var releaser = GetOrAdd(key);
             try
             {
-                return new AsyncKeyedLockTimeoutReleaser<TKey>(await releaser.SemaphoreSlim.WaitAsync(millisecondsTimeout, cancellationToken).ConfigureAwait(false), releaser);
+                return new AsyncKeyedLockTimeoutReleaser<TKey>(await releaser.SemaphoreSlim.WaitAsync(millisecondsTimeout, cancellationToken).ConfigureAwait(continueOnCapturedContext), releaser);
             }
             catch (OperationCanceledException)
             {
@@ -931,13 +944,14 @@ namespace AsyncKeyedLock
         /// <param name="key">The key to lock on.</param>
         /// <param name="timeout">A <see cref="TimeSpan"/> that represents the number of milliseconds to wait, a <see cref="TimeSpan"/> that represents -1 milliseconds to wait indefinitely, or a <see cref="TimeSpan"/> that represents 0 milliseconds to test the wait handle and return immediately.</param>
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> to observe.</param>
+        /// <param name="continueOnCapturedContext">true to attempt to marshal the continuation back to the original context captured; otherwise, false. Defaults to false.</param>
         /// <returns>A disposable value of type <see cref="AsyncKeyedLockTimeoutReleaser{TKey}"/>.</returns>
-        public async ValueTask<AsyncKeyedLockTimeoutReleaser<TKey>> LockAsync(TKey key, TimeSpan timeout, CancellationToken cancellationToken)
+        public async ValueTask<AsyncKeyedLockTimeoutReleaser<TKey>> LockAsync(TKey key, TimeSpan timeout, CancellationToken cancellationToken, bool continueOnCapturedContext = false)
         {
             var releaser = GetOrAdd(key);
             try
             {
-                return new AsyncKeyedLockTimeoutReleaser<TKey>(await releaser.SemaphoreSlim.WaitAsync(timeout, cancellationToken).ConfigureAwait(false), releaser);
+                return new AsyncKeyedLockTimeoutReleaser<TKey>(await releaser.SemaphoreSlim.WaitAsync(timeout, cancellationToken).ConfigureAwait(continueOnCapturedContext), releaser);
             }
             catch (OperationCanceledException)
             {
