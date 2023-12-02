@@ -8,4 +8,4 @@
 * [Tobias "Syzuna" Teske](https://github.com/Syzuna) for fixing a critical bug when he should have been sleeping
 * [Theodor Zoulias](https://github.com/theodorzoulias) for his valued help with race conditions
 * [MagicAndre1981](https://github.com/MagicAndre1981) for enabling deterministic builds
-* [c0nd3v](https://github.com/c0nd3v) for allowed passing on continueOnCapturedContext
+* [c0nd3v](https://github.com/c0nd3v) for allowing passing on continueOnCapturedContext
