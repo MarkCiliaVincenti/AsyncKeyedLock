@@ -474,7 +474,6 @@ namespace AsyncKeyedLock.Tests.AsyncKeyedLocker
                     using (await asyncKeyedLocker.LockAsync(key))
                     {
                         concurrentQueue.Enqueue(key);
-                        await Task.Delay(1);
                     }
                 });
             await Task.WhenAll(tasks.AsParallel());
@@ -544,7 +543,6 @@ namespace AsyncKeyedLock.Tests.AsyncKeyedLocker
                     using (await asyncKeyedLocker.LockAsync(key))
                     {
                         concurrentQueue.Enqueue(key);
-                        await Task.Delay(1);
                     }
                 });
             await Task.WhenAll(tasks.AsParallel());
