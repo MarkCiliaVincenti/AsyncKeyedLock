@@ -595,18 +595,30 @@ namespace AsyncKeyedLock.Tests.AsyncKeyedLocker
         }
 
         [Fact]
-        public async Task TestContinueOnCapturedContext()
+        public Task TestContinueOnCapturedContextTrue()
+            => TestContinueOnCapturedContext(true);
+
+        [Fact]
+        public Task TestContinueOnCapturedContextFalse()
+            => TestContinueOnCapturedContext(false);
+
+        private async Task TestContinueOnCapturedContext(bool continueOnCapturedContext)
         {
+            const string Key = "test";
+
             var asyncKeyedLocker = new AsyncKeyedLocker<string>();
             var testContext = new TestSynchronizationContext();
-            var currentThreadId = Environment.CurrentManagedThreadId;
 
-            async Task Callback()
+            void Callback()
             {
-                await Task.Yield();
-
-                SynchronizationContext.Current.Should().Be(testContext);
-                Environment.CurrentManagedThreadId.Should().Be(currentThreadId);
+                if(continueOnCapturedContext)
+                {
+                    Environment.CurrentManagedThreadId.Should().Be(testContext.LastPostThreadId);
+                }
+                else
+                {
+                    testContext.LastPostThreadId.Should().Be(default);
+                }
             }
 
             var previousContext = SynchronizationContext.Current;
@@ -614,7 +626,16 @@ namespace AsyncKeyedLock.Tests.AsyncKeyedLocker
 
             try
             {
-                await asyncKeyedLocker.TryLockAsync("test", Callback, 0, true);
+                // This is just to make WaitAsync in TryLockAsync not finish synchronously
+                var obj = asyncKeyedLocker.Lock(Key);
+
+                _ = Task.Run(async () =>
+                {
+                    await Task.Delay(1000);
+                    obj.Dispose();
+                });
+
+                await asyncKeyedLocker.TryLockAsync(Key, Callback, 5000, continueOnCapturedContext);
             }
             finally
             {
