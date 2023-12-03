@@ -73,7 +73,7 @@ namespace AsyncKeyedLock.Tests.AsyncKeyedLocker
                         concurrentQueue.Enqueue((false, key));
                     }
                 });
-            await Task.WhenAll(tasks.AsParallel());
+            await Task.WhenAll(tasks.AsParallel()).ConfigureAwait(false);
 
             bool valid = concurrentQueue.Count == locks * concurrency * 2;
 
@@ -123,7 +123,7 @@ namespace AsyncKeyedLock.Tests.AsyncKeyedLocker
                         concurrentQueue.Enqueue((false, key));
                     }
                 });
-            await Task.WhenAll(tasks.AsParallel());
+            await Task.WhenAll(tasks.AsParallel()).ConfigureAwait(false);
 
             bool valid = concurrentQueue.Count == locks * concurrency * 2;
 
@@ -222,7 +222,7 @@ namespace AsyncKeyedLock.Tests.AsyncKeyedLocker
                         concurrentQueue.Enqueue((false, key));
                     }
                 });
-            await Task.WhenAll(tasks.AsParallel());
+            await Task.WhenAll(tasks.AsParallel()).ConfigureAwait(false);
 
             bool valid = concurrentQueue.Count == locks * concurrency * 2;
 
@@ -276,7 +276,7 @@ namespace AsyncKeyedLock.Tests.AsyncKeyedLocker
                         concurrentQueue.Enqueue((false, key));
                     }
                 });
-            await Task.WhenAll(tasks.AsParallel());
+            await Task.WhenAll(tasks.AsParallel()).ConfigureAwait(false);
 
             bool valid = concurrentQueue.Count == locks * concurrency * 2;
 
@@ -326,7 +326,7 @@ namespace AsyncKeyedLock.Tests.AsyncKeyedLocker
                         concurrentQueue.Enqueue((false, key));
                     }
                 });
-            await Task.WhenAll(tasks.AsParallel());
+            await Task.WhenAll(tasks.AsParallel()).ConfigureAwait(false);
 
             bool valid = concurrentQueue.Count == locks * concurrency * 2;
 
@@ -376,7 +376,7 @@ namespace AsyncKeyedLock.Tests.AsyncKeyedLocker
                         concurrentQueue.Enqueue((false, key));
                     }
                 });
-            await Task.WhenAll(tasks.AsParallel());
+            await Task.WhenAll(tasks.AsParallel()).ConfigureAwait(false);
 
             bool valid = concurrentQueue.Count == locks * concurrency * 2;
 
@@ -426,7 +426,7 @@ namespace AsyncKeyedLock.Tests.AsyncKeyedLocker
                         concurrentQueue.Enqueue((false, key));
                     }
                 });
-            await Task.WhenAll(tasks.AsParallel());
+            await Task.WhenAll(tasks.AsParallel()).ConfigureAwait(false);
 
             bool valid = concurrentQueue.Count == locks * concurrency * 2;
 
@@ -475,7 +475,7 @@ namespace AsyncKeyedLock.Tests.AsyncKeyedLocker
                         await Task.Delay(100 * key);
                     }
                 });
-            await Task.WhenAll(tasks.AsParallel());
+            await Task.WhenAll(tasks.AsParallel()).ConfigureAwait(false);
 
             bool valid = true;
             var list = concurrentQueue.ToList();
@@ -509,7 +509,7 @@ namespace AsyncKeyedLock.Tests.AsyncKeyedLocker
                         await Task.Delay((100 * key) + 1000);
                     }
                 });
-            await Task.WhenAll(tasks.AsParallel());
+            await Task.WhenAll(tasks.AsParallel()).ConfigureAwait(false);
 
             bool valid = true;
             var list = concurrentQueue.ToList();
@@ -543,7 +543,7 @@ namespace AsyncKeyedLock.Tests.AsyncKeyedLocker
                         await Task.Delay(100 * key);
                     }
                 });
-            await Task.WhenAll(tasks.AsParallel());
+            await Task.WhenAll(tasks.AsParallel()).ConfigureAwait(false);
 
             bool valid = true;
             var list = concurrentQueue.ToList();
