@@ -1,7 +1,4 @@
-﻿
-using System.Collections.Concurrent;
-
-namespace AsyncKeyedLock.Tests.Helpers
+﻿namespace AsyncKeyedLock.Tests.Helpers
 {
     public class TestSynchronizationContext : SynchronizationContext
     {
