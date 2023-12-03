@@ -1,3 +1,5 @@
+using AsyncKeyedLock.Tests.Helpers;
+using FluentAssertions;
 using ListShuffle;
 using System.Collections.Concurrent;
 using Xunit;
@@ -590,6 +592,34 @@ namespace AsyncKeyedLock.Tests.AsyncKeyedLocker
             }
 
             Assert.True(valid);
+        }
+
+        [Fact]
+        public async Task TestContinueOnCapturedContext()
+        {
+            var asyncKeyedLocker = new AsyncKeyedLocker<string>();
+            var testContext = new TestSynchronizationContext();
+            var currentThreadId = Environment.CurrentManagedThreadId;
+
+            async Task Callback()
+            {
+                await Task.Yield();
+
+                SynchronizationContext.Current.Should().Be(testContext);
+                Environment.CurrentManagedThreadId.Should().Be(currentThreadId);
+            }
+
+            var previousContext = SynchronizationContext.Current;
+            SynchronizationContext.SetSynchronizationContext(testContext);
+
+            try
+            {
+                await asyncKeyedLocker.TryLockAsync("test", Callback, 0, true);
+            }
+            finally
+            {
+                SynchronizationContext.SetSynchronizationContext(previousContext);
+            }
         }
     }
 }
