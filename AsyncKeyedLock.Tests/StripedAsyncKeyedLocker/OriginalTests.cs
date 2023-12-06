@@ -404,7 +404,7 @@ namespace AsyncKeyedLock.Tests.StripedAsyncKeyedLocker
         {
             const string Key = "test";
 
-            var asyncKeyedLocker = new AsyncKeyedLocker<string>();
+            var asyncKeyedLocker = new StripedAsyncKeyedLocker<string>();
             var testContext = new TestSynchronizationContext();
 
             void Callback()
@@ -434,6 +434,55 @@ namespace AsyncKeyedLock.Tests.StripedAsyncKeyedLocker
                 });
 
                 await asyncKeyedLocker.TryLockAsync(Key, Callback, 5000, continueOnCapturedContext);
+            }
+            finally
+            {
+                SynchronizationContext.SetSynchronizationContext(previousContext);
+            }
+        }
+
+        [Fact]
+        public Task TestOptionContinueOnCapturedContext()
+                    => TestConfigureAwaitOptions(ConfigureAwaitOptions.ContinueOnCapturedContext);
+
+        [Fact]
+        public Task TestOptionForceYielding()
+            => TestConfigureAwaitOptions(ConfigureAwaitOptions.ForceYielding);
+
+        private async Task TestConfigureAwaitOptions(ConfigureAwaitOptions configureAwaitOptions)
+        {
+            const string Key = "test";
+
+            var asyncKeyedLocker = new StripedAsyncKeyedLocker<string>();
+            var testContext = new TestSynchronizationContext();
+
+            void Callback()
+            {
+                if (configureAwaitOptions == ConfigureAwaitOptions.ContinueOnCapturedContext)
+                {
+                    Environment.CurrentManagedThreadId.Should().Be(testContext.LastPostThreadId);
+                }
+                else
+                {
+                    testContext.LastPostThreadId.Should().Be(default);
+                }
+            }
+
+            var previousContext = SynchronizationContext.Current;
+            SynchronizationContext.SetSynchronizationContext(testContext);
+
+            try
+            {
+                // This is just to make WaitAsync in TryLockAsync not finish synchronously
+                var obj = asyncKeyedLocker.Lock(Key);
+
+                _ = Task.Run(async () =>
+                {
+                    await Task.Delay(1000);
+                    obj.Dispose();
+                });
+
+                await asyncKeyedLocker.TryLockAsync(Key, Callback, 5000, configureAwaitOptions);
             }
             finally
             {

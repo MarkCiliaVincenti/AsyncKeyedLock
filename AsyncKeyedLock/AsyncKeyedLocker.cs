@@ -854,6 +854,270 @@ namespace AsyncKeyedLock
         }
         #endregion AsynchronousTry
 
+        #region AsynchronousTryNet8.0
+#if NET8_0_OR_GREATER
+        /// <summary>
+        /// Asynchronously lock based on a key, setting a limit for the number of milliseconds to wait, and if not timed out, scynchronously execute an action and release.
+        /// </summary>
+        /// <param name="key">The key to lock on.</param>
+        /// <param name="action">The synchronous action.</param>
+        /// <param name="millisecondsTimeout">The number of milliseconds to wait, <see cref="Timeout.Infinite"/> (-1) to wait indefinitely, or zero to test the state of the wait handle and return immediately.</param>
+        /// <param name="configureAwaitOptions">Options used to configure how awaits on this task are performed.</param>
+        /// <returns>False if timed out, true if it successfully entered.</returns>
+        public async ValueTask<bool> TryLockAsync(TKey key, Action action, int millisecondsTimeout, ConfigureAwaitOptions configureAwaitOptions)
+        {
+            var releaser = GetOrAdd(key);
+            if (!await releaser.SemaphoreSlim.WaitAsync(millisecondsTimeout).ConfigureAwait(configureAwaitOptions))
+            {
+                ReleaseWithoutSemaphoreRelease(releaser);
+                return false;
+            }
+
+            try
+            {
+                action();
+            }
+            finally
+            {
+                Release(releaser);
+            }
+            return true;
+        }
+
+        /// <summary>
+        /// Asynchronously lock based on a key, setting a limit for the number of milliseconds to wait, and if not timed out, ascynchronously execute a <see cref="Func{Task}"/> and release.
+        /// </summary>
+        /// <param name="key">The key to lock on.</param>
+        /// <param name="task">The asynchronous task.</param>
+        /// <param name="millisecondsTimeout">The number of milliseconds to wait, <see cref="Timeout.Infinite"/> (-1) to wait indefinitely, or zero to test the state of the wait handle and return immediately.</param>
+        /// <param name="configureAwaitOptions">Options used to configure how awaits on this task are performed.</param>
+        /// <returns>False if timed out, true if it successfully entered.</returns>
+        public async ValueTask<bool> TryLockAsync(TKey key, Func<Task> task, int millisecondsTimeout, ConfigureAwaitOptions configureAwaitOptions)
+        {
+            var releaser = GetOrAdd(key);
+            if (!await releaser.SemaphoreSlim.WaitAsync(millisecondsTimeout).ConfigureAwait(configureAwaitOptions))
+            {
+                ReleaseWithoutSemaphoreRelease(releaser);
+                return false;
+            }
+
+            try
+            {
+                await task().ConfigureAwait(configureAwaitOptions);
+            }
+            finally
+            {
+                Release(releaser);
+            }
+            return true;
+        }
+
+        /// <summary>
+        /// Asynchronously lock based on a key, setting a limit for the <see cref="System.TimeSpan"/> to wait, and if not timed out, scynchronously execute an action and release.
+        /// </summary>
+        /// <param name="key">The key to lock on.</param>
+        /// <param name="action">The synchronous action.</param>
+        /// <param name="timeout">A <see cref="TimeSpan"/> that represents the number of milliseconds to wait, a <see cref="TimeSpan"/> that represents -1 milliseconds to wait indefinitely, or a <see cref="TimeSpan"/> that represents 0 milliseconds to test the wait handle and return immediately.</param>
+        /// <param name="configureAwaitOptions">Options used to configure how awaits on this task are performed.</param>
+        /// <returns>False if timed out, true if it successfully entered.</returns>
+        public async ValueTask<bool> TryLockAsync(TKey key, Action action, TimeSpan timeout, ConfigureAwaitOptions configureAwaitOptions)
+        {
+            var releaser = GetOrAdd(key);
+            if (!await releaser.SemaphoreSlim.WaitAsync(timeout).ConfigureAwait(configureAwaitOptions))
+            {
+                ReleaseWithoutSemaphoreRelease(releaser);
+                return false;
+            }
+
+            try
+            {
+                action();
+            }
+            finally
+            {
+                Release(releaser);
+            }
+            return true;
+        }
+
+        /// <summary>
+        /// Asynchronously lock based on a key, setting a limit for the <see cref="System.TimeSpan"/> to wait, and if not timed out, ascynchronously execute a <see cref="Func{Task}"/> and release.
+        /// </summary>
+        /// <param name="key">The key to lock on.</param>
+        /// <param name="task">The asynchronous task.</param>
+        /// <param name="timeout">A <see cref="TimeSpan"/> that represents the number of milliseconds to wait, a <see cref="TimeSpan"/> that represents -1 milliseconds to wait indefinitely, or a <see cref="TimeSpan"/> that represents 0 milliseconds to test the wait handle and return immediately.</param>
+        /// <param name="configureAwaitOptions">Options used to configure how awaits on this task are performed.</param>
+        /// <returns>False if timed out, true if it successfully entered.</returns>
+        public async ValueTask<bool> TryLockAsync(TKey key, Func<Task> task, TimeSpan timeout, ConfigureAwaitOptions configureAwaitOptions)
+        {
+            var releaser = GetOrAdd(key);
+            if (!await releaser.SemaphoreSlim.WaitAsync(timeout).ConfigureAwait(configureAwaitOptions))
+            {
+                ReleaseWithoutSemaphoreRelease(releaser);
+                return false;
+            }
+
+            try
+            {
+                await task().ConfigureAwait(configureAwaitOptions);
+            }
+            finally
+            {
+                Release(releaser);
+            }
+            return true;
+        }
+
+        /// <summary>
+        /// Asynchronously lock based on a key, setting a limit for the number of milliseconds to wait, and if not timed out, scynchronously execute an action and release, while observing a <see cref="CancellationToken"/>.
+        /// </summary>
+        /// <param name="key">The key to lock on.</param>
+        /// <param name="action">The synchronous action.</param>
+        /// <param name="millisecondsTimeout">The number of milliseconds to wait, <see cref="Timeout.Infinite"/> (-1) to wait indefinitely, or zero to test the state of the wait handle and return immediately.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> to observe.</param>
+        /// <param name="configureAwaitOptions">Options used to configure how awaits on this task are performed.</param>
+        /// <returns>False if timed out, true if it successfully entered.</returns>
+        public async ValueTask<bool> TryLockAsync(TKey key, Action action, int millisecondsTimeout, CancellationToken cancellationToken, ConfigureAwaitOptions configureAwaitOptions)
+        {
+            var releaser = GetOrAdd(key);
+            try
+            {
+                if (!await releaser.SemaphoreSlim.WaitAsync(millisecondsTimeout, cancellationToken).ConfigureAwait(configureAwaitOptions))
+                {
+                    ReleaseWithoutSemaphoreRelease(releaser);
+                    return false;
+                }
+            }
+            catch (OperationCanceledException)
+            {
+                ReleaseWithoutSemaphoreRelease(releaser);
+                throw;
+            }
+
+            try
+            {
+                action();
+            }
+            finally
+            {
+                Release(releaser);
+            }
+            return true;
+        }
+
+        /// <summary>
+        /// Asynchronously lock based on a key, setting a limit for the number of milliseconds to wait, and if not timed out, ascynchronously execute a <see cref="Func{Task}"/> and release, while observing a <see cref="CancellationToken"/>.
+        /// </summary>
+        /// <param name="key">The key to lock on.</param>
+        /// <param name="task">The asynchronous task.</param>
+        /// <param name="millisecondsTimeout">The number of milliseconds to wait, <see cref="Timeout.Infinite"/> (-1) to wait indefinitely, or zero to test the state of the wait handle and return immediately.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> to observe.</param>
+        /// <param name="configureAwaitOptions">Options used to configure how awaits on this task are performed.</param>
+        /// <returns>False if timed out, true if it successfully entered.</returns>
+        public async ValueTask<bool> TryLockAsync(TKey key, Func<Task> task, int millisecondsTimeout, CancellationToken cancellationToken, ConfigureAwaitOptions configureAwaitOptions)
+        {
+            var releaser = GetOrAdd(key);
+            try
+            {
+                if (!await releaser.SemaphoreSlim.WaitAsync(millisecondsTimeout, cancellationToken).ConfigureAwait(configureAwaitOptions))
+                {
+                    ReleaseWithoutSemaphoreRelease(releaser);
+                    return false;
+                }
+            }
+            catch (OperationCanceledException)
+            {
+                ReleaseWithoutSemaphoreRelease(releaser);
+                throw;
+            }
+
+            try
+            {
+                await task().ConfigureAwait(configureAwaitOptions);
+            }
+            finally
+            {
+                Release(releaser);
+            }
+            return true;
+        }
+
+        /// <summary>
+        /// Asynchronously lock based on a key, setting a limit for the <see cref="System.TimeSpan"/> to wait, and if not timed out, scynchronously execute an action and release, while observing a <see cref="CancellationToken"/>.
+        /// </summary>
+        /// <param name="key">The key to lock on.</param>
+        /// <param name="action">The synchronous action.</param>
+        /// <param name="timeout">A <see cref="TimeSpan"/> that represents the number of milliseconds to wait, a <see cref="TimeSpan"/> that represents -1 milliseconds to wait indefinitely, or a <see cref="TimeSpan"/> that represents 0 milliseconds to test the wait handle and return immediately.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> to observe.</param>
+        /// <param name="configureAwaitOptions">Options used to configure how awaits on this task are performed.</param>
+        /// <returns>False if timed out, true if it successfully entered.</returns>
+        public async ValueTask<bool> TryLockAsync(TKey key, Action action, TimeSpan timeout, CancellationToken cancellationToken, ConfigureAwaitOptions configureAwaitOptions)
+        {
+            var releaser = GetOrAdd(key);
+            try
+            {
+                if (!await releaser.SemaphoreSlim.WaitAsync(timeout, cancellationToken).ConfigureAwait(configureAwaitOptions))
+                {
+                    ReleaseWithoutSemaphoreRelease(releaser);
+                    return false;
+                }
+            }
+            catch (OperationCanceledException)
+            {
+                ReleaseWithoutSemaphoreRelease(releaser);
+                throw;
+            }
+
+            try
+            {
+                action();
+            }
+            finally
+            {
+                Release(releaser);
+            }
+            return true;
+        }
+
+        /// <summary>
+        /// Asynchronously lock based on a key, setting a limit for the <see cref="System.TimeSpan"/> to wait, and if not timed out, ascynchronously execute a <see cref="Func{Task}"/> and release, while observing a <see cref="CancellationToken"/>.
+        /// </summary>
+        /// <param name="key">The key to lock on.</param>
+        /// <param name="task">The asynchronous task.</param>
+        /// <param name="timeout">A <see cref="TimeSpan"/> that represents the number of milliseconds to wait, a <see cref="TimeSpan"/> that represents -1 milliseconds to wait indefinitely, or a <see cref="TimeSpan"/> that represents 0 milliseconds to test the wait handle and return immediately.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> to observe.</param>
+        /// <param name="configureAwaitOptions">Options used to configure how awaits on this task are performed.</param>
+        /// <returns>False if timed out, true if it successfully entered.</returns>
+        public async ValueTask<bool> TryLockAsync(TKey key, Func<Task> task, TimeSpan timeout, CancellationToken cancellationToken, ConfigureAwaitOptions configureAwaitOptions)
+        {
+            var releaser = GetOrAdd(key);
+            try
+            {
+                if (!await releaser.SemaphoreSlim.WaitAsync(timeout, cancellationToken).ConfigureAwait(configureAwaitOptions))
+                {
+                    ReleaseWithoutSemaphoreRelease(releaser);
+                    return false;
+                }
+            }
+            catch (OperationCanceledException)
+            {
+                ReleaseWithoutSemaphoreRelease(releaser);
+                throw;
+            }
+
+            try
+            {
+                await task().ConfigureAwait(configureAwaitOptions);
+            }
+            finally
+            {
+                Release(releaser);
+            }
+            return true;
+        }
+#endif
+        #endregion AsynchronousTryNet8.0
+
         #region Asynchronous
         /// <summary>
         /// Asynchronously lock based on a key.
@@ -959,7 +1223,116 @@ namespace AsyncKeyedLock
                 throw;
             }
         }
-        #endregion
+        #endregion Asynchronous
+
+        #region AsynchronousNet8.0
+#if NET8_0_OR_GREATER
+        /// <summary>
+        /// Asynchronously lock based on a key.
+        /// </summary>
+        /// <param name="key">The key to lock on.</param>
+        /// <param name="configureAwaitOptions">Options used to configure how awaits on this task are performed.</param>
+        /// <returns>A disposable value.</returns>
+        public async ValueTask<IDisposable> LockAsync(TKey key, ConfigureAwaitOptions configureAwaitOptions)
+        {
+            var releaser = GetOrAdd(key);
+            await releaser.SemaphoreSlim.WaitAsync().ConfigureAwait(configureAwaitOptions);
+            return releaser;
+        }
+
+        /// <summary>
+        /// Asynchronously lock based on a key, while observing a <see cref="CancellationToken"/>.
+        /// </summary>
+        /// <param name="key">The key to lock on.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> to observe.</param>
+        /// <param name="configureAwaitOptions">Options used to configure how awaits on this task are performed.</param>
+        /// <returns>A disposable value.</returns>
+        public async ValueTask<IDisposable> LockAsync(TKey key, CancellationToken cancellationToken, ConfigureAwaitOptions configureAwaitOptions)
+        {
+            var releaser = GetOrAdd(key);
+            try
+            {
+                await releaser.SemaphoreSlim.WaitAsync(cancellationToken).ConfigureAwait(configureAwaitOptions);
+            }
+            catch (OperationCanceledException)
+            {
+                ReleaseWithoutSemaphoreRelease(releaser);
+                throw;
+            }
+            return releaser;
+        }
+
+        /// <summary>
+        /// Asynchronously lock based on a key, setting a limit for the number of milliseconds to wait.
+        /// </summary>
+        /// <param name="key">The key to lock on.</param>
+        /// <param name="millisecondsTimeout">The number of milliseconds to wait, <see cref="Timeout.Infinite"/> (-1) to wait indefinitely, or zero to test the state of the wait handle and return immediately.</param>
+        /// <param name="configureAwaitOptions">Options used to configure how awaits on this task are performed.</param>
+        /// <returns>A disposable value of type <see cref="AsyncKeyedLockTimeoutReleaser{TKey}"/>.</returns>
+        public async ValueTask<AsyncKeyedLockTimeoutReleaser<TKey>> LockAsync(TKey key, int millisecondsTimeout, ConfigureAwaitOptions configureAwaitOptions)
+        {
+            var releaser = GetOrAdd(key);
+            return new AsyncKeyedLockTimeoutReleaser<TKey>(await releaser.SemaphoreSlim.WaitAsync(millisecondsTimeout).ConfigureAwait(configureAwaitOptions), releaser);
+        }
+
+        /// <summary>
+        /// Asynchronously lock based on a key, setting a limit for the <see cref="TimeSpan"/> to wait.
+        /// </summary>
+        /// <param name="key">The key to lock on.</param>
+        /// <param name="timeout">A <see cref="TimeSpan"/> that represents the number of milliseconds to wait, a <see cref="TimeSpan"/> that represents -1 milliseconds to wait indefinitely, or a <see cref="TimeSpan"/> that represents 0 milliseconds to test the wait handle and return immediately.</param>
+        /// <param name="configureAwaitOptions">Options used to configure how awaits on this task are performed.</param>
+        /// <returns>A disposable value of type <see cref="AsyncKeyedLockTimeoutReleaser{TKey}"/>.</returns>
+        public async ValueTask<AsyncKeyedLockTimeoutReleaser<TKey>> LockAsync(TKey key, TimeSpan timeout, ConfigureAwaitOptions configureAwaitOptions)
+        {
+            var releaser = GetOrAdd(key);
+            return new AsyncKeyedLockTimeoutReleaser<TKey>(await releaser.SemaphoreSlim.WaitAsync(timeout).ConfigureAwait(configureAwaitOptions), releaser);
+        }
+
+        /// <summary>
+        /// Asynchronously lock based on a key, setting a limit for the number of milliseconds to wait, while observing a <see cref="CancellationToken"/>.
+        /// </summary>
+        /// <param name="key">The key to lock on.</param>
+        /// <param name="millisecondsTimeout">The number of milliseconds to wait, <see cref="Timeout.Infinite"/> (-1) to wait indefinitely, or zero to test the state of the wait handle and return immediately.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> to observe.</param>
+        /// <param name="configureAwaitOptions">Options used to configure how awaits on this task are performed.</param>
+        /// <returns>A disposable value of type <see cref="AsyncKeyedLockTimeoutReleaser{TKey}"/>.</returns>
+        public async ValueTask<AsyncKeyedLockTimeoutReleaser<TKey>> LockAsync(TKey key, int millisecondsTimeout, CancellationToken cancellationToken, ConfigureAwaitOptions configureAwaitOptions)
+        {
+            var releaser = GetOrAdd(key);
+            try
+            {
+                return new AsyncKeyedLockTimeoutReleaser<TKey>(await releaser.SemaphoreSlim.WaitAsync(millisecondsTimeout, cancellationToken).ConfigureAwait(configureAwaitOptions), releaser);
+            }
+            catch (OperationCanceledException)
+            {
+                ReleaseWithoutSemaphoreRelease(releaser);
+                throw;
+            }
+        }
+
+        /// <summary>
+        /// Asynchronously lock based on a key, setting a limit for the <see cref="System.TimeSpan"/> to wait, while observing a <see cref="CancellationToken"/>.
+        /// </summary>
+        /// <param name="key">The key to lock on.</param>
+        /// <param name="timeout">A <see cref="TimeSpan"/> that represents the number of milliseconds to wait, a <see cref="TimeSpan"/> that represents -1 milliseconds to wait indefinitely, or a <see cref="TimeSpan"/> that represents 0 milliseconds to test the wait handle and return immediately.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> to observe.</param>
+        /// <param name="configureAwaitOptions">Options used to configure how awaits on this task are performed.</param>
+        /// <returns>A disposable value of type <see cref="AsyncKeyedLockTimeoutReleaser{TKey}"/>.</returns>
+        public async ValueTask<AsyncKeyedLockTimeoutReleaser<TKey>> LockAsync(TKey key, TimeSpan timeout, CancellationToken cancellationToken, ConfigureAwaitOptions configureAwaitOptions)
+        {
+            var releaser = GetOrAdd(key);
+            try
+            {
+                return new AsyncKeyedLockTimeoutReleaser<TKey>(await releaser.SemaphoreSlim.WaitAsync(timeout, cancellationToken).ConfigureAwait(configureAwaitOptions), releaser);
+            }
+            catch (OperationCanceledException)
+            {
+                ReleaseWithoutSemaphoreRelease(releaser);
+                throw;
+            }
+        }
+#endif
+        #endregion AsynchronousNet8.0
 
         /// <summary>
         /// Checks whether or not there is a thread making use of a keyed lock.

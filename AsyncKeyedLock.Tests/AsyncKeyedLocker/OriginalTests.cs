@@ -58,7 +58,7 @@ namespace AsyncKeyedLock.Tests.AsyncKeyedLocker
         {
             var locks = 5000;
             var concurrency = 50;
-            var asyncKeyedLocker = new AsyncKeyedLock.AsyncKeyedLocker();
+            var asyncKeyedLocker = new AsyncKeyedLocker<object>();
             var concurrentQueue = new ConcurrentQueue<(bool entered, int key)>();
 
             var tasks = Enumerable.Range(1, locks * concurrency)
@@ -462,7 +462,7 @@ namespace AsyncKeyedLock.Tests.AsyncKeyedLocker
         public async Task Test1AtATime()
         {
             var range = 25000;
-            var asyncKeyedLocker = new AsyncKeyedLock.AsyncKeyedLocker();
+            var asyncKeyedLocker = new AsyncKeyedLocker<object>();
             var concurrentQueue = new ConcurrentQueue<int>();
 
             int threadNum = 0;
@@ -497,7 +497,7 @@ namespace AsyncKeyedLock.Tests.AsyncKeyedLocker
         public async Task Test2AtATime()
         {
             var range = 4;
-            var asyncKeyedLocker = new AsyncKeyedLock.AsyncKeyedLocker(o => o.MaxCount = 2);
+            var asyncKeyedLocker = new AsyncKeyedLocker<object>(o => o.MaxCount = 2);
             var concurrentQueue = new ConcurrentQueue<int>();
 
             var tasks = Enumerable.Range(1, range * 4)
@@ -638,6 +638,55 @@ namespace AsyncKeyedLock.Tests.AsyncKeyedLocker
                 });
 
                 await asyncKeyedLocker.TryLockAsync(Key, Callback, 5000, continueOnCapturedContext);
+            }
+            finally
+            {
+                SynchronizationContext.SetSynchronizationContext(previousContext);
+            }
+        }
+
+        [Fact]
+        public Task TestOptionContinueOnCapturedContext()
+                    => TestConfigureAwaitOptions(ConfigureAwaitOptions.ContinueOnCapturedContext);
+
+        [Fact]
+        public Task TestOptionForceYielding()
+            => TestConfigureAwaitOptions(ConfigureAwaitOptions.ForceYielding);
+
+        private async Task TestConfigureAwaitOptions(ConfigureAwaitOptions configureAwaitOptions)
+        {
+            const string Key = "test";
+
+            var asyncKeyedLocker = new AsyncKeyedLocker<string>();
+            var testContext = new TestSynchronizationContext();
+
+            void Callback()
+            {
+                if (configureAwaitOptions == ConfigureAwaitOptions.ContinueOnCapturedContext)
+                {
+                    Environment.CurrentManagedThreadId.Should().Be(testContext.LastPostThreadId);
+                }
+                else
+                {
+                    testContext.LastPostThreadId.Should().Be(default);
+                }
+            }
+
+            var previousContext = SynchronizationContext.Current;
+            SynchronizationContext.SetSynchronizationContext(testContext);
+
+            try
+            {
+                // This is just to make WaitAsync in TryLockAsync not finish synchronously
+                var obj = asyncKeyedLocker.Lock(Key);
+
+                _ = Task.Run(async () =>
+                {
+                    await Task.Delay(1000);
+                    obj.Dispose();
+                });
+
+                await asyncKeyedLocker.TryLockAsync(Key, Callback, 5000, configureAwaitOptions);
             }
             finally
             {
