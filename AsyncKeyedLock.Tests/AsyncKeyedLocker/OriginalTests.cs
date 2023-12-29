@@ -1,10 +1,7 @@
 using AsyncKeyedLock.Tests.Helpers;
 using FluentAssertions;
-using FluentAssertions.Common;
 using ListShuffle;
-using System.Collections;
 using System.Collections.Concurrent;
-using System.Collections.Generic;
 using Xunit;
 
 namespace AsyncKeyedLock.Tests.AsyncKeyedLocker
@@ -134,6 +131,23 @@ namespace AsyncKeyedLock.Tests.AsyncKeyedLocker
                     o.PoolInitialFill = 1;
                 });
                 asyncKeyedLocker.Lock("test");
+                asyncKeyedLocker.Dispose();
+            };
+            action.Should().NotThrow();
+        }
+
+        [Fact]
+        public void TestDisposeDoesNotThrowDespiteDisposedSemaphoreSlim()
+        {
+            Action action = () =>
+            {
+                var asyncKeyedLocker = new AsyncKeyedLocker<string>(o =>
+                {
+                    o.PoolSize = 20;
+                    o.PoolInitialFill = 1;
+                });
+                AsyncKeyedLockReleaser<string> releaser = (AsyncKeyedLockReleaser<string>)asyncKeyedLocker.Lock("test");
+                releaser.SemaphoreSlim.Dispose();
                 asyncKeyedLocker.Dispose();
             };
             action.Should().NotThrow();
