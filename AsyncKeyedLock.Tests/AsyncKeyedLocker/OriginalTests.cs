@@ -221,6 +221,18 @@ namespace AsyncKeyedLock.Tests.AsyncKeyedLocker
         }
 
         [Fact]
+        public void TestTimeoutBasicWithOutParameter()
+        {
+            var asyncKeyedLocker = new AsyncKeyedLocker<string>();
+            using (var myLock = asyncKeyedLocker.Lock("test", 0, out var entered))
+            {
+                Assert.True(entered);
+                Assert.True(asyncKeyedLocker.IsInUse("test"));
+            }
+            Assert.False(asyncKeyedLocker.IsInUse("test"));
+        }
+
+        [Fact]
         public async Task TestTimeout()
         {
             var asyncKeyedLocker = new AsyncKeyedLocker<string>();
