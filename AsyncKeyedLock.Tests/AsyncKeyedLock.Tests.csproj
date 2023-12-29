@@ -6,6 +6,10 @@
     <Nullable>enable</Nullable>
 
     <IsPackable>false</IsPackable>
+
+    <SignAssembly>True</SignAssembly>
+
+    <AssemblyOriginatorKeyFile>AsyncKeyedLock.Tests.snk</AssemblyOriginatorKeyFile>
   </PropertyGroup>
 
   <ItemGroup>

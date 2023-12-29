@@ -1,6 +1,7 @@
 using AsyncKeyedLock.Tests.Helpers;
 using FluentAssertions;
 using ListShuffle;
+using System.Collections;
 using System.Collections.Concurrent;
 using Xunit;
 
@@ -8,6 +9,62 @@ namespace AsyncKeyedLock.Tests.StripedAsyncKeyedLocker
 {
     public class OriginalTests
     {
+        [Fact]
+        public void TestHashHelpersIsPrime0DoesNotThrow()
+        {
+            Action action = () =>
+            {
+                var asyncKeyedLocker = new StripedAsyncKeyedLocker<string>(0);
+            };
+            action.Should().NotThrow();
+        }
+
+        [Fact]
+        public void TestHashHelpersIsPrime1DoesNotThrow()
+        {
+            Action action = () =>
+            {
+                var asyncKeyedLocker = new StripedAsyncKeyedLocker<string>(1);
+            };
+            action.Should().NotThrow();
+        }
+
+        [Fact]
+        public void TestHashHelpersIsPrime7199370DoesNotThrow()
+        {
+            Action action = () =>
+            {
+                var asyncKeyedLocker = new StripedAsyncKeyedLocker<string>(7199370);
+            };
+            action.Should().NotThrow();
+        }
+
+        [Fact]
+        public void TestHashHelpersIsPrime7199371DoesNotThrow()
+        {
+            Action action = () =>
+            {
+                var asyncKeyedLocker = new StripedAsyncKeyedLocker<string>(7199372);
+            };
+            action.Should().NotThrow();
+        }
+
+        [Fact]
+        public void TestHashHelpersIsPrimeNegative1ThrowsArgumentException()
+        {
+            Action action = () =>
+            {
+                var asyncKeyedLocker = new StripedAsyncKeyedLocker<string>(-1);
+            };
+            action.Should().Throw<ArgumentException>();
+        }
+
+        [Fact]
+        public void TestHashHelpersIsPrime2()
+        {
+            HashHelpers.IsPrime(2).Should().Be(true);
+        }
+
         [Fact]
         public async Task TestTimeout()
         {

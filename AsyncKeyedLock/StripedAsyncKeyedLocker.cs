@@ -5,6 +5,10 @@ using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 
+[assembly: InternalsVisibleTo("AsyncKeyedLock.Tests, PublicKey=002400000480000094000000060200000024000052534131000" +
+    "4000001000100a5cffbe51901ba498a225214c7eee4ff5f0341aad9f7605a596e72dbffdf234bcf2c157f7e3a4e2a3900cbc0d3919a6b" +
+    "938cdf09e2aa5949fdd8f1dbda151853a00a08578724fb36f8c44112dadf388f75a5aab469f51a43b49f2e2fce355357291b01471606b" +
+    "0c071fd5fe1641f1c7b0165d16f365748a613671681938cf6c1")]
 namespace AsyncKeyedLock
 {
     /// <summary>
@@ -922,6 +926,11 @@ namespace AsyncKeyedLock
         public bool IsInUse(TKey key)
         {
             return Get(key).SemaphoreSlim.CurrentCount < MaxCount;
+        }
+
+        internal bool IsPrime(int candidate)
+        {
+            return HashHelpers.IsPrime(candidate);
         }
     }
 }
