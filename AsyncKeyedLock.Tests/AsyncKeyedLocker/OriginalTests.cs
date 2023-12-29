@@ -1,13 +1,130 @@
 using AsyncKeyedLock.Tests.Helpers;
 using FluentAssertions;
 using ListShuffle;
+using System.Collections;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using Xunit;
 
 namespace AsyncKeyedLock.Tests.AsyncKeyedLocker
 {
     public class OriginalTests
     {
+        [Fact]
+        public void TestMaxCountLessThan1()
+        {
+            Action action = () =>
+            {
+                var asyncKeyedLocker = new AsyncKeyedLocker<string>(o => o.MaxCount = 0);
+            };
+            action.Should().Throw<ArgumentOutOfRangeException>();
+        }
+
+        [Fact]
+        public void TestMaxCount1ShouldNotThrow()
+        {
+            Action action = () =>
+            {
+                var asyncKeyedLocker = new AsyncKeyedLocker<string>(o => o.MaxCount = 1);
+            };
+            action.Should().NotThrow();
+        }
+
+        [Fact]
+        public void TestComparerShouldBePossible()
+        {
+            Action action = () =>
+            {
+                var asyncKeyedLocker = new AsyncKeyedLocker<string>(EqualityComparer<string>.Default);
+            };
+            action.Should().NotThrow();
+        }
+
+        [Fact]
+        public void TestComparerAndMaxCount1ShouldBePossible()
+        {
+            Action action = () =>
+            {
+                var asyncKeyedLocker = new AsyncKeyedLocker<string>(o => o.MaxCount = 1, EqualityComparer<string>.Default);
+            };
+            action.Should().NotThrow();
+        }
+
+        [Fact]
+        public void TestComparerAndMaxCount0ShouldNotBePossible()
+        {
+            Action action = () =>
+            {
+                var asyncKeyedLocker = new AsyncKeyedLocker<string>(o => o.MaxCount = 0, EqualityComparer<string>.Default);
+            };
+            action.Should().Throw<ArgumentOutOfRangeException>();
+        }
+
+        [Fact]
+        public void TestConcurrencyLevelAndCapacityShouldBePossible()
+        {
+            Action action = () =>
+            {
+                var asyncKeyedLocker = new AsyncKeyedLocker<string>(Environment.ProcessorCount, 100);
+            };
+            action.Should().NotThrow();
+        }
+
+        [Fact]
+        public void TestMaxCount0WithConcurrencyLevelAndCapacityShouldNotBePossible()
+        {
+            Action action = () =>
+            {
+                var asyncKeyedLocker = new AsyncKeyedLocker<string>(o => o.MaxCount = 0, Environment.ProcessorCount, 100);
+            };
+            action.Should().Throw<ArgumentOutOfRangeException>();
+        }
+
+        [Fact]
+        public void TestConcurrencyLevelAndCapacityAndComparerShouldBePossible()
+        {
+            Action action = () =>
+            {
+                var asyncKeyedLocker = new AsyncKeyedLocker<string>(Environment.ProcessorCount, 100, EqualityComparer<string>.Default);
+            };
+            action.Should().NotThrow();
+        }
+
+        [Fact]
+        public void TestMaxCount0AndConcurrencyLevelAndCapacityAndComparerShouldNotBePossible()
+        {
+            Action action = () =>
+            {
+                var asyncKeyedLocker = new AsyncKeyedLocker<string>(o => o.MaxCount = 0, Environment.ProcessorCount, 100, EqualityComparer<string>.Default);
+            };
+            action.Should().Throw<ArgumentOutOfRangeException>();
+        }
+
+        [Fact]
+        public void TestMaxCount1AndConcurrencyLevelAndCapacityAndComparerShouldBePossible()
+        {
+            Action action = () =>
+            {
+                var asyncKeyedLocker = new AsyncKeyedLocker<string>(o => o.MaxCount = 1, Environment.ProcessorCount, 100, EqualityComparer<string>.Default);
+            };
+            action.Should().NotThrow();
+        }
+
+        [Fact]
+        public void TestDisposeDoesNotThrow()
+        {
+            Action action = () =>
+            {
+                var asyncKeyedLocker = new AsyncKeyedLocker<string>(o =>
+                {
+                    o.PoolSize = 20;
+                    o.PoolInitialFill = 1;
+                });
+                asyncKeyedLocker.Dispose();
+            };
+            action.Should().NotThrow();
+        }
+
         [Fact]
         public async Task TestTimeout()
         {
