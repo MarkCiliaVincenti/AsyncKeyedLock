@@ -40,13 +40,9 @@ namespace AsyncKeyedLock.Tests.StripedAsyncKeyedLocker
         }
 
         [Fact]
-        public void TestHashHelpersIsPrimeIntMaxValueDoesNotThrow()
+        public void TestHashHelpersGetPrimeIntMaxValue()
         {
-            Action action = () =>
-            {
-                var asyncKeyedLocker = new StripedAsyncKeyedLocker<string>(int.MaxValue);
-            };
-            action.Should().NotThrow();
+            HashHelpers.GetPrime(int.MaxValue).Should().Be(int.MaxValue);
         }
 
         [Fact]
