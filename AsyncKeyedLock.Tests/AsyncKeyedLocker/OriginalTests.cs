@@ -1,5 +1,6 @@
 using AsyncKeyedLock.Tests.Helpers;
 using FluentAssertions;
+using FluentAssertions.Common;
 using ListShuffle;
 using System.Collections;
 using System.Collections.Concurrent;
@@ -25,7 +26,11 @@ namespace AsyncKeyedLock.Tests.AsyncKeyedLocker
         {
             Action action = () =>
             {
-                var asyncKeyedLocker = new AsyncKeyedLocker<string>(o => o.MaxCount = 1);
+                var asyncKeyedLocker = new AsyncKeyedLocker<string>(o =>
+                {
+                    o.MaxCount = 1;
+                    o.PoolSize = 1;
+                });
             };
             action.Should().NotThrow();
         }
@@ -45,7 +50,11 @@ namespace AsyncKeyedLock.Tests.AsyncKeyedLocker
         {
             Action action = () =>
             {
-                var asyncKeyedLocker = new AsyncKeyedLocker<string>(o => o.MaxCount = 1, EqualityComparer<string>.Default);
+                var asyncKeyedLocker = new AsyncKeyedLocker<string>(o =>
+                {
+                    o.MaxCount = 1;
+                    o.PoolSize = 1;
+                }, EqualityComparer<string>.Default);
             };
             action.Should().NotThrow();
         }
@@ -105,7 +114,11 @@ namespace AsyncKeyedLock.Tests.AsyncKeyedLocker
         {
             Action action = () =>
             {
-                var asyncKeyedLocker = new AsyncKeyedLocker<string>(o => o.MaxCount = 1, Environment.ProcessorCount, 100, EqualityComparer<string>.Default);
+                var asyncKeyedLocker = new AsyncKeyedLocker<string>(o =>
+                {
+                    o.MaxCount = 1;
+                    o.PoolSize = 1;
+                }, Environment.ProcessorCount, 100, EqualityComparer<string>.Default);
             };
             action.Should().NotThrow();
         }
@@ -123,6 +136,18 @@ namespace AsyncKeyedLock.Tests.AsyncKeyedLocker
                 asyncKeyedLocker.Dispose();
             };
             action.Should().NotThrow();
+        }
+
+        [Fact]
+        public async Task TestTimeoutBasic()
+        {
+            var asyncKeyedLocker = new AsyncKeyedLocker<string>();
+            using (var myLock = await asyncKeyedLocker.LockAsync("test", 0))
+            {
+                Assert.True(myLock.EnteredSemaphore);
+                Assert.True(asyncKeyedLocker.IsInUse("test"));
+            }
+            Assert.False(asyncKeyedLocker.IsInUse("test"));
         }
 
         [Fact]
@@ -742,7 +767,7 @@ namespace AsyncKeyedLock.Tests.AsyncKeyedLocker
 
             void Callback()
             {
-                if(continueOnCapturedContext)
+                if (continueOnCapturedContext)
                 {
                     Environment.CurrentManagedThreadId.Should().Be(testContext.LastPostThreadId);
                 }
