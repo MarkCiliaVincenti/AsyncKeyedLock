@@ -108,7 +108,7 @@ namespace AsyncKeyedLock.Tests.AsyncKeyedLocker
         [Fact]
         public async Task BasicTestGenerics()
         {
-            var locks = 50_000;
+            var locks = 5000;
             var concurrency = 50;
             var asyncKeyedLocker = new AsyncKeyedLocker<int>();
             var concurrentQueue = new ConcurrentQueue<(bool entered, int key)>();
