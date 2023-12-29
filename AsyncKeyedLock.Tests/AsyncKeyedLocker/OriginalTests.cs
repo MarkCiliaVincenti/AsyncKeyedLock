@@ -133,9 +133,65 @@ namespace AsyncKeyedLock.Tests.AsyncKeyedLocker
                     o.PoolSize = 20;
                     o.PoolInitialFill = 1;
                 });
+                asyncKeyedLocker.Lock("test");
                 asyncKeyedLocker.Dispose();
             };
             action.Should().NotThrow();
+        }
+
+        [Fact]
+        public void TestIndexDoesNotThrow()
+        {
+            var asyncKeyedLocker = new AsyncKeyedLocker<string>();
+            asyncKeyedLocker.Lock("test");
+            asyncKeyedLocker.Index.Count.Should().Be(1);
+            asyncKeyedLocker.Dispose();
+        }
+
+        [Fact]
+        public void TestReadingMaxCount()
+        {
+            var asyncKeyedLocker = new AsyncKeyedLocker<string>(o => o.MaxCount = 2);
+            asyncKeyedLocker.MaxCount.Should().Be(2);
+        }
+
+        [Fact]
+        public void TestReadingMaxCountViaParameter()
+        {
+            var asyncKeyedLocker = new AsyncKeyedLocker<string>(new AsyncKeyedLockOptions(2));
+            asyncKeyedLocker.MaxCount.Should().Be(2);
+        }
+
+        [Fact]
+        public void TestReadingMaxCountViaParameterWithComparer()
+        {
+            var asyncKeyedLocker = new AsyncKeyedLocker<string>(new AsyncKeyedLockOptions(2), EqualityComparer<string>.Default);
+            asyncKeyedLocker.MaxCount.Should().Be(2);
+        }
+
+        [Fact]
+        public void TestReadingMaxCountViaParameterWithConcurrencyLevelAndCapacity()
+        {
+            var asyncKeyedLocker = new AsyncKeyedLocker<string>(new AsyncKeyedLockOptions(2), Environment.ProcessorCount, 100);
+            asyncKeyedLocker.MaxCount.Should().Be(2);
+        }
+
+        [Fact]
+        public void TestReadingMaxCountViaParameterWithConcurrencyLevelAndCapacityAndComparer()
+        {
+            var asyncKeyedLocker = new AsyncKeyedLocker<string>(new AsyncKeyedLockOptions(2), Environment.ProcessorCount, 100, EqualityComparer<string>.Default);
+            asyncKeyedLocker.MaxCount.Should().Be(2);
+        }
+
+        [Fact]
+        public void TestGetCurrentCount()
+        {
+            var asyncKeyedLocker = new AsyncKeyedLocker<string>();
+            asyncKeyedLocker.GetRemainingCount("test").Should().Be(0);
+            asyncKeyedLocker.GetCurrentCount("test").Should().Be(1);
+            asyncKeyedLocker.Lock("test");
+            asyncKeyedLocker.GetRemainingCount("test").Should().Be(1);
+            asyncKeyedLocker.GetCurrentCount("test").Should().Be(0);
         }
 
         [Fact]
