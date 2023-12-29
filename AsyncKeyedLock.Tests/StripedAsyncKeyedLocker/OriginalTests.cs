@@ -30,21 +30,21 @@ namespace AsyncKeyedLock.Tests.StripedAsyncKeyedLocker
         }
 
         [Fact]
-        public void TestHashHelpersIsPrime7199370DoesNotThrow()
+        public void TestHashHelpersIsPrime7199374DoesNotThrow()
         {
             Action action = () =>
             {
-                var asyncKeyedLocker = new StripedAsyncKeyedLocker<string>(7199370);
+                var asyncKeyedLocker = new StripedAsyncKeyedLocker<string>(7199374);
             };
             action.Should().NotThrow();
         }
 
         [Fact]
-        public void TestHashHelpersIsPrime7199371DoesNotThrow()
+        public void TestHashHelpersIsPrimeIntMaxValueDoesNotThrow()
         {
             Action action = () =>
             {
-                var asyncKeyedLocker = new StripedAsyncKeyedLocker<string>(7199372);
+                var asyncKeyedLocker = new StripedAsyncKeyedLocker<string>(int.MaxValue);
             };
             action.Should().NotThrow();
         }
