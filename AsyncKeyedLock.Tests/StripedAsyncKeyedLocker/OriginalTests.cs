@@ -66,6 +66,18 @@ namespace AsyncKeyedLock.Tests.StripedAsyncKeyedLocker
         }
 
         [Fact]
+        public async Task TestTimeoutBasic()
+        {
+            var asyncKeyedLocker = new StripedAsyncKeyedLocker<string>();
+            using (var myLock = await asyncKeyedLocker.LockAsync("test", 0))
+            {
+                Assert.True(myLock.EnteredSemaphore);
+                Assert.True(asyncKeyedLocker.IsInUse("test"));
+            }
+            Assert.False(asyncKeyedLocker.IsInUse("test"));
+        }
+
+        [Fact]
         public async Task TestTimeout()
         {
             var asyncKeyedLocker = new StripedAsyncKeyedLocker<string>();
