@@ -1345,19 +1345,13 @@ namespace AsyncKeyedLock
             {
                 return false;
             }
-            if (_dictionary.PoolingEnabled)
-            {
-                Monitor.Enter(result);
-                if (result.IsNotInUse || !result.Key.Equals(key))
-                {
-                    Monitor.Exit(result);
-                    return false;
-                }
-                Monitor.Exit(result);
-                return true;
-            }
             Monitor.Enter(result);
             if (result.IsNotInUse)
+            {
+                Monitor.Exit(result);
+                return false;
+            }
+            if (_dictionary.PoolingEnabled && !result.Key.Equals(key))
             {
                 Monitor.Exit(result);
                 return false;
