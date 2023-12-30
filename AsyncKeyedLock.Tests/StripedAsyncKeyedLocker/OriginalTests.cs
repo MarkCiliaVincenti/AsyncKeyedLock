@@ -62,112 +62,259 @@ namespace AsyncKeyedLock.Tests.StripedAsyncKeyedLocker
         }
 
         [Fact]
+        public void TestComparerShouldBePossible()
+        {
+            Action action = () =>
+            {
+                var stripedAsyncKeyedLocker = new StripedAsyncKeyedLocker<string>(comparer: EqualityComparer<string>.Default);
+            };
+            action.Should().NotThrow();
+        }
+
+        [Fact]
+        public void TestComparerAndMaxCount1ShouldBePossible()
+        {
+            Action action = () =>
+            {
+                var stripedAsyncKeyedLocker = new StripedAsyncKeyedLocker<string>(maxCount: 1, comparer: EqualityComparer<string>.Default);
+            };
+            action.Should().NotThrow();
+        }
+
+        [Fact]
+        public void TestComparerAndMaxCount0ShouldNotBePossible()
+        {
+            Action action = () =>
+            {
+                var stripedAsyncKeyedLocker = new StripedAsyncKeyedLocker<string>(maxCount: 0, comparer: EqualityComparer<string>.Default);
+            };
+            action.Should().Throw<ArgumentOutOfRangeException>();
+        }
+
+        [Fact]
+        public void TestNumberOfStripesShouldBePossible()
+        {
+            Action action = () =>
+            {
+                var stripedAsyncKeyedLocker = new StripedAsyncKeyedLocker<string>(Environment.ProcessorCount);
+            };
+            action.Should().NotThrow();
+        }
+
+        [Fact]
+        public void TestMaxCount0WithNumberOfStripesShouldNotBePossible()
+        {
+            Action action = () =>
+            {
+                var stripedAsyncKeyedLocker = new StripedAsyncKeyedLocker<string>(numberOfStripes: 42, maxCount: 0);
+            };
+            action.Should().Throw<ArgumentOutOfRangeException>();
+        }
+
+        [Fact]
+        public void TestReadingMaxCount()
+        {
+            var stripedAsyncKeyedLocker = new StripedAsyncKeyedLocker<string>(maxCount: 2);
+            stripedAsyncKeyedLocker.MaxCount.Should().Be(2);
+        }
+
+        [Fact]
+        public void TestReadingMaxCountViaParameterWithComparer()
+        {
+            var stripedAsyncKeyedLocker = new StripedAsyncKeyedLocker<string>(maxCount: 2, comparer: EqualityComparer<string>.Default);
+            stripedAsyncKeyedLocker.MaxCount.Should().Be(2);
+        }
+
+        [Fact]
+        public void TestReadingMaxCountViaParameterWithNumberOfStripes()
+        {
+            var stripedAsyncKeyedLocker = new StripedAsyncKeyedLocker<string>(42, 2);
+            stripedAsyncKeyedLocker.MaxCount.Should().Be(2);
+        }
+
+        [Fact]
+        public void TestReadingMaxCountViaParameterWithNumberOfStripesAndComparer()
+        {
+            var stripedAsyncKeyedLocker = new StripedAsyncKeyedLocker<string>(42, 2, EqualityComparer<string>.Default);
+            stripedAsyncKeyedLocker.MaxCount.Should().Be(2);
+        }
+
+        [Fact]
         public async Task TestTimeoutBasic()
         {
-            var asyncKeyedLocker = new StripedAsyncKeyedLocker<string>();
-            using (var myLock = await asyncKeyedLocker.LockAsync("test", 0))
+            var stripedAsyncKeyedLocker = new StripedAsyncKeyedLocker<string>();
+            using (var myLock = await stripedAsyncKeyedLocker.LockAsync("test", 0))
             {
                 Assert.True(myLock.EnteredSemaphore);
-                Assert.True(asyncKeyedLocker.IsInUse("test"));
+                Assert.True(stripedAsyncKeyedLocker.IsInUse("test"));
             }
-            Assert.False(asyncKeyedLocker.IsInUse("test"));
+            Assert.False(stripedAsyncKeyedLocker.IsInUse("test"));
         }
 
         [Fact]
         public void TestTimeoutBasicWithOutParameter()
         {
-            var asyncKeyedLocker = new StripedAsyncKeyedLocker<string>();
-            using (var myLock = asyncKeyedLocker.Lock("test", 0, out bool entered))
+            var stripedAsyncKeyedLocker = new StripedAsyncKeyedLocker<string>();
+            using (var myLock = stripedAsyncKeyedLocker.Lock("test", 0, out var entered))
             {
                 Assert.True(entered);
-                Assert.True(asyncKeyedLocker.IsInUse("test"));
+                Assert.True(stripedAsyncKeyedLocker.IsInUse("test"));
             }
-            Assert.False(asyncKeyedLocker.IsInUse("test"));
+            Assert.False(stripedAsyncKeyedLocker.IsInUse("test"));
         }
 
         [Fact]
         public async Task TestTimeout()
         {
-            var asyncKeyedLocker = new StripedAsyncKeyedLocker<string>();
-            using (await asyncKeyedLocker.LockAsync("test", 0))
+            var stripedAsyncKeyedLocker = new StripedAsyncKeyedLocker<string>();
+            using (await stripedAsyncKeyedLocker.LockAsync("test"))
             {
-                using (var myLock = await asyncKeyedLocker.LockAsync("test", 0))
+                using (var myLock = await stripedAsyncKeyedLocker.LockAsync("test", 0))
                 {
                     Assert.False(myLock.EnteredSemaphore);
                 }
-                Assert.True(asyncKeyedLocker.IsInUse("test"));
+                Assert.True(stripedAsyncKeyedLocker.IsInUse("test"));
             }
-            Assert.False(asyncKeyedLocker.IsInUse("test"));
+            Assert.False(stripedAsyncKeyedLocker.IsInUse("test"));
         }
 
         [Fact]
         public void TestTimeoutWithTimeSpanSynchronous()
         {
-            var asyncKeyedLocker = new StripedAsyncKeyedLocker<string>();
-            using (asyncKeyedLocker.Lock("test", TimeSpan.Zero, out bool entered))
+            var stripedAsyncKeyedLocker = new StripedAsyncKeyedLocker<string>();
+            using (stripedAsyncKeyedLocker.Lock("test"))
             {
-                Assert.True(entered);
-                using (asyncKeyedLocker.Lock("test", TimeSpan.Zero, out entered))
+                using (stripedAsyncKeyedLocker.Lock("test", TimeSpan.Zero, out bool entered))
                 {
                     Assert.False(entered);
                 }
-                Assert.True(asyncKeyedLocker.IsInUse("test"));
+                Assert.True(stripedAsyncKeyedLocker.IsInUse("test"));
             }
-            Assert.False(asyncKeyedLocker.IsInUse("test"));
-        }
-
-        [Fact]
-        public void TestTimeoutWithTimeoutSynchronous()
-        {
-            var asyncKeyedLocker = new StripedAsyncKeyedLocker<string>();
-            using (asyncKeyedLocker.Lock("test"))
-            {
-                using (asyncKeyedLocker.Lock("test", 0, out bool entered))
-                {
-                    Assert.False(entered);
-                }
-                Assert.True(asyncKeyedLocker.IsInUse("test"));
-            }
-            Assert.False(asyncKeyedLocker.IsInUse("test"));
+            Assert.False(stripedAsyncKeyedLocker.IsInUse("test"));
         }
 
         [Fact]
         public void TestTimeoutWithInfiniteTimeoutSynchronous()
         {
-            var asyncKeyedLocker = new StripedAsyncKeyedLocker<string>();
-            using (asyncKeyedLocker.Lock("test", Timeout.Infinite, out bool entered))
+            var stripedAsyncKeyedLocker = new StripedAsyncKeyedLocker<string>();
+            using (stripedAsyncKeyedLocker.Lock("test", Timeout.Infinite, out bool entered))
             {
                 Assert.True(entered);
-                Assert.True(asyncKeyedLocker.IsInUse("test"));
+                Assert.True(stripedAsyncKeyedLocker.IsInUse("test"));
             }
-            Assert.False(asyncKeyedLocker.IsInUse("test"));
+            Assert.False(stripedAsyncKeyedLocker.IsInUse("test"));
         }
 
         [Fact]
         public void TestTimeoutWithInfiniteTimeSpanSynchronous()
         {
-            var asyncKeyedLocker = new StripedAsyncKeyedLocker<string>();
-            using (asyncKeyedLocker.Lock("test", TimeSpan.FromMilliseconds(Timeout.Infinite), out bool entered))
+            var stripedAsyncKeyedLocker = new StripedAsyncKeyedLocker<string>();
+            using (stripedAsyncKeyedLocker.Lock("test", TimeSpan.FromMilliseconds(Timeout.Infinite), out bool entered))
             {
                 Assert.True(entered);
-                Assert.True(asyncKeyedLocker.IsInUse("test"));
+                Assert.True(stripedAsyncKeyedLocker.IsInUse("test"));
             }
-            Assert.False(asyncKeyedLocker.IsInUse("test"));
+            Assert.False(stripedAsyncKeyedLocker.IsInUse("test"));
         }
 
         [Fact]
         public async Task TestTimeoutWithTimeSpan()
         {
-            var asyncKeyedLocker = new StripedAsyncKeyedLocker<string>();
-            using (await asyncKeyedLocker.LockAsync("test"))
+            var stripedAsyncKeyedLocker = new StripedAsyncKeyedLocker<string>();
+            using (await stripedAsyncKeyedLocker.LockAsync("test"))
             {
-                using (var myLock = await asyncKeyedLocker.LockAsync("test", TimeSpan.Zero))
+                using (var myLock = await stripedAsyncKeyedLocker.LockAsync("test", TimeSpan.Zero))
                 {
                     Assert.False(myLock.EnteredSemaphore);
                 }
-                Assert.True(asyncKeyedLocker.IsInUse("test"));
+                Assert.True(stripedAsyncKeyedLocker.IsInUse("test"));
             }
-            Assert.False(asyncKeyedLocker.IsInUse("test"));
+            Assert.False(stripedAsyncKeyedLocker.IsInUse("test"));
+        }
+
+        [Fact]
+        public void TestTimeoutWithInfiniteTimeoutAndCancellationToken()
+        {
+            var stripedAsyncKeyedLocker = new StripedAsyncKeyedLocker<string>();
+            using (stripedAsyncKeyedLocker.Lock("test", Timeout.Infinite, new CancellationToken(false), out bool entered))
+            {
+                Assert.True(entered);
+                Assert.True(stripedAsyncKeyedLocker.IsInUse("test"));
+            }
+            Assert.False(stripedAsyncKeyedLocker.IsInUse("test"));
+        }
+
+        [Fact]
+        public void TestTimeoutWithZeroTimeoutAndCancellationToken()
+        {
+            var stripedAsyncKeyedLocker = new StripedAsyncKeyedLocker<string>();
+            using (stripedAsyncKeyedLocker.Lock("test", 0, new CancellationToken(false), out bool entered))
+            {
+                Assert.True(entered);
+                Assert.True(stripedAsyncKeyedLocker.IsInUse("test"));
+            }
+            Assert.False(stripedAsyncKeyedLocker.IsInUse("test"));
+        }
+
+        [Fact]
+        public void TestTimeoutWithZeroTimeoutAndCancelledToken()
+        {
+            var stripedAsyncKeyedLocker = new StripedAsyncKeyedLocker<string>();
+            Action action = () =>
+            {
+                stripedAsyncKeyedLocker.Lock("test", 0, new CancellationToken(true), out bool entered);
+            };
+            action.Should().Throw<OperationCanceledException>();
+            stripedAsyncKeyedLocker.IsInUse("test").Should().BeFalse();
+        }
+
+        [Fact]
+        public void TestTimeoutWithInfiniteTimeSpanAndCancellationToken()
+        {
+            var stripedAsyncKeyedLocker = new StripedAsyncKeyedLocker<string>();
+            using (stripedAsyncKeyedLocker.Lock("test", TimeSpan.FromMilliseconds(Timeout.Infinite), new CancellationToken(false), out bool entered))
+            {
+                Assert.True(entered);
+                Assert.True(stripedAsyncKeyedLocker.IsInUse("test"));
+            }
+            Assert.False(stripedAsyncKeyedLocker.IsInUse("test"));
+        }
+
+        [Fact]
+        public void TestTimeoutWithZeroTimeSpanAndCancellationToken()
+        {
+            var stripedAsyncKeyedLocker = new StripedAsyncKeyedLocker<string>();
+            using (stripedAsyncKeyedLocker.Lock("test", TimeSpan.FromMilliseconds(0), new CancellationToken(false), out bool entered))
+            {
+                Assert.True(entered);
+                Assert.True(stripedAsyncKeyedLocker.IsInUse("test"));
+            }
+            Assert.False(stripedAsyncKeyedLocker.IsInUse("test"));
+        }
+
+        [Fact]
+        public void TestTimeoutWithZeroTimeSpanAndCancelledToken()
+        {
+            var stripedAsyncKeyedLocker = new StripedAsyncKeyedLocker<string>();
+            Action action = () =>
+            {
+                stripedAsyncKeyedLocker.Lock("test", TimeSpan.FromMilliseconds(0), new CancellationToken(true), out bool entered);
+            };
+            action.Should().Throw<OperationCanceledException>();
+            stripedAsyncKeyedLocker.IsInUse("test").Should().BeFalse();
+        }
+
+        [Fact]
+        public void TestTimeoutTryLock()
+        {
+            var stripedAsyncKeyedLocker = new StripedAsyncKeyedLocker<string>();
+            using (stripedAsyncKeyedLocker.Lock("test"))
+            {
+                Assert.True(stripedAsyncKeyedLocker.IsInUse("test"));
+                Assert.False(stripedAsyncKeyedLocker.TryLock("test", () => { }, 0, CancellationToken.None));
+                Assert.False(stripedAsyncKeyedLocker.TryLock("test", () => { }, TimeSpan.Zero, CancellationToken.None));
+            }
+            Assert.False(stripedAsyncKeyedLocker.IsInUse("test"));
         }
 
         [Fact]
@@ -175,14 +322,14 @@ namespace AsyncKeyedLock.Tests.StripedAsyncKeyedLocker
         {
             var locks = 5000;
             var concurrency = 50;
-            var asyncKeyedLocker = new StripedAsyncKeyedLocker<object>();
+            var stripedAsyncKeyedLocker = new StripedAsyncKeyedLocker<object>();
             var concurrentQueue = new ConcurrentQueue<(bool entered, int key)>();
 
             var tasks = Enumerable.Range(1, locks * concurrency)
                 .Select(async i =>
                 {
                     var key = Convert.ToInt32(Math.Ceiling((double)i / concurrency));
-                    using (await asyncKeyedLocker.LockAsync(key))
+                    using (await stripedAsyncKeyedLocker.LockAsync(key))
                     {
                         await Task.Delay(20);
                         concurrentQueue.Enqueue((true, key));
@@ -227,14 +374,14 @@ namespace AsyncKeyedLock.Tests.StripedAsyncKeyedLocker
         {
             var locks = 5000;
             var concurrency = 50;
-            var asyncKeyedLocker = new StripedAsyncKeyedLocker<int>();
+            var stripedAsyncKeyedLocker = new StripedAsyncKeyedLocker<int>();
             var concurrentQueue = new ConcurrentQueue<(bool entered, int key)>();
 
             var tasks = Enumerable.Range(1, locks * concurrency)
                 .Select(async i =>
                 {
                     var key = Convert.ToInt32(Math.Ceiling((double)i / concurrency));
-                    using (await asyncKeyedLocker.LockAsync(key))
+                    using (await stripedAsyncKeyedLocker.LockAsync(key))
                     {
                         await Task.Delay(20);
                         concurrentQueue.Enqueue((true, key));
@@ -328,14 +475,14 @@ namespace AsyncKeyedLock.Tests.StripedAsyncKeyedLocker
         {
             var locks = 5000;
             var concurrency = 50;
-            var asyncKeyedLocker = new StripedAsyncKeyedLocker<string>();
+            var stripedAsyncKeyedLocker = new StripedAsyncKeyedLocker<string>();
             var concurrentQueue = new ConcurrentQueue<(bool entered, string key)>();
 
             var tasks = Enumerable.Range(1, locks * concurrency)
                 .Select(async i =>
                 {
                     var key = Convert.ToInt32(Math.Ceiling((double)i / 5)).ToString();
-                    using (await asyncKeyedLocker.LockAsync(key))
+                    using (await stripedAsyncKeyedLocker.LockAsync(key))
                     {
                         await Task.Delay(20);
                         concurrentQueue.Enqueue((true, key));
@@ -379,7 +526,7 @@ namespace AsyncKeyedLock.Tests.StripedAsyncKeyedLocker
         public async Task Test1AtATime()
         {
             var range = 25000;
-            var asyncKeyedLocker = new StripedAsyncKeyedLocker<object>();
+            var stripedAsyncKeyedLocker = new StripedAsyncKeyedLocker<object>();
             var concurrentQueue = new ConcurrentQueue<int>();
 
             int threadNum = 0;
@@ -388,7 +535,7 @@ namespace AsyncKeyedLock.Tests.StripedAsyncKeyedLocker
                 .Select(async i =>
                 {
                     var key = Convert.ToInt32(Math.Ceiling((double)Interlocked.Increment(ref threadNum) / 2));
-                    using (await asyncKeyedLocker.LockAsync(key))
+                    using (await stripedAsyncKeyedLocker.LockAsync(key))
                     {
                         concurrentQueue.Enqueue(key);
                     }
@@ -414,14 +561,14 @@ namespace AsyncKeyedLock.Tests.StripedAsyncKeyedLocker
         public async Task Test2AtATime()
         {
             var range = 4;
-            var asyncKeyedLocker = new StripedAsyncKeyedLocker<object>(maxCount: 2);
+            var stripedAsyncKeyedLocker = new StripedAsyncKeyedLocker<object>(o => o.MaxCount = 2);
             var concurrentQueue = new ConcurrentQueue<int>();
 
             var tasks = Enumerable.Range(1, range * 4)
                 .Select(async i =>
                 {
                     var key = Convert.ToInt32(Math.Ceiling((double)i / 4));
-                    using (await asyncKeyedLocker.LockAsync(key))
+                    using (await stripedAsyncKeyedLocker.LockAsync(key))
                     {
                         concurrentQueue.Enqueue(key);
                         await Task.Delay((100 * key) + 1000);
@@ -448,7 +595,7 @@ namespace AsyncKeyedLock.Tests.StripedAsyncKeyedLocker
         public async Task Test1AtATimeGenerics()
         {
             var range = 25000;
-            var asyncKeyedLocker = new StripedAsyncKeyedLocker<int>();
+            var stripedAsyncKeyedLocker = new StripedAsyncKeyedLocker<int>();
             var concurrentQueue = new ConcurrentQueue<int>();
 
             int threadNum = 0;
@@ -457,7 +604,7 @@ namespace AsyncKeyedLock.Tests.StripedAsyncKeyedLocker
                 .Select(async i =>
                 {
                     var key = Convert.ToInt32(Math.Ceiling((double)Interlocked.Increment(ref threadNum) / 2));
-                    using (await asyncKeyedLocker.LockAsync(key))
+                    using (await stripedAsyncKeyedLocker.LockAsync(key))
                     {
                         concurrentQueue.Enqueue(key);
                     }
@@ -483,14 +630,14 @@ namespace AsyncKeyedLock.Tests.StripedAsyncKeyedLocker
         public async Task Test2AtATimeGenerics()
         {
             var range = 4;
-            var asyncKeyedLocker = new StripedAsyncKeyedLocker<int>(maxCount: 2);
+            var stripedAsyncKeyedLocker = new StripedAsyncKeyedLocker<int>(o => o.MaxCount = 2);
             var concurrentQueue = new ConcurrentQueue<int>();
 
             var tasks = Enumerable.Range(1, range * 4)
                 .Select(async i =>
                 {
                     var key = Convert.ToInt32(Math.Ceiling((double)i / 4));
-                    using (await asyncKeyedLocker.LockAsync(key))
+                    using (await stripedAsyncKeyedLocker.LockAsync(key))
                     {
                         concurrentQueue.Enqueue(key);
                         await Task.Delay((100 * key) + 1000);
@@ -525,7 +672,7 @@ namespace AsyncKeyedLock.Tests.StripedAsyncKeyedLocker
         {
             const string Key = "test";
 
-            var asyncKeyedLocker = new StripedAsyncKeyedLocker<string>();
+            var stripedAsyncKeyedLocker = new StripedAsyncKeyedLocker<string>();
             var testContext = new TestSynchronizationContext();
 
             void Callback()
@@ -546,7 +693,7 @@ namespace AsyncKeyedLock.Tests.StripedAsyncKeyedLocker
             try
             {
                 // This is just to make WaitAsync in TryLockAsync not finish synchronously
-                var obj = asyncKeyedLocker.Lock(Key);
+                var obj = stripedAsyncKeyedLocker.Lock(Key);
 
                 _ = Task.Run(async () =>
                 {
@@ -554,7 +701,7 @@ namespace AsyncKeyedLock.Tests.StripedAsyncKeyedLocker
                     obj.Dispose();
                 });
 
-                await asyncKeyedLocker.TryLockAsync(Key, Callback, 5000, continueOnCapturedContext);
+                await stripedAsyncKeyedLocker.TryLockAsync(Key, Callback, 5000, continueOnCapturedContext);
             }
             finally
             {
@@ -574,7 +721,7 @@ namespace AsyncKeyedLock.Tests.StripedAsyncKeyedLocker
         {
             const string Key = "test";
 
-            var asyncKeyedLocker = new StripedAsyncKeyedLocker<string>();
+            var stripedAsyncKeyedLocker = new StripedAsyncKeyedLocker<string>();
             var testContext = new TestSynchronizationContext();
 
             void Callback()
@@ -595,7 +742,7 @@ namespace AsyncKeyedLock.Tests.StripedAsyncKeyedLocker
             try
             {
                 // This is just to make WaitAsync in TryLockAsync not finish synchronously
-                var obj = asyncKeyedLocker.Lock(Key);
+                var obj = stripedAsyncKeyedLocker.Lock(Key);
 
                 _ = Task.Run(async () =>
                 {
@@ -603,7 +750,7 @@ namespace AsyncKeyedLock.Tests.StripedAsyncKeyedLocker
                     obj.Dispose();
                 });
 
-                await asyncKeyedLocker.TryLockAsync(Key, Callback, 5000, configureAwaitOptions);
+                await stripedAsyncKeyedLocker.TryLockAsync(Key, Callback, 5000, configureAwaitOptions);
             }
             finally
             {
