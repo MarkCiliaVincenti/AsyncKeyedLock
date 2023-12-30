@@ -316,8 +316,9 @@ namespace AsyncKeyedLock.Tests.StripedAsyncKeyedLocker
         public void TestTimeoutTryLock()
         {
             var stripedAsyncKeyedLocker = new StripedAsyncKeyedLocker<string>();
-            using (stripedAsyncKeyedLocker.Lock("test"))
+            using (stripedAsyncKeyedLocker.Lock("test", TimeSpan.Zero, out bool entered))
             {
+                Assert.True(entered);
                 Assert.True(stripedAsyncKeyedLocker.IsInUse("test"));
                 Assert.False(stripedAsyncKeyedLocker.TryLock("test", () => { }, 0, CancellationToken.None));
                 Assert.False(stripedAsyncKeyedLocker.TryLock("test", () => { }, TimeSpan.Zero, CancellationToken.None));
