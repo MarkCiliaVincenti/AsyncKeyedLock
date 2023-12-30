@@ -374,6 +374,19 @@ namespace AsyncKeyedLock.Tests.AsyncKeyedLocker
         }
 
         [Fact]
+        public void TestTimeoutTryLock()
+        {
+            var asyncKeyedLocker = new AsyncKeyedLocker<string>();
+            using (asyncKeyedLocker.Lock("test"))
+            {
+                Assert.True(asyncKeyedLocker.IsInUse("test"));
+                Assert.False(asyncKeyedLocker.TryLock("test", () => { }, 0, CancellationToken.None));
+                Assert.False(asyncKeyedLocker.TryLock("test", () => { }, TimeSpan.Zero, CancellationToken.None));
+            }
+            Assert.False(asyncKeyedLocker.IsInUse("test"));
+        }
+
+        [Fact]
         public async Task BasicTest()
         {
             var locks = 5000;

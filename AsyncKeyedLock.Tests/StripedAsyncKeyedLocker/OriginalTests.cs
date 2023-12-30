@@ -77,7 +77,7 @@ namespace AsyncKeyedLock.Tests.StripedAsyncKeyedLocker
         public void TestTimeoutBasicWithOutParameter()
         {
             var asyncKeyedLocker = new StripedAsyncKeyedLocker<string>();
-            using (var myLock = asyncKeyedLocker.Lock("test", 0, out var entered))
+            using (var myLock = asyncKeyedLocker.Lock("test", 0, out bool entered))
             {
                 Assert.True(entered);
                 Assert.True(asyncKeyedLocker.IsInUse("test"));
@@ -89,7 +89,7 @@ namespace AsyncKeyedLock.Tests.StripedAsyncKeyedLocker
         public async Task TestTimeout()
         {
             var asyncKeyedLocker = new StripedAsyncKeyedLocker<string>();
-            using (await asyncKeyedLocker.LockAsync("test"))
+            using (await asyncKeyedLocker.LockAsync("test", 0))
             {
                 using (var myLock = await asyncKeyedLocker.LockAsync("test", 0))
                 {
@@ -104,9 +104,25 @@ namespace AsyncKeyedLock.Tests.StripedAsyncKeyedLocker
         public void TestTimeoutWithTimeSpanSynchronous()
         {
             var asyncKeyedLocker = new StripedAsyncKeyedLocker<string>();
+            using (asyncKeyedLocker.Lock("test", TimeSpan.Zero, out bool entered))
+            {
+                Assert.True(entered);
+                using (asyncKeyedLocker.Lock("test", TimeSpan.Zero, out entered))
+                {
+                    Assert.False(entered);
+                }
+                Assert.True(asyncKeyedLocker.IsInUse("test"));
+            }
+            Assert.False(asyncKeyedLocker.IsInUse("test"));
+        }
+
+        [Fact]
+        public void TestTimeoutWithTimeoutSynchronous()
+        {
+            var asyncKeyedLocker = new StripedAsyncKeyedLocker<string>();
             using (asyncKeyedLocker.Lock("test"))
             {
-                using (asyncKeyedLocker.Lock("test", TimeSpan.Zero, out bool entered))
+                using (asyncKeyedLocker.Lock("test", 0, out bool entered))
                 {
                     Assert.False(entered);
                 }
