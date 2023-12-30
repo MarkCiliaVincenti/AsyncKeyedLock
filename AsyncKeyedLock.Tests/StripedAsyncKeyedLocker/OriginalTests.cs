@@ -159,6 +159,10 @@ namespace AsyncKeyedLock.Tests.StripedAsyncKeyedLocker
             {
                 Assert.True(entered);
                 Assert.True(stripedAsyncKeyedLocker.IsInUse("test"));
+                stripedAsyncKeyedLocker.Lock("test", 0, out entered);
+                Assert.False(entered);
+                stripedAsyncKeyedLocker.Lock("test", TimeSpan.Zero, out entered);
+                Assert.False(entered);
             }
             Assert.False(stripedAsyncKeyedLocker.IsInUse("test"));
         }
@@ -252,6 +256,10 @@ namespace AsyncKeyedLock.Tests.StripedAsyncKeyedLocker
             {
                 Assert.True(entered);
                 Assert.True(stripedAsyncKeyedLocker.IsInUse("test"));
+                stripedAsyncKeyedLocker.Lock("test", 0, new CancellationToken(false), out entered);
+                Assert.False(entered);
+                stripedAsyncKeyedLocker.Lock("test", TimeSpan.Zero, new CancellationToken(false), out entered);
+                Assert.False(entered);
             }
             Assert.False(stripedAsyncKeyedLocker.IsInUse("test"));
         }

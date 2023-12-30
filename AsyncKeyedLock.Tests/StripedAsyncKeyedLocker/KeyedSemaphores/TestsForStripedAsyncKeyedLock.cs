@@ -532,6 +532,10 @@ public class TestsForStripedAsyncKeyedLock
             isLockAcquired = collection.TryLock("test", Callback, timeout, cancelledCancellationToken);
         action.Should().Throw<OperationCanceledException>();
 
+        action = () =>
+            isLockAcquired = collection.TryLock("test", Callback, Convert.ToInt32(timeout.TotalMilliseconds), cancelledCancellationToken);
+        action.Should().Throw<OperationCanceledException>();
+
         // Assert
         collection.IsInUse("test").Should().BeFalse();
         isLockAcquired.Should().BeFalse();
@@ -559,6 +563,13 @@ public class TestsForStripedAsyncKeyedLock
 
         // Act
         var isLockAcquired = collection.TryLock("test", Callback, timeout, cancellationToken);
+
+        // Assert
+        collection.IsInUse("test").Should().BeFalse();
+        isLockAcquired.Should().BeTrue();
+        isCallbackInvoked.Should().BeTrue();
+
+        isLockAcquired = collection.TryLock("test", Callback, Convert.ToInt32(timeout.TotalMilliseconds), cancellationToken);
 
         // Assert
         collection.IsInUse("test").Should().BeFalse();
@@ -627,6 +638,10 @@ public class TestsForStripedAsyncKeyedLock
             isLockAcquired = await collection.TryLockAsync("test", Callback, timeout, cancelledCancellationToken);
         await action.Should().ThrowAsync<OperationCanceledException>();
 
+        action = async () =>
+            isLockAcquired = await collection.TryLockAsync("test", Callback, Convert.ToInt32(timeout.TotalMilliseconds), cancelledCancellationToken);
+        await action.Should().ThrowAsync<OperationCanceledException>();
+
         // Assert
         collection.IsInUse("test").Should().BeFalse();
         isLockAcquired.Should().BeFalse();
@@ -655,6 +670,13 @@ public class TestsForStripedAsyncKeyedLock
 
         // Act
         var isLockAcquired = await collection.TryLockAsync("test", Callback, timeout, cancellationToken);
+
+        // Assert
+        collection.IsInUse("test").Should().BeFalse();
+        isLockAcquired.Should().BeTrue();
+        isCallbackInvoked.Should().BeTrue();
+
+        isLockAcquired = await collection.TryLockAsync("test", Callback, Convert.ToInt32(timeout.TotalMilliseconds), cancellationToken);
 
         // Assert
         collection.IsInUse("test").Should().BeFalse();
@@ -693,6 +715,13 @@ public class TestsForStripedAsyncKeyedLock
         };
         await action.Should().ThrowAsync<OperationCanceledException>();
 
+        action = async () =>
+        {
+            isLockAcquired =
+                await collection.TryLockAsync("test", Callback, Convert.ToInt32(timeout.TotalMilliseconds), cancelledCancellationToken);
+        };
+        await action.Should().ThrowAsync<OperationCanceledException>();
+
         // Assert
         collection.IsInUse("test").Should().BeFalse();
         isLockAcquired.Should().BeFalse();
@@ -727,6 +756,13 @@ public class TestsForStripedAsyncKeyedLock
         collection.IsInUse("test").Should().BeFalse();
         isLockAcquired.Should().BeTrue();
         isCallbackInvoked.Should().BeTrue();
+
+        isLockAcquired = await collection.TryLockAsync("test", Callback, Convert.ToInt32(timeout.TotalMilliseconds), cancellationToken);
+
+        // Assert
+        collection.IsInUse("test").Should().BeFalse();
+        isLockAcquired.Should().BeTrue();
+        isCallbackInvoked.Should().BeTrue();
     }
 
     [Theory]
@@ -756,6 +792,13 @@ public class TestsForStripedAsyncKeyedLock
         isLockAcquired.Should().BeFalse();
         isCallbackInvoked.Should().BeFalse();
         collection.IsInUse(key).Should().BeTrue();
+
+        isLockAcquired = collection.TryLock(key, Callback, Convert.ToInt32(timeout.TotalMilliseconds));
+
+        // Assert
+        isLockAcquired.Should().BeFalse();
+        isCallbackInvoked.Should().BeFalse();
+        collection.IsInUse(key).Should().BeTrue();
     }
 
     [Theory]
@@ -778,6 +821,13 @@ public class TestsForStripedAsyncKeyedLock
 
         // Act
         var isLockAcquired = collection.TryLock(key, Callback, timeout);
+
+        // Assert
+        isLockAcquired.Should().BeTrue();
+        isCallbackInvoked.Should().BeTrue();
+        collection.IsInUse(key).Should().BeFalse();
+
+        isLockAcquired = collection.TryLock(key, Callback, Convert.ToInt32(timeout.TotalMilliseconds));
 
         // Assert
         isLockAcquired.Should().BeTrue();
@@ -811,6 +861,13 @@ public class TestsForStripedAsyncKeyedLock
         isLockAcquired.Should().BeFalse();
         isCallbackInvoked.Should().BeFalse();
         collection.IsInUse(key).Should().BeTrue();
+
+        isLockAcquired = await collection.TryLockAsync(key, Callback, Convert.ToInt32(timeout.TotalMilliseconds));
+
+        // Assert
+        isLockAcquired.Should().BeFalse();
+        isCallbackInvoked.Should().BeFalse();
+        collection.IsInUse(key).Should().BeTrue();
     }
 
     [Theory]
@@ -833,6 +890,13 @@ public class TestsForStripedAsyncKeyedLock
 
         // Act
         var isLockAcquired = await collection.TryLockAsync(key, Callback, timeout);
+
+        // Assert
+        isLockAcquired.Should().BeTrue();
+        isCallbackInvoked.Should().BeTrue();
+        collection.IsInUse(key).Should().BeFalse();
+
+        isLockAcquired = await collection.TryLockAsync(key, Callback, Convert.ToInt32(timeout.TotalMilliseconds));
 
         // Assert
         isLockAcquired.Should().BeTrue();
