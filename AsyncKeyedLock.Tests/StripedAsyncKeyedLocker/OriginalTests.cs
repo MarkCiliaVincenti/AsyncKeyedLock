@@ -561,7 +561,7 @@ namespace AsyncKeyedLock.Tests.StripedAsyncKeyedLocker
         public async Task Test2AtATime()
         {
             var range = 4;
-            var stripedAsyncKeyedLocker = new StripedAsyncKeyedLocker<object>(o => o.MaxCount = 2);
+            var stripedAsyncKeyedLocker = new StripedAsyncKeyedLocker<object>(maxCount: 2);
             var concurrentQueue = new ConcurrentQueue<int>();
 
             var tasks = Enumerable.Range(1, range * 4)
@@ -630,7 +630,7 @@ namespace AsyncKeyedLock.Tests.StripedAsyncKeyedLocker
         public async Task Test2AtATimeGenerics()
         {
             var range = 4;
-            var stripedAsyncKeyedLocker = new StripedAsyncKeyedLocker<int>(o => o.MaxCount = 2);
+            var stripedAsyncKeyedLocker = new StripedAsyncKeyedLocker<int>(maxCount: 2);
             var concurrentQueue = new ConcurrentQueue<int>();
 
             var tasks = Enumerable.Range(1, range * 4)
