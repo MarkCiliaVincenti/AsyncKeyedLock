@@ -927,10 +927,5 @@ namespace AsyncKeyedLock
         {
             return Get(key).SemaphoreSlim.CurrentCount < MaxCount;
         }
-
-        internal bool IsPrime(int candidate)
-        {
-            return HashHelpers.IsPrime(candidate);
-        }
     }
 }
