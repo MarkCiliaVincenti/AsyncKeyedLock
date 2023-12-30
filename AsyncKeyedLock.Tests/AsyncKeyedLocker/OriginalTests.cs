@@ -302,6 +302,78 @@ namespace AsyncKeyedLock.Tests.AsyncKeyedLocker
         }
 
         [Fact]
+        public void TestTimeoutWithInfiniteTimeoutAndCancellationToken()
+        {
+            var asyncKeyedLocker = new AsyncKeyedLocker<string>();
+            using (asyncKeyedLocker.Lock("test", Timeout.Infinite, new CancellationToken(false), out bool entered))
+            {
+                Assert.True(entered);
+                Assert.True(asyncKeyedLocker.IsInUse("test"));
+            }
+            Assert.False(asyncKeyedLocker.IsInUse("test"));
+        }
+
+        [Fact]
+        public void TestTimeoutWithZeroTimeoutAndCancellationToken()
+        {
+            var asyncKeyedLocker = new AsyncKeyedLocker<string>();
+            using (asyncKeyedLocker.Lock("test", 0, new CancellationToken(false), out bool entered))
+            {
+                Assert.True(entered);
+                Assert.True(asyncKeyedLocker.IsInUse("test"));
+            }
+            Assert.False(asyncKeyedLocker.IsInUse("test"));
+        }
+
+        [Fact]
+        public void TestTimeoutWithZeroTimeoutAndCancelledToken()
+        {
+            var asyncKeyedLocker = new AsyncKeyedLocker<string>();
+            Action action = () =>
+            {
+                asyncKeyedLocker.Lock("test", 0, new CancellationToken(true), out bool entered);
+            };
+            action.Should().Throw<OperationCanceledException>();
+            asyncKeyedLocker.IsInUse("test").Should().BeFalse();
+        }
+
+        [Fact]
+        public void TestTimeoutWithInfiniteTimeSpanAndCancellationToken()
+        {
+            var asyncKeyedLocker = new AsyncKeyedLocker<string>();
+            using (asyncKeyedLocker.Lock("test", TimeSpan.FromMilliseconds(Timeout.Infinite), new CancellationToken(false), out bool entered))
+            {
+                Assert.True(entered);
+                Assert.True(asyncKeyedLocker.IsInUse("test"));
+            }
+            Assert.False(asyncKeyedLocker.IsInUse("test"));
+        }
+
+        [Fact]
+        public void TestTimeoutWithZeroTimeSpanAndCancellationToken()
+        {
+            var asyncKeyedLocker = new AsyncKeyedLocker<string>();
+            using (asyncKeyedLocker.Lock("test", TimeSpan.FromMilliseconds(0), new CancellationToken(false), out bool entered))
+            {
+                Assert.True(entered);
+                Assert.True(asyncKeyedLocker.IsInUse("test"));
+            }
+            Assert.False(asyncKeyedLocker.IsInUse("test"));
+        }
+
+        [Fact]
+        public void TestTimeoutWithZeroTimeSpanAndCancelledToken()
+        {
+            var asyncKeyedLocker = new AsyncKeyedLocker<string>();
+            Action action = () =>
+            {
+                asyncKeyedLocker.Lock("test", TimeSpan.FromMilliseconds(0), new CancellationToken(true), out bool entered);
+            };
+            action.Should().Throw<OperationCanceledException>();
+            asyncKeyedLocker.IsInUse("test").Should().BeFalse();
+        }
+
+        [Fact]
         public async Task BasicTest()
         {
             var locks = 5000;

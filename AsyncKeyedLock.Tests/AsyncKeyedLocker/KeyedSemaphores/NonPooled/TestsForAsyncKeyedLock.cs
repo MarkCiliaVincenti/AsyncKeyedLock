@@ -532,6 +532,10 @@ public class TestsForAsyncKeyedLock
             isLockAcquired = dictionary.TryLock("test", Callback, timeout, cancelledCancellationToken);
         action.Should().Throw<OperationCanceledException>();
 
+        action = () =>
+            isLockAcquired = dictionary.TryLock("test", Callback, Convert.ToInt32(timeout.TotalMilliseconds), cancelledCancellationToken);
+        action.Should().Throw<OperationCanceledException>();
+
         // Assert
         dictionary.IsInUse("test").Should().BeFalse();
         isLockAcquired.Should().BeFalse();
@@ -564,6 +568,14 @@ public class TestsForAsyncKeyedLock
         dictionary.IsInUse("test").Should().BeFalse();
         isLockAcquired.Should().BeTrue();
         isCallbackInvoked.Should().BeTrue();
+
+        isLockAcquired = dictionary.TryLock("test", Callback, Convert.ToInt32(timeout.TotalMilliseconds), cancellationToken);
+
+        // Assert
+        dictionary.IsInUse("test").Should().BeFalse();
+        isLockAcquired.Should().BeTrue();
+        isCallbackInvoked.Should().BeTrue();
+
     }
 
     [Fact]
@@ -627,6 +639,10 @@ public class TestsForAsyncKeyedLock
             isLockAcquired = await dictionary.TryLockAsync("test", Callback, timeout, cancelledCancellationToken);
         await action.Should().ThrowAsync<OperationCanceledException>();
 
+        action = async () =>
+            isLockAcquired = await dictionary.TryLockAsync("test", Callback, Convert.ToInt32(timeout.TotalMilliseconds), cancelledCancellationToken);
+        await action.Should().ThrowAsync<OperationCanceledException>();
+
         // Assert
         dictionary.IsInUse("test").Should().BeFalse();
         isLockAcquired.Should().BeFalse();
@@ -655,6 +671,13 @@ public class TestsForAsyncKeyedLock
 
         // Act
         var isLockAcquired = await dictionary.TryLockAsync("test", Callback, timeout, cancellationToken);
+
+        // Assert
+        dictionary.IsInUse("test").Should().BeFalse();
+        isLockAcquired.Should().BeTrue();
+        isCallbackInvoked.Should().BeTrue();
+
+        isLockAcquired = await dictionary.TryLockAsync("test", Callback, Convert.ToInt32(timeout.TotalMilliseconds), cancellationToken);
 
         // Assert
         dictionary.IsInUse("test").Should().BeFalse();
@@ -693,6 +716,13 @@ public class TestsForAsyncKeyedLock
         };
         await action.Should().ThrowAsync<OperationCanceledException>();
 
+        action = async () =>
+        {
+            isLockAcquired =
+                await dictionary.TryLockAsync("test", Callback, Convert.ToInt32(timeout.TotalMilliseconds), cancelledCancellationToken);
+        };
+        await action.Should().ThrowAsync<OperationCanceledException>();
+
         // Assert
         dictionary.IsInUse("test").Should().BeFalse();
         isLockAcquired.Should().BeFalse();
@@ -727,6 +757,13 @@ public class TestsForAsyncKeyedLock
         dictionary.IsInUse("test").Should().BeFalse();
         isLockAcquired.Should().BeTrue();
         isCallbackInvoked.Should().BeTrue();
+
+        isLockAcquired = await dictionary.TryLockAsync("test", Callback, Convert.ToInt32(timeout.TotalMilliseconds), cancellationToken);
+
+        // Assert
+        dictionary.IsInUse("test").Should().BeFalse();
+        isLockAcquired.Should().BeTrue();
+        isCallbackInvoked.Should().BeTrue();
     }
 
     [Theory]
@@ -754,6 +791,11 @@ public class TestsForAsyncKeyedLock
 
         // Assert
         isLockAcquired.Should().BeFalse();
+
+        isLockAcquired = dictionary.TryLock(key, Callback, Convert.ToInt32(timeout.TotalMilliseconds));
+
+        isLockAcquired.Should().BeFalse();
+
         isCallbackInvoked.Should().BeFalse();
         dictionary.IsInUse(key).Should().BeTrue();
     }
@@ -782,6 +824,13 @@ public class TestsForAsyncKeyedLock
         // Assert
         isLockAcquired.Should().BeTrue();
         isCallbackInvoked.Should().BeTrue();
+
+        isLockAcquired = dictionary.TryLock(key, Callback, Convert.ToInt32(timeout.TotalMilliseconds));
+
+        // Assert
+        isLockAcquired.Should().BeTrue();
+        isCallbackInvoked.Should().BeTrue();
+
         dictionary.IsInUse(key).Should().BeFalse();
     }
 
@@ -811,6 +860,13 @@ public class TestsForAsyncKeyedLock
         isLockAcquired.Should().BeFalse();
         isCallbackInvoked.Should().BeFalse();
         dictionary.IsInUse(key).Should().BeTrue();
+
+        isLockAcquired = await dictionary.TryLockAsync(key, Callback, Convert.ToInt32(timeout.TotalMilliseconds));
+
+        // Assert
+        isLockAcquired.Should().BeFalse();
+        isCallbackInvoked.Should().BeFalse();
+        dictionary.IsInUse(key).Should().BeTrue();
     }
 
     [Theory]
@@ -833,6 +889,13 @@ public class TestsForAsyncKeyedLock
 
         // Act
         var isLockAcquired = await dictionary.TryLockAsync(key, Callback, timeout);
+
+        // Assert
+        isLockAcquired.Should().BeTrue();
+        isCallbackInvoked.Should().BeTrue();
+        dictionary.IsInUse(key).Should().BeFalse();
+
+        isLockAcquired = await dictionary.TryLockAsync(key, Callback, Convert.ToInt32(timeout.TotalMilliseconds));
 
         // Assert
         isLockAcquired.Should().BeTrue();
