@@ -116,6 +116,30 @@ namespace AsyncKeyedLock.Tests.StripedAsyncKeyedLocker
         }
 
         [Fact]
+        public void TestTimeoutWithInfiniteTimeoutSynchronous()
+        {
+            var asyncKeyedLocker = new StripedAsyncKeyedLocker<string>();
+            using (asyncKeyedLocker.Lock("test", Timeout.Infinite, out bool entered))
+            {
+                Assert.True(entered);
+                Assert.True(asyncKeyedLocker.IsInUse("test"));
+            }
+            Assert.False(asyncKeyedLocker.IsInUse("test"));
+        }
+
+        [Fact]
+        public void TestTimeoutWithInfiniteTimeSpanSynchronous()
+        {
+            var asyncKeyedLocker = new StripedAsyncKeyedLocker<string>();
+            using (asyncKeyedLocker.Lock("test", TimeSpan.FromMilliseconds(Timeout.Infinite), out bool entered))
+            {
+                Assert.True(entered);
+                Assert.True(asyncKeyedLocker.IsInUse("test"));
+            }
+            Assert.False(asyncKeyedLocker.IsInUse("test"));
+        }
+
+        [Fact]
         public async Task TestTimeoutWithTimeSpan()
         {
             var asyncKeyedLocker = new StripedAsyncKeyedLocker<string>();
