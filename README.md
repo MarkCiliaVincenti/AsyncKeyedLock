@@ -11,16 +11,16 @@ The library uses two very different methods for locking, one using an underlying
 Using this library is straightforward. Here's a simple example:
 ```csharp
 private static readonly AsyncKeyedLocker<string> _asyncKeyedLocker = new(o =>
-	{
-		o.PoolSize = 20; // this is NOT a concurrency limit
-		o.PoolInitialFill = 1;
-	});
+  {
+    o.PoolSize = 20; // this is NOT a concurrency limit
+    o.PoolInitialFill = 1;
+  });
 
 ...
 
 using (await _asyncKeyedLocker.LockAsync("test123"))
 {
-	...
+  ...
 }
 ```
 
