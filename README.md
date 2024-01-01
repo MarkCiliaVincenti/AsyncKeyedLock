@@ -24,9 +24,7 @@ using (await _asyncKeyedLocker.LockAsync("test123"))
 }
 ```
 
-The documentation can be found in our [wiki](https://github.com/MarkCiliaVincenti/AsyncKeyedLock/wiki).
-
-Usage
+Please read the full documentation in our [wiki](https://github.com/MarkCiliaVincenti/AsyncKeyedLock/wiki) for help in using this libary.
 
 ## Credits
 Check out our [list of contributors](https://github.com/MarkCiliaVincenti/AsyncKeyedLock/blob/master/CONTRIBUTORS.md)!
