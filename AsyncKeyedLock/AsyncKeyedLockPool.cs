@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Concurrent;
 using System.Runtime.CompilerServices;
+using System.Threading;
 
 namespace AsyncKeyedLock
 {
@@ -9,10 +10,14 @@ namespace AsyncKeyedLock
         private readonly BlockingCollection<AsyncKeyedLockReleaser<TKey>> _objects;
         private readonly Func<TKey, AsyncKeyedLockReleaser<TKey>> _objectGenerator;
 
-        public AsyncKeyedLockPool(Func<TKey, AsyncKeyedLockReleaser<TKey>> objectGenerator, int capacity, int initialFill = -1)
+        public AsyncKeyedLockPool(AsyncKeyedLockDictionary<TKey> asyncKeyedLockDictionary, int capacity, int initialFill = -1)
         {
             _objects = new BlockingCollection<AsyncKeyedLockReleaser<TKey>>(new ConcurrentBag<AsyncKeyedLockReleaser<TKey>>(), capacity);
-            _objectGenerator = objectGenerator;
+            _objectGenerator = (key) => new AsyncKeyedLockReleaser<TKey>(
+                key,
+                new SemaphoreSlim(asyncKeyedLockDictionary.MaxCount, asyncKeyedLockDictionary.MaxCount),
+                asyncKeyedLockDictionary);
+
             if (initialFill < 0)
             {
                 for (int i = 0; i < capacity; ++i)

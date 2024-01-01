@@ -24,7 +24,7 @@ namespace AsyncKeyedLock
             if (options.PoolSize > 0)
             {
                 PoolingEnabled = true;
-                _pool = new AsyncKeyedLockPool<TKey>((key) => new AsyncKeyedLockReleaser<TKey>(key, new SemaphoreSlim(MaxCount, MaxCount), this), options.PoolSize, options.PoolInitialFill);
+                _pool = new AsyncKeyedLockPool<TKey>(this, options.PoolSize, options.PoolInitialFill);
             }
         }
 
@@ -40,7 +40,7 @@ namespace AsyncKeyedLock
             if (options.PoolSize > 0)
             {
                 PoolingEnabled = true;
-                _pool = new AsyncKeyedLockPool<TKey>((key) => new AsyncKeyedLockReleaser<TKey>(key, new SemaphoreSlim(MaxCount, MaxCount), this), options.PoolSize, options.PoolInitialFill);
+                _pool = new AsyncKeyedLockPool<TKey>(this, options.PoolSize, options.PoolInitialFill);
             }
         }
 
@@ -56,7 +56,7 @@ namespace AsyncKeyedLock
             if (options.PoolSize > 0)
             {
                 PoolingEnabled = true;
-                _pool = new AsyncKeyedLockPool<TKey>((key) => new AsyncKeyedLockReleaser<TKey>(key, new SemaphoreSlim(MaxCount, MaxCount), this), options.PoolSize, options.PoolInitialFill);
+                _pool = new AsyncKeyedLockPool<TKey>(this, options.PoolSize, options.PoolInitialFill);
             }
         }
 
@@ -72,7 +72,7 @@ namespace AsyncKeyedLock
             if (options.PoolSize > 0)
             {
                 PoolingEnabled = true;
-                _pool = new AsyncKeyedLockPool<TKey>((key) => new AsyncKeyedLockReleaser<TKey>(key, new SemaphoreSlim(MaxCount, MaxCount), this), options.PoolSize, options.PoolInitialFill);
+                _pool = new AsyncKeyedLockPool<TKey>(this, options.PoolSize, options.PoolInitialFill);
             }
         }
 

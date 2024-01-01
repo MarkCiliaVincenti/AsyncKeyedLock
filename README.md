@@ -8,7 +8,25 @@ For example, suppose you were processing financial transactions, but while worki
 The library uses two very different methods for locking, one using an underlying `ConcurrentDictionary` that's cleaned up after use whilst the other using a technique called striped locking. Both have their advantages and disadvantages, and in order to help you choose you are highly recommended to read about it in the [wiki](https://github.com/MarkCiliaVincenti/AsyncKeyedLock/wiki).
 
 ## Installation and usage
+Using this library is straightforward. Here's a simple example:
+```csharp
+private static readonly AsyncKeyedLocker<string> _asyncKeyedLocker = new(o =>
+	{
+		o.PoolSize = 20; // this is NOT a concurrency limit
+		o.PoolInitialFill = 1;
+	});
+
+...
+
+using (await _asyncKeyedLocker.LockAsync("test123"))
+{
+	...
+}
+```
+
 The documentation can be found in our [wiki](https://github.com/MarkCiliaVincenti/AsyncKeyedLock/wiki).
+
+Usage
 
 ## Credits
 Check out our [list of contributors](https://github.com/MarkCiliaVincenti/AsyncKeyedLock/blob/master/CONTRIBUTORS.md)!
