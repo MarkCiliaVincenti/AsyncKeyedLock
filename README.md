@@ -29,7 +29,7 @@ Please read the full documentation in our [wiki](https://github.com/MarkCiliaVin
 ## Benchmarks
 This library has been extensively benchmarked against several other options and [our benchmarks](https://github.com/MarkCiliaVincenti/AsyncKeyedLockBenchmarks/actions) run publicly and transparently on Github Actions.
 
-When striped locking is an option, the `StripedAsyncKeyedLocker` beats any other option in terms of both speed as well as memory allocations.
+When striped locking is an option, the `StripedAsyncKeyedLocker` consistently beats any other option in terms of both speed as well as memory allocations.
 
 When the traditional dictionary-based method is used, `AsyncKeyedLocker` with pooling provides a great balance in terms of speed and memory allocations, which is an excellent, safe go-to solution.
 
