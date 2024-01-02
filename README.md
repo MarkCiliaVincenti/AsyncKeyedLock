@@ -27,7 +27,7 @@ using (await _asyncKeyedLocker.LockAsync("test123"))
 Please read the full documentation in our [wiki](https://github.com/MarkCiliaVincenti/AsyncKeyedLock/wiki) for help in using this libary.
 
 ## Benchmarks
-This library has been extensively benchmarked against several other options and [our benchmarks](https://github.com/MarkCiliaVincenti/AsyncKeyedLockBenchmarks/actions) run publicly and transparently on Github Actions.
+This library has been extensively benchmarked against several other options and [our benchmarks](https://github.com/MarkCiliaVincenti/AsyncKeyedLockBenchmarks) run publicly and transparently on Github Actions.
 
 When striped locking is an option, the `StripedAsyncKeyedLocker` consistently beats any other option in terms of both speed as well as memory allocations.
 
