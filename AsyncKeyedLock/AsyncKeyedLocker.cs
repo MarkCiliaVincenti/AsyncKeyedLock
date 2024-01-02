@@ -155,7 +155,7 @@ namespace AsyncKeyedLock
     /// </summary>
     public class AsyncKeyedLocker<TKey> : IDisposable where TKey : notnull
     {
-        private readonly AsyncKeyedLockDictionary<TKey> _dictionary;
+        internal readonly AsyncKeyedLockDictionary<TKey> _dictionary;
         /// <summary>
         /// Read-only index of objects held by <see cref="AsyncKeyedLocker{TKey}"/>.
         /// </summary>

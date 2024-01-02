@@ -9,7 +9,7 @@ namespace AsyncKeyedLock
     internal sealed class AsyncKeyedLockDictionary<TKey> : ConcurrentDictionary<TKey, AsyncKeyedLockReleaser<TKey>>, IDisposable
     {
         public int MaxCount { get; private set; } = 1;
-        private readonly AsyncKeyedLockPool<TKey> _pool;
+        internal readonly AsyncKeyedLockPool<TKey> _pool;
         internal bool PoolingEnabled { get; private set; }
 
         public AsyncKeyedLockDictionary() : base()

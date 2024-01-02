@@ -2,12 +2,41 @@ using AsyncKeyedLock.Tests.Helpers;
 using FluentAssertions;
 using ListShuffle;
 using System.Collections.Concurrent;
+using System.Reflection;
 using Xunit;
 
 namespace AsyncKeyedLock.Tests.AsyncKeyedLocker
 {
     public class OriginalTests
     {
+        [Fact]
+        public void IsInUseRaceConditionCoverage()
+        {
+            var asyncKeyedLocker = new AsyncKeyedLocker<string>(o => o.PoolSize = 1);
+            var releaser = asyncKeyedLocker._dictionary._pool.GetObject("test");
+            asyncKeyedLocker._dictionary._pool.PutObject(releaser);
+            asyncKeyedLocker.Lock("test");
+            releaser.IsNotInUse = true; // internal
+            Assert.False(asyncKeyedLocker.IsInUse("test"));
+        }
+
+        [Fact]
+        public void TryIncrementNoPoolingCoverage()
+        {
+            var asyncKeyedLocker = new AsyncKeyedLocker<string>(o => o.PoolSize = 0);
+            var releaser = (AsyncKeyedLockReleaser<string>)asyncKeyedLocker.Lock("test");
+            releaser.IsNotInUse = true;
+            var timer = new System.Timers.Timer(1000);
+            timer.Elapsed += (sender, e) => UnlockTest(releaser);
+            timer.Start();
+            asyncKeyedLocker.Lock("test");
+        }
+
+        private void UnlockTest(AsyncKeyedLockReleaser<string> releaser)
+        {
+            releaser.Dispose();
+        }
+
         [Fact]
         public void TestMaxCountLessThan1()
         {
