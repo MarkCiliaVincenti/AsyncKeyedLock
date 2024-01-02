@@ -38,14 +38,9 @@ namespace AsyncKeyedLock.Tests.AsyncKeyedLocker
             var releaser = (AsyncKeyedLockReleaser<string>)asyncKeyedLocker.Lock("test");
             releaser.IsNotInUse = true;
             var timer = new System.Timers.Timer(1000);
-            timer.Elapsed += (sender, e) => UnlockTest(releaser);
+            timer.Elapsed += (_, _) => { releaser.Dispose(); };
             timer.Start();
             asyncKeyedLocker.Lock("test");
-        }
-
-        private void UnlockTest(AsyncKeyedLockReleaser<string> releaser)
-        {
-            releaser.Dispose();
         }
 
         [Fact]
