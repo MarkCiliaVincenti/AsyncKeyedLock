@@ -21,6 +21,17 @@ namespace AsyncKeyedLock.Tests.AsyncKeyedLocker
         }
 
         [Fact]
+        public void IsInUseKeyChangeRaceConditionCoverage()
+        {
+            var asyncKeyedLocker = new AsyncKeyedLocker<string>(o => o.PoolSize = 1);
+            var releaser = asyncKeyedLocker._dictionary._pool.GetObject("test");
+            asyncKeyedLocker._dictionary._pool.PutObject(releaser);
+            asyncKeyedLocker.Lock("test");
+            releaser.Key = "test2"; // internal
+            Assert.False(asyncKeyedLocker.IsInUse("test"));
+        }
+
+        [Fact]
         public void TryIncrementNoPoolingCoverage()
         {
             var asyncKeyedLocker = new AsyncKeyedLocker<string>(o => o.PoolSize = 0);
