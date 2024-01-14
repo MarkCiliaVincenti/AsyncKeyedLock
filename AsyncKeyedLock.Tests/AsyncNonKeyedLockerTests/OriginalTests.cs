@@ -99,7 +99,7 @@ namespace AsyncKeyedLock.Tests.AsyncNonKeyedLockerTests
                 Assert.True(entered);
                 Assert.Equal(1, asyncNonKeyedLocker.GetRemainingCount());
                 Assert.Equal(0, asyncNonKeyedLocker.GetCurrentCount());
-                using (var myLock2 = asyncNonKeyedLocker.Lock(TimeSpan.FromMilliseconds(0), out entered))
+                using (var myLock2 = asyncNonKeyedLocker.Lock(TimeSpan.Zero, out entered))
                 {
                     Assert.False(entered);
                     Assert.False(((AsyncNonKeyedLockTimeoutReleaser)myLock2).EnteredSemaphore);
@@ -170,7 +170,7 @@ namespace AsyncKeyedLock.Tests.AsyncNonKeyedLockerTests
             var asyncNonKeyedLocker = new AsyncNonKeyedLocker();
             Assert.Equal(0, asyncNonKeyedLocker.GetRemainingCount());
             Assert.Equal(1, asyncNonKeyedLocker.GetCurrentCount());
-            using (var myLock = asyncNonKeyedLocker.Lock(0, CancellationToken.None, out bool entered))
+            using (var myLock = asyncNonKeyedLocker.Lock(TimeSpan.Zero, CancellationToken.None, out bool entered))
             {
                 Assert.True(entered);
                 Assert.Equal(1, asyncNonKeyedLocker.GetRemainingCount());
@@ -181,7 +181,7 @@ namespace AsyncKeyedLock.Tests.AsyncNonKeyedLockerTests
                 Assert.True(entered);
                 Assert.Equal(1, asyncNonKeyedLocker.GetRemainingCount());
                 Assert.Equal(0, asyncNonKeyedLocker.GetCurrentCount());
-                using (var myLock2 = asyncNonKeyedLocker.Lock(0, CancellationToken.None, out entered))
+                using (var myLock2 = asyncNonKeyedLocker.Lock(TimeSpan.Zero, CancellationToken.None, out entered))
                 {
                     Assert.False(entered);
                     Assert.False(((AsyncNonKeyedLockTimeoutReleaser)myLock2).EnteredSemaphore);
@@ -198,7 +198,7 @@ namespace AsyncKeyedLock.Tests.AsyncNonKeyedLockerTests
             Action action = () =>
             {
                 var asyncNonKeyedLocker = new AsyncNonKeyedLocker();
-                using (asyncNonKeyedLocker.Lock(TimeSpan.FromMilliseconds(0), new CancellationToken(true), out entered))
+                using (asyncNonKeyedLocker.Lock(TimeSpan.Zero, new CancellationToken(true), out entered))
                 { }
             };
             action.Should().Throw<OperationCanceledException>();
