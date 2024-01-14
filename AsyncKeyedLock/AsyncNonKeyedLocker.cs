@@ -32,9 +32,9 @@ namespace AsyncKeyedLock
         /// <summary>
         /// Synchronously lock.
         /// </summary>
-        /// <returns>A disposable value.</returns>
+        /// <returns>A disposable value of type <see cref="AsyncNonKeyedLockReleaser"/>.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public IDisposable Lock()
+        public AsyncNonKeyedLockReleaser Lock()
         {
             _semaphoreSlim.Wait();
             return new AsyncNonKeyedLockReleaser(this);
@@ -44,9 +44,9 @@ namespace AsyncKeyedLock
         /// Synchronously lock, while observing a <see cref="CancellationToken"/>.
         /// </summary>
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> to observe.</param>
-        /// <returns>A disposable value.</returns>
+        /// <returns>A disposable value of type <see cref="AsyncNonKeyedLockReleaser"/>.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public IDisposable Lock(CancellationToken cancellationToken)
+        public AsyncNonKeyedLockReleaser Lock(CancellationToken cancellationToken)
         {
             _semaphoreSlim.Wait(cancellationToken);
             return new AsyncNonKeyedLockReleaser(this);
@@ -152,9 +152,9 @@ namespace AsyncKeyedLock
         /// Asynchronously lock.
         /// </summary>
         /// <param name="continueOnCapturedContext">true to attempt to marshal the continuation back to the original context captured; otherwise, false. Defaults to false.</param>
-        /// <returns>A disposable value.</returns>
+        /// <returns>A disposable value of type <see cref="AsyncNonKeyedLockReleaser"/>.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public async ValueTask<IDisposable> LockAsync(bool continueOnCapturedContext = false)
+        public async ValueTask<AsyncNonKeyedLockReleaser> LockAsync(bool continueOnCapturedContext = false)
         {
             await _semaphoreSlim.WaitAsync().ConfigureAwait(continueOnCapturedContext);
             return new AsyncNonKeyedLockReleaser(this);
@@ -165,9 +165,9 @@ namespace AsyncKeyedLock
         /// </summary>
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> to observe.</param>
         /// <param name="continueOnCapturedContext">true to attempt to marshal the continuation back to the original context captured; otherwise, false. Defaults to false.</param>
-        /// <returns>A disposable value.</returns>
+        /// <returns>A disposable value of type <see cref="AsyncNonKeyedLockReleaser"/>.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public async ValueTask<IDisposable> LockAsync(CancellationToken cancellationToken, bool continueOnCapturedContext = false)
+        public async ValueTask<AsyncNonKeyedLockReleaser> LockAsync(CancellationToken cancellationToken, bool continueOnCapturedContext = false)
         {
             await _semaphoreSlim.WaitAsync(cancellationToken).ConfigureAwait(continueOnCapturedContext);
             return new AsyncNonKeyedLockReleaser(this);
@@ -250,9 +250,9 @@ namespace AsyncKeyedLock
         /// Asynchronously lock.
         /// </summary>
         /// <param name="configureAwaitOptions">Options used to configure how awaits on this task are performed.</param>
-        /// <returns>A disposable value.</returns>
+        /// <returns>A disposable value of type <see cref="AsyncNonKeyedLockReleaser"/>.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public async ValueTask<IDisposable> LockAsync(ConfigureAwaitOptions configureAwaitOptions)
+        public async ValueTask<AsyncNonKeyedLockReleaser> LockAsync(ConfigureAwaitOptions configureAwaitOptions)
         {
             await _semaphoreSlim.WaitAsync().ConfigureAwait(configureAwaitOptions);
             return new AsyncNonKeyedLockReleaser(this);
@@ -263,9 +263,9 @@ namespace AsyncKeyedLock
         /// </summary>
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> to observe.</param>
         /// <param name="configureAwaitOptions">Options used to configure how awaits on this task are performed.</param>
-        /// <returns>A disposable value.</returns>
+        /// <returns>A disposable value of type <see cref="AsyncNonKeyedLockReleaser"/>.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public async ValueTask<IDisposable> LockAsync(CancellationToken cancellationToken, ConfigureAwaitOptions configureAwaitOptions)
+        public async ValueTask<AsyncNonKeyedLockReleaser> LockAsync(CancellationToken cancellationToken, ConfigureAwaitOptions configureAwaitOptions)
         {
             await _semaphoreSlim.WaitAsync(cancellationToken).ConfigureAwait(configureAwaitOptions);
             return new AsyncNonKeyedLockReleaser(this);
