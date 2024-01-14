@@ -73,7 +73,7 @@ namespace AsyncKeyedLock.Tests.AsyncNonKeyedLockerTests
             var asyncNonKeyedLocker = new AsyncNonKeyedLocker();
             Assert.Equal(0, asyncNonKeyedLocker.GetRemainingCount());
             Assert.Equal(1, asyncNonKeyedLocker.GetCurrentCount());
-            using (var myLock = asyncNonKeyedLocker.Lock(0, out bool entered))
+            using (var myLock = asyncNonKeyedLocker.Lock(Timeout.Infinite, out bool entered))
             {
                 Assert.True(entered);
                 Assert.True(((AsyncNonKeyedLockTimeoutReleaser)myLock).EnteredSemaphore);
@@ -95,7 +95,7 @@ namespace AsyncKeyedLock.Tests.AsyncNonKeyedLockerTests
             var asyncNonKeyedLocker = new AsyncNonKeyedLocker();
             Assert.Equal(0, asyncNonKeyedLocker.GetRemainingCount());
             Assert.Equal(1, asyncNonKeyedLocker.GetCurrentCount());
-            using (var myLock = asyncNonKeyedLocker.Lock(TimeSpan.FromMilliseconds(0), out bool entered))
+            using (var myLock = asyncNonKeyedLocker.Lock(Timeout.InfiniteTimeSpan, out bool entered))
             {
                 Assert.True(entered);
                 Assert.True(((AsyncNonKeyedLockTimeoutReleaser)myLock).EnteredSemaphore);
@@ -117,7 +117,7 @@ namespace AsyncKeyedLock.Tests.AsyncNonKeyedLockerTests
             var asyncNonKeyedLocker = new AsyncNonKeyedLocker();
             Assert.Equal(0, asyncNonKeyedLocker.GetRemainingCount());
             Assert.Equal(1, asyncNonKeyedLocker.GetCurrentCount());
-            using (var myLock = asyncNonKeyedLocker.Lock(0, CancellationToken.None, out bool entered))
+            using (var myLock = asyncNonKeyedLocker.Lock(Timeout.Infinite, CancellationToken.None, out bool entered))
             {
                 Assert.True(entered);
                 Assert.True(((AsyncNonKeyedLockTimeoutReleaser)myLock).EnteredSemaphore);
@@ -148,12 +148,26 @@ namespace AsyncKeyedLock.Tests.AsyncNonKeyedLockerTests
         }
 
         [Fact]
+        public void TestLockAndInfiniteMillisecondsTimeoutAndCancelledCancellationToken()
+        {
+            bool entered = false;
+            Action action = () =>
+            {
+                var asyncNonKeyedLocker = new AsyncNonKeyedLocker();
+                using (asyncNonKeyedLocker.Lock(Timeout.Infinite, new CancellationToken(true), out entered))
+                { }
+            };
+            action.Should().Throw<OperationCanceledException>();
+            entered.Should().BeFalse();
+        }
+
+        [Fact]
         public void TestLockAndTimeoutAndCancellationToken()
         {
             var asyncNonKeyedLocker = new AsyncNonKeyedLocker();
             Assert.Equal(0, asyncNonKeyedLocker.GetRemainingCount());
             Assert.Equal(1, asyncNonKeyedLocker.GetCurrentCount());
-            using (var myLock = asyncNonKeyedLocker.Lock(TimeSpan.FromMilliseconds(0), CancellationToken.None, out bool entered))
+            using (var myLock = asyncNonKeyedLocker.Lock(Timeout.Infinite, CancellationToken.None, out bool entered))
             {
                 Assert.True(entered);
                 Assert.True(((AsyncNonKeyedLockTimeoutReleaser)myLock).EnteredSemaphore);
@@ -177,6 +191,20 @@ namespace AsyncKeyedLock.Tests.AsyncNonKeyedLockerTests
             {
                 var asyncNonKeyedLocker = new AsyncNonKeyedLocker();
                 using (asyncNonKeyedLocker.Lock(TimeSpan.FromMilliseconds(0), new CancellationToken(true), out entered))
+                { }
+            };
+            action.Should().Throw<OperationCanceledException>();
+            entered.Should().BeFalse();
+        }
+
+        [Fact]
+        public void TestLockAndInfiniteTimeoutAndCancelledCancellationToken()
+        {
+            bool entered = false;
+            Action action = () =>
+            {
+                var asyncNonKeyedLocker = new AsyncNonKeyedLocker();
+                using (asyncNonKeyedLocker.Lock(Timeout.InfiniteTimeSpan, new CancellationToken(true), out entered))
                 { }
             };
             action.Should().Throw<OperationCanceledException>();
