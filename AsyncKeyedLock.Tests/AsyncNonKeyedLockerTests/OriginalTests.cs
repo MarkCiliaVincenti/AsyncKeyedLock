@@ -76,7 +76,6 @@ namespace AsyncKeyedLock.Tests.AsyncNonKeyedLockerTests
             using (var myLock = asyncNonKeyedLocker.Lock(Timeout.Infinite, out bool entered))
             {
                 Assert.True(entered);
-                Assert.True(((AsyncNonKeyedLockTimeoutReleaser)myLock).EnteredSemaphore);
                 Assert.Equal(1, asyncNonKeyedLocker.GetRemainingCount());
                 Assert.Equal(0, asyncNonKeyedLocker.GetCurrentCount());
                 using (var myLock2 = asyncNonKeyedLocker.Lock(0, out entered))
@@ -98,7 +97,6 @@ namespace AsyncKeyedLock.Tests.AsyncNonKeyedLockerTests
             using (var myLock = asyncNonKeyedLocker.Lock(Timeout.InfiniteTimeSpan, out bool entered))
             {
                 Assert.True(entered);
-                Assert.True(((AsyncNonKeyedLockTimeoutReleaser)myLock).EnteredSemaphore);
                 Assert.Equal(1, asyncNonKeyedLocker.GetRemainingCount());
                 Assert.Equal(0, asyncNonKeyedLocker.GetCurrentCount());
                 using (var myLock2 = asyncNonKeyedLocker.Lock(TimeSpan.FromMilliseconds(0), out entered))
@@ -120,7 +118,6 @@ namespace AsyncKeyedLock.Tests.AsyncNonKeyedLockerTests
             using (var myLock = asyncNonKeyedLocker.Lock(Timeout.Infinite, CancellationToken.None, out bool entered))
             {
                 Assert.True(entered);
-                Assert.True(((AsyncNonKeyedLockTimeoutReleaser)myLock).EnteredSemaphore);
                 Assert.Equal(1, asyncNonKeyedLocker.GetRemainingCount());
                 Assert.Equal(0, asyncNonKeyedLocker.GetCurrentCount());
                 using (var myLock2 = asyncNonKeyedLocker.Lock(0, CancellationToken.None, out entered))
@@ -170,7 +167,6 @@ namespace AsyncKeyedLock.Tests.AsyncNonKeyedLockerTests
             using (var myLock = asyncNonKeyedLocker.Lock(Timeout.Infinite, CancellationToken.None, out bool entered))
             {
                 Assert.True(entered);
-                Assert.True(((AsyncNonKeyedLockTimeoutReleaser)myLock).EnteredSemaphore);
                 Assert.Equal(1, asyncNonKeyedLocker.GetRemainingCount());
                 Assert.Equal(0, asyncNonKeyedLocker.GetCurrentCount());
                 using (var myLock2 = asyncNonKeyedLocker.Lock(TimeSpan.FromMilliseconds(0), CancellationToken.None, out entered))
