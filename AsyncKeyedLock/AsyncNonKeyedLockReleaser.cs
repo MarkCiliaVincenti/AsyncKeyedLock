@@ -9,16 +9,11 @@ namespace AsyncKeyedLock
     /// </summary>
     public readonly struct AsyncNonKeyedLockReleaser : IDisposable
     {
-        private readonly SemaphoreSlim _semaphoreSlim;
+        private readonly AsyncNonKeyedLocker _locker;
 
-        /// <summary>
-        /// The exposed <see cref="SemaphoreSlim"/> instance used to limit the number of threads that can access the lock concurrently.
-        /// </summary>
-        public readonly SemaphoreSlim SemaphoreSlim => _semaphoreSlim;
-
-        internal AsyncNonKeyedLockReleaser(SemaphoreSlim semaphoreSlim)
+        internal AsyncNonKeyedLockReleaser(AsyncNonKeyedLocker locker)
         {
-            _semaphoreSlim = semaphoreSlim;
+            _locker = locker;
         }
 
         /// <summary>
@@ -27,7 +22,7 @@ namespace AsyncKeyedLock
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public readonly void Dispose()
         {
-            _semaphoreSlim.Release();
+            _locker._semaphoreSlim.Release();
         }
     }
 }

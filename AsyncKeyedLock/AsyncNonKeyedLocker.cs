@@ -17,7 +17,7 @@ namespace AsyncKeyedLock
         /// </summary>
         public int MaxCount => _maxCount;
 
-        private SemaphoreSlim _semaphoreSlim;
+        internal SemaphoreSlim _semaphoreSlim;
 
         /// <summary>
         /// The maximum number of requests for the semaphore that can be granted concurrently. Defaults to 1.
@@ -37,7 +37,7 @@ namespace AsyncKeyedLock
         public IDisposable Lock()
         {
             _semaphoreSlim.Wait();
-            return new AsyncNonKeyedLockReleaser(_semaphoreSlim);
+            return new AsyncNonKeyedLockReleaser(this);
         }
 
         /// <summary>
@@ -49,7 +49,7 @@ namespace AsyncKeyedLock
         public IDisposable Lock(CancellationToken cancellationToken)
         {
             _semaphoreSlim.Wait(cancellationToken);
-            return new AsyncNonKeyedLockReleaser(_semaphoreSlim);
+            return new AsyncNonKeyedLockReleaser(this);
         }
 
         /// <summary>
@@ -62,7 +62,7 @@ namespace AsyncKeyedLock
         public AsyncNonKeyedLockTimeoutReleaser Lock(int millisecondsTimeout, out bool entered)
         {
             entered = _semaphoreSlim.Wait(millisecondsTimeout);
-            return new AsyncNonKeyedLockTimeoutReleaser(_semaphoreSlim, entered);
+            return new AsyncNonKeyedLockTimeoutReleaser(this, entered);
         }
 
         /// <summary>
@@ -75,7 +75,7 @@ namespace AsyncKeyedLock
         public AsyncNonKeyedLockTimeoutReleaser Lock(TimeSpan timeout, out bool entered)
         {
             entered = _semaphoreSlim.Wait(timeout);
-            return new AsyncNonKeyedLockTimeoutReleaser(_semaphoreSlim, entered);
+            return new AsyncNonKeyedLockTimeoutReleaser(this, entered);
         }
 
         /// <summary>
@@ -97,7 +97,7 @@ namespace AsyncKeyedLock
                 entered = false;
                 throw;
             }
-            return new AsyncNonKeyedLockTimeoutReleaser(_semaphoreSlim, entered);
+            return new AsyncNonKeyedLockTimeoutReleaser(this, entered);
         }
 
         /// <summary>
@@ -119,7 +119,7 @@ namespace AsyncKeyedLock
                 entered = false;
                 throw;
             }
-            return new AsyncNonKeyedLockTimeoutReleaser(_semaphoreSlim, entered);
+            return new AsyncNonKeyedLockTimeoutReleaser(this, entered);
         }
         #endregion Synchronous
 
@@ -133,7 +133,7 @@ namespace AsyncKeyedLock
         public async ValueTask<IDisposable> LockAsync(bool continueOnCapturedContext = false)
         {
             await _semaphoreSlim.WaitAsync().ConfigureAwait(continueOnCapturedContext);
-            return new AsyncNonKeyedLockReleaser(_semaphoreSlim);
+            return new AsyncNonKeyedLockReleaser(this);
         }
 
         /// <summary>
@@ -146,7 +146,7 @@ namespace AsyncKeyedLock
         public async ValueTask<IDisposable> LockAsync(CancellationToken cancellationToken, bool continueOnCapturedContext = false)
         {
             await _semaphoreSlim.WaitAsync(cancellationToken).ConfigureAwait(continueOnCapturedContext);
-            return new AsyncNonKeyedLockReleaser(_semaphoreSlim);
+            return new AsyncNonKeyedLockReleaser(this);
         }
 
         /// <summary>
@@ -159,7 +159,7 @@ namespace AsyncKeyedLock
         public async ValueTask<AsyncNonKeyedLockTimeoutReleaser> LockAsync(int millisecondsTimeout, bool continueOnCapturedContext = false)
         {
             bool entered = await _semaphoreSlim.WaitAsync(millisecondsTimeout).ConfigureAwait(continueOnCapturedContext);
-            return new AsyncNonKeyedLockTimeoutReleaser(_semaphoreSlim, entered);
+            return new AsyncNonKeyedLockTimeoutReleaser(this, entered);
         }
 
         /// <summary>
@@ -172,7 +172,7 @@ namespace AsyncKeyedLock
         public async ValueTask<AsyncNonKeyedLockTimeoutReleaser> LockAsync(TimeSpan timeout, bool continueOnCapturedContext = false)
         {
             bool entered = await _semaphoreSlim.WaitAsync(timeout).ConfigureAwait(continueOnCapturedContext);
-            return new AsyncNonKeyedLockTimeoutReleaser(_semaphoreSlim, entered);
+            return new AsyncNonKeyedLockTimeoutReleaser(this, entered);
         }
 
         /// <summary>
@@ -188,11 +188,11 @@ namespace AsyncKeyedLock
             try
             {
                 bool entered = await _semaphoreSlim.WaitAsync(millisecondsTimeout, cancellationToken).ConfigureAwait(continueOnCapturedContext);
-                return new AsyncNonKeyedLockTimeoutReleaser(_semaphoreSlim, entered);
+                return new AsyncNonKeyedLockTimeoutReleaser(this, entered);
             }
             catch (OperationCanceledException)
             {
-                return new AsyncNonKeyedLockTimeoutReleaser(_semaphoreSlim, false);
+                return new AsyncNonKeyedLockTimeoutReleaser(this, false);
                 throw;
             }
         }
@@ -210,11 +210,11 @@ namespace AsyncKeyedLock
             try
             {
                 bool entered = await _semaphoreSlim.WaitAsync(timeout, cancellationToken).ConfigureAwait(continueOnCapturedContext);
-                return new AsyncNonKeyedLockTimeoutReleaser(_semaphoreSlim, entered);
+                return new AsyncNonKeyedLockTimeoutReleaser(this, entered);
             }
             catch (OperationCanceledException)
             {
-                return new AsyncNonKeyedLockTimeoutReleaser(_semaphoreSlim, false);
+                return new AsyncNonKeyedLockTimeoutReleaser(this, false);
                 throw;
             }
         }
@@ -231,7 +231,7 @@ namespace AsyncKeyedLock
         public async ValueTask<IDisposable> LockAsync(ConfigureAwaitOptions configureAwaitOptions)
         {
             await _semaphoreSlim.WaitAsync().ConfigureAwait(configureAwaitOptions);
-            return new AsyncNonKeyedLockReleaser(_semaphoreSlim);
+            return new AsyncNonKeyedLockReleaser(this);
         }
 
         /// <summary>
@@ -244,7 +244,7 @@ namespace AsyncKeyedLock
         public async ValueTask<IDisposable> LockAsync(CancellationToken cancellationToken, ConfigureAwaitOptions configureAwaitOptions)
         {
             await _semaphoreSlim.WaitAsync(cancellationToken).ConfigureAwait(configureAwaitOptions);
-            return new AsyncNonKeyedLockReleaser(_semaphoreSlim);
+            return new AsyncNonKeyedLockReleaser(this);
         }
 
         /// <summary>
@@ -257,7 +257,7 @@ namespace AsyncKeyedLock
         public async ValueTask<AsyncNonKeyedLockTimeoutReleaser> LockAsync(int millisecondsTimeout, ConfigureAwaitOptions configureAwaitOptions)
         {
             bool entered = await _semaphoreSlim.WaitAsync(millisecondsTimeout).ConfigureAwait(configureAwaitOptions);
-            return new AsyncNonKeyedLockTimeoutReleaser(_semaphoreSlim, entered);
+            return new AsyncNonKeyedLockTimeoutReleaser(this, entered);
         }
 
         /// <summary>
@@ -270,7 +270,7 @@ namespace AsyncKeyedLock
         public async ValueTask<AsyncNonKeyedLockTimeoutReleaser> LockAsync(TimeSpan timeout, ConfigureAwaitOptions configureAwaitOptions)
         {
             bool entered = await _semaphoreSlim.WaitAsync(timeout).ConfigureAwait(configureAwaitOptions);
-            return new AsyncNonKeyedLockTimeoutReleaser(_semaphoreSlim, entered);
+            return new AsyncNonKeyedLockTimeoutReleaser(this, entered);
         }
 
         /// <summary>
@@ -286,11 +286,11 @@ namespace AsyncKeyedLock
             try
             {
                 bool entered = await _semaphoreSlim.WaitAsync(millisecondsTimeout, cancellationToken).ConfigureAwait(configureAwaitOptions);
-                return new AsyncNonKeyedLockTimeoutReleaser(_semaphoreSlim, entered);
+                return new AsyncNonKeyedLockTimeoutReleaser(this, entered);
             }
             catch (OperationCanceledException)
             {
-                return new AsyncNonKeyedLockTimeoutReleaser(_semaphoreSlim, false);
+                return new AsyncNonKeyedLockTimeoutReleaser(this, false);
                 throw;
             }
         }
@@ -308,11 +308,11 @@ namespace AsyncKeyedLock
             try
             {
                 bool entered = await _semaphoreSlim.WaitAsync(timeout, cancellationToken).ConfigureAwait(configureAwaitOptions);
-                return new AsyncNonKeyedLockTimeoutReleaser(_semaphoreSlim, entered);
+                return new AsyncNonKeyedLockTimeoutReleaser(this, entered);
             }
             catch (OperationCanceledException)
             {
-                return new AsyncNonKeyedLockTimeoutReleaser(_semaphoreSlim, false);
+                return new AsyncNonKeyedLockTimeoutReleaser(this, false);
                 throw;
             }
         }

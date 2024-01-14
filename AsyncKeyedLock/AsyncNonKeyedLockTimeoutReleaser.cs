@@ -11,22 +11,12 @@ namespace AsyncKeyedLock
     {
         private readonly bool _enteredSemaphore;
 
-        /// <summary>
-        /// True if the timeout was reached, false if not.
-        /// </summary>
-        public readonly bool EnteredSemaphore => _enteredSemaphore;
+        private readonly AsyncNonKeyedLocker _locker;
 
-        private readonly SemaphoreSlim _semaphoreSlim;
-
-        /// <summary>
-        /// The exposed <see cref="SemaphoreSlim"/> instance used to limit the number of threads that can access the lock concurrently.
-        /// </summary>
-        public readonly SemaphoreSlim SemaphoreSlim => _semaphoreSlim;
-
-        internal AsyncNonKeyedLockTimeoutReleaser(SemaphoreSlim semaphoreSlim, bool enteredSemaphore)
+        internal AsyncNonKeyedLockTimeoutReleaser(AsyncNonKeyedLocker locker, bool enteredSemaphore)
         {
+            _locker = locker;
             _enteredSemaphore = enteredSemaphore;
-            _semaphoreSlim = semaphoreSlim;
         }
 
         /// <summary>
@@ -37,7 +27,7 @@ namespace AsyncKeyedLock
         {
             if (_enteredSemaphore)
             {
-                _semaphoreSlim.Release();
+                _locker._semaphoreSlim.Release();
             }            
         }
     }
