@@ -11,6 +11,11 @@ namespace AsyncKeyedLock
     {
         private readonly bool _enteredSemaphore;
 
+        /// <summary>
+        /// True if the timeout was reached, false if not.
+        /// </summary>
+        public readonly bool EnteredSemaphore => _enteredSemaphore;
+
         private readonly AsyncNonKeyedLocker _locker;
 
         internal AsyncNonKeyedLockTimeoutReleaser(AsyncNonKeyedLocker locker, bool enteredSemaphore)

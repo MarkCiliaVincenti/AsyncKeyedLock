@@ -15,12 +15,10 @@ namespace AsyncKeyedLock.Tests.AsyncNonKeyedLockerTests
             {
                 Assert.Equal(1, asyncNonKeyedLocker.GetRemainingCount());
                 Assert.Equal(1, asyncNonKeyedLocker.GetCurrentCount());
-                Assert.Equal(1, myLock.SemaphoreSlim.CurrentCount);
                 using (var myLock2 = (AsyncNonKeyedLockReleaser)asyncNonKeyedLocker.Lock())
                 {
                     Assert.Equal(asyncNonKeyedLocker.MaxCount, asyncNonKeyedLocker.GetRemainingCount());
                     Assert.Equal(0, asyncNonKeyedLocker.GetCurrentCount());
-                    Assert.Equal(0, myLock2.SemaphoreSlim.CurrentCount);
                 }
             }
             Assert.Equal(0, asyncNonKeyedLocker.GetRemainingCount());
@@ -37,7 +35,6 @@ namespace AsyncKeyedLock.Tests.AsyncNonKeyedLockerTests
             {
                 Assert.Equal(1, asyncNonKeyedLocker.GetRemainingCount());
                 Assert.Equal(0, asyncNonKeyedLocker.GetCurrentCount());
-                Assert.Equal(0, myLock.SemaphoreSlim.CurrentCount);
             }
             Assert.Equal(0, asyncNonKeyedLocker.GetRemainingCount());
             Assert.Equal(1, asyncNonKeyedLocker.GetCurrentCount());
@@ -79,14 +76,13 @@ namespace AsyncKeyedLock.Tests.AsyncNonKeyedLockerTests
             using (var myLock = asyncNonKeyedLocker.Lock(0, out bool entered))
             {
                 Assert.True(entered);
-                Assert.True(myLock.EnteredSemaphore);
+                Assert.True(((AsyncNonKeyedLockTimeoutReleaser)myLock).EnteredSemaphore);
                 Assert.Equal(1, asyncNonKeyedLocker.GetRemainingCount());
                 Assert.Equal(0, asyncNonKeyedLocker.GetCurrentCount());
-                Assert.Equal(0, myLock.SemaphoreSlim.CurrentCount);
                 using (var myLock2 = asyncNonKeyedLocker.Lock(0, out entered))
                 {
                     Assert.False(entered);
-                    Assert.False(myLock2.EnteredSemaphore);
+                    Assert.False(((AsyncNonKeyedLockTimeoutReleaser)myLock2).EnteredSemaphore);
                 }
             }
             Assert.Equal(0, asyncNonKeyedLocker.GetRemainingCount());
@@ -102,13 +98,13 @@ namespace AsyncKeyedLock.Tests.AsyncNonKeyedLockerTests
             using (var myLock = asyncNonKeyedLocker.Lock(TimeSpan.FromMilliseconds(0), out bool entered))
             {
                 Assert.True(entered);
-                Assert.True(myLock.EnteredSemaphore);
+                Assert.True(((AsyncNonKeyedLockTimeoutReleaser)myLock).EnteredSemaphore);
                 Assert.Equal(1, asyncNonKeyedLocker.GetRemainingCount());
                 Assert.Equal(0, asyncNonKeyedLocker.GetCurrentCount());
                 using (var myLock2 = asyncNonKeyedLocker.Lock(TimeSpan.FromMilliseconds(0), out entered))
                 {
                     Assert.False(entered);
-                    Assert.False(myLock2.EnteredSemaphore);
+                    Assert.False(((AsyncNonKeyedLockTimeoutReleaser)myLock2).EnteredSemaphore);
                 }
             }
             Assert.Equal(0, asyncNonKeyedLocker.GetRemainingCount());
@@ -124,13 +120,13 @@ namespace AsyncKeyedLock.Tests.AsyncNonKeyedLockerTests
             using (var myLock = asyncNonKeyedLocker.Lock(0, CancellationToken.None, out bool entered))
             {
                 Assert.True(entered);
-                Assert.True(myLock.EnteredSemaphore);
+                Assert.True(((AsyncNonKeyedLockTimeoutReleaser)myLock).EnteredSemaphore);
                 Assert.Equal(1, asyncNonKeyedLocker.GetRemainingCount());
                 Assert.Equal(0, asyncNonKeyedLocker.GetCurrentCount());
                 using (var myLock2 = asyncNonKeyedLocker.Lock(0, CancellationToken.None, out entered))
                 {
                     Assert.False(entered);
-                    Assert.False(myLock2.EnteredSemaphore);
+                    Assert.False(((AsyncNonKeyedLockTimeoutReleaser)myLock2).EnteredSemaphore);
                 }
             }
             Assert.Equal(0, asyncNonKeyedLocker.GetRemainingCount());
@@ -160,13 +156,13 @@ namespace AsyncKeyedLock.Tests.AsyncNonKeyedLockerTests
             using (var myLock = asyncNonKeyedLocker.Lock(TimeSpan.FromMilliseconds(0), CancellationToken.None, out bool entered))
             {
                 Assert.True(entered);
-                Assert.True(myLock.EnteredSemaphore);
+                Assert.True(((AsyncNonKeyedLockTimeoutReleaser)myLock).EnteredSemaphore);
                 Assert.Equal(1, asyncNonKeyedLocker.GetRemainingCount());
                 Assert.Equal(0, asyncNonKeyedLocker.GetCurrentCount());
                 using (var myLock2 = asyncNonKeyedLocker.Lock(TimeSpan.FromMilliseconds(0), CancellationToken.None, out entered))
                 {
                     Assert.False(entered);
-                    Assert.False(myLock2.EnteredSemaphore);
+                    Assert.False(((AsyncNonKeyedLockTimeoutReleaser)myLock2).EnteredSemaphore);
                 }
             }
             Assert.Equal(0, asyncNonKeyedLocker.GetRemainingCount());

@@ -57,10 +57,16 @@ namespace AsyncKeyedLock
         /// </summary>
         /// <param name="millisecondsTimeout">The number of milliseconds to wait, <see cref="Timeout.Infinite"/> (-1) to wait indefinitely, or zero to test the state of the wait handle and return immediately.</param>
         /// <param name="entered">An out parameter showing whether or not the semaphore was entered.</param>
-        /// <returns>A disposable value of type <see cref="AsyncNonKeyedLockTimeoutReleaser"/>.</returns>
+        /// <returns>A disposable value.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public AsyncNonKeyedLockTimeoutReleaser Lock(int millisecondsTimeout, out bool entered)
+        public IDisposable Lock(int millisecondsTimeout, out bool entered)
         {
+            if (millisecondsTimeout == Timeout.Infinite)
+            {
+                entered = true;
+                _semaphoreSlim.Wait();
+                return new AsyncNonKeyedLockReleaser(this);
+            }
             entered = _semaphoreSlim.Wait(millisecondsTimeout);
             return new AsyncNonKeyedLockTimeoutReleaser(this, entered);
         }
@@ -70,10 +76,16 @@ namespace AsyncKeyedLock
         /// </summary>
         /// <param name="timeout">A <see cref="TimeSpan"/> that represents the number of milliseconds to wait, a <see cref="TimeSpan"/> that represents -1 milliseconds to wait indefinitely, or a <see cref="TimeSpan"/> that represents 0 milliseconds to test the wait handle and return immediately.</param>
         /// <param name="entered">An out parameter showing whether or not the semaphore was entered.</param>
-        /// <returns>A disposable value of type <see cref="AsyncNonKeyedLockTimeoutReleaser"/>.</returns>
+        /// <returns>A disposable value.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public AsyncNonKeyedLockTimeoutReleaser Lock(TimeSpan timeout, out bool entered)
+        public IDisposable Lock(TimeSpan timeout, out bool entered)
         {
+            if (timeout.TotalMilliseconds == Timeout.Infinite)
+            {
+                entered = true;
+                _semaphoreSlim.Wait();
+                return new AsyncNonKeyedLockReleaser(this);
+            }
             entered = _semaphoreSlim.Wait(timeout);
             return new AsyncNonKeyedLockTimeoutReleaser(this, entered);
         }
@@ -84,20 +96,26 @@ namespace AsyncKeyedLock
         /// <param name="millisecondsTimeout">The number of milliseconds to wait, <see cref="Timeout.Infinite"/> (-1) to wait indefinitely, or zero to test the state of the wait handle and return immediately.</param>
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> to observe.</param>
         /// <param name="entered">An out parameter showing whether or not the semaphore was entered.</param>
-        /// <returns>A disposable value of type <see cref="AsyncNonKeyedLockTimeoutReleaser"/>.</returns>
+        /// <returns>A disposable value.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public AsyncNonKeyedLockTimeoutReleaser Lock(int millisecondsTimeout, CancellationToken cancellationToken, out bool entered)
+        public IDisposable Lock(int millisecondsTimeout, CancellationToken cancellationToken, out bool entered)
         {
             try
             {
+                if (millisecondsTimeout == Timeout.Infinite)
+                {
+                    entered = true;
+                    _semaphoreSlim.Wait(cancellationToken);
+                    return new AsyncNonKeyedLockReleaser(this);
+                }
                 entered = _semaphoreSlim.Wait(millisecondsTimeout, cancellationToken);
+                return new AsyncNonKeyedLockTimeoutReleaser(this, entered);
             }
             catch (OperationCanceledException)
             {
                 entered = false;
                 throw;
-            }
-            return new AsyncNonKeyedLockTimeoutReleaser(this, entered);
+            }            
         }
 
         /// <summary>
@@ -106,20 +124,26 @@ namespace AsyncKeyedLock
         /// <param name="timeout">A <see cref="TimeSpan"/> that represents the number of milliseconds to wait, a <see cref="TimeSpan"/> that represents -1 milliseconds to wait indefinitely, or a <see cref="TimeSpan"/> that represents 0 milliseconds to test the wait handle and return immediately.</param>
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> to observe.</param>
         /// <param name="entered">An out parameter showing whether or not the semaphore was entered.</param>
-        /// <returns>A disposable value of type <see cref="AsyncNonKeyedLockTimeoutReleaser"/>.</returns>
+        /// <returns>A disposable value.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public AsyncNonKeyedLockTimeoutReleaser Lock(TimeSpan timeout, CancellationToken cancellationToken, out bool entered)
+        public IDisposable Lock(TimeSpan timeout, CancellationToken cancellationToken, out bool entered)
         {
             try
             {
+                if (timeout.TotalMilliseconds == Timeout.Infinite)
+                {
+                    entered = true;
+                    _semaphoreSlim.Wait(cancellationToken);
+                    return new AsyncNonKeyedLockReleaser(this);
+                }
                 entered = _semaphoreSlim.Wait(timeout, cancellationToken);
+                return new AsyncNonKeyedLockTimeoutReleaser(this, entered);
             }
             catch (OperationCanceledException)
             {
                 entered = false;
                 throw;
             }
-            return new AsyncNonKeyedLockTimeoutReleaser(this, entered);
         }
         #endregion Synchronous
 
