@@ -10,7 +10,7 @@ namespace AsyncKeyedLock.Tests.AsyncNonKeyedLockerTests
         {
             using var asyncNonKeyedLocker = new AsyncNonKeyedLocker(2);
             Assert.Equal(0, asyncNonKeyedLocker.GetRemainingCount());
-            Assert.Equal(2, asyncNonKeyedLocker.GetCurrentCount());
+            Assert.Equal(asyncNonKeyedLocker.MaxCount, asyncNonKeyedLocker.GetCurrentCount());
             using (var myLock = (AsyncNonKeyedLockReleaser)asyncNonKeyedLocker.Lock())
             {
                 Assert.Equal(1, asyncNonKeyedLocker.GetRemainingCount());
@@ -18,13 +18,13 @@ namespace AsyncKeyedLock.Tests.AsyncNonKeyedLockerTests
                 Assert.Equal(1, myLock.SemaphoreSlim.CurrentCount);
                 using (var myLock2 = (AsyncNonKeyedLockReleaser)asyncNonKeyedLocker.Lock())
                 {
-                    Assert.Equal(2, asyncNonKeyedLocker.GetRemainingCount());
+                    Assert.Equal(asyncNonKeyedLocker.MaxCount, asyncNonKeyedLocker.GetRemainingCount());
                     Assert.Equal(0, asyncNonKeyedLocker.GetCurrentCount());
                     Assert.Equal(0, myLock2.SemaphoreSlim.CurrentCount);
                 }
             }
             Assert.Equal(0, asyncNonKeyedLocker.GetRemainingCount());
-            Assert.Equal(1, asyncNonKeyedLocker.GetCurrentCount());
+            Assert.Equal(asyncNonKeyedLocker.MaxCount, asyncNonKeyedLocker.GetCurrentCount());
         }
 
         [Fact]
