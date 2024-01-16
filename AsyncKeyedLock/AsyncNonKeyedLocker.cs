@@ -8,6 +8,7 @@ namespace AsyncKeyedLock
     /// <summary>
     /// Represents a lock, limiting concurrent threads to a specified number.
     /// </summary>
+    [System.Diagnostics.DebuggerDisplay("Current Count = {GetCurrentCount()}")]
     public sealed class AsyncNonKeyedLocker : IDisposable
     {
         private readonly int _maxCount;
