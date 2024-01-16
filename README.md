@@ -5,12 +5,12 @@ An asynchronous .NET Standard 2.0 library that allows you to lock based on a key
 
 For example, suppose you were processing financial transactions, but while working on one account you wouldn't want to concurrently process a transaction for the same account. Of course, you could just add a normal lock, but then you can only process one transaction at a time. If you're processing a transaction for account A, you may want to also be processing a separate transaction for account B. That's where AsyncKeyedLock comes in: it allows you to lock but only if the key matches.
 
-The library uses two very different methods for locking, one using an underlying `ConcurrentDictionary` that's cleaned up after use whilst the other using a technique called striped locking. Both have their advantages and disadvantages, and in order to help you choose you are highly recommended to read about it in the [wiki](https://github.com/MarkCiliaVincenti/AsyncKeyedLock/wiki).
+The library uses two very different methods for locking, `AsyncKeyedLocker` which uses an underlying `ConcurrentDictionary` that's cleaned up after use and `StripedAsyncKeyedLocker` which uses a technique called striped locking. Both have their advantages and disadvantages, and in order to help you choose you are highly recommended to read about it in the [wiki](https://github.com/MarkCiliaVincenti/AsyncKeyedLock/wiki).
 
-A simple non-keyed lock is also available through `AsyncNonKeyedLocker`.
+A simple non-keyed lock is also available through [`AsyncNonKeyedLocker`](https://github.com/MarkCiliaVincenti/AsyncKeyedLock/wiki/How-to-use-AsyncNonKeyedLocker).
 
 ## Installation and usage
-Using this library is straightforward. Here's a simple example:
+Using this library is straightforward. Here's a simple example for using `AsyncKeyedLocker`:
 ```csharp
 private static readonly AsyncKeyedLocker<string> _asyncKeyedLocker = new(o =>
   {
@@ -26,14 +26,10 @@ using (await _asyncKeyedLocker.LockAsync("test123"))
 }
 ```
 
-Please read the full documentation in our [wiki](https://github.com/MarkCiliaVincenti/AsyncKeyedLock/wiki) for help in using this libary.
+For more help with `AsyncKeyedLocker` or for examples with `StripedAsyncKeyedLocker` or `AsyncNonKeyedLocker` (for simple, non-keyed locking), please [take a look at our wiki](https://github.com/MarkCiliaVincenti/AsyncKeyedLock/wiki).
 
 ## Benchmarks
-This library has been extensively benchmarked against several other options and [our benchmarks](https://github.com/MarkCiliaVincenti/AsyncKeyedLockBenchmarks) run publicly and transparently on Github Actions.
-
-When striped locking is an option, the `StripedAsyncKeyedLocker` consistently beats any other option in terms of both speed as well as memory allocations.
-
-When the traditional dictionary-based method is used, `AsyncKeyedLocker` with pooling provides a great balance in terms of speed and memory allocations, which is an excellent, safe go-to solution.
+This library has been extensively benchmarked against several other options and [our benchmarks](https://github.com/MarkCiliaVincenti/AsyncKeyedLock/wiki/Benchmarks) run publicly and transparently on Github Actions.
 
 ## Credits
 Check out our [list of contributors](https://github.com/MarkCiliaVincenti/AsyncKeyedLock/blob/master/CONTRIBUTORS.md)!
