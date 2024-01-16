@@ -10,7 +10,7 @@ The library uses two very different methods for locking, one using an underlying
 A simple non-keyed lock is also available through `AsyncNonKeyedLocker`.
 
 ## Installation and usage
-Using this library is straightforward. Here's a simple example:
+Using this library is straightforward. Here's a simple example for using `AsyncKeyedLocker`:
 ```csharp
 private static readonly AsyncKeyedLocker<string> _asyncKeyedLocker = new(o =>
   {
@@ -26,14 +26,10 @@ using (await _asyncKeyedLocker.LockAsync("test123"))
 }
 ```
 
-Please read the full documentation in our [wiki](https://github.com/MarkCiliaVincenti/AsyncKeyedLock/wiki) for help in using this libary.
+For more help with `AsyncKeyedLocker` or for examples with `StripedAsyncKeyedLocker` or `AsyncNonKeyedLocker` (for simple, non-keyed locking), please [take a look at our wiki](https://github.com/MarkCiliaVincenti/AsyncKeyedLock/wiki).
 
 ## Benchmarks
-This library has been extensively benchmarked against several other options and [our benchmarks](https://github.com/MarkCiliaVincenti/AsyncKeyedLockBenchmarks) run publicly and transparently on Github Actions.
-
-When striped locking is an option, the `StripedAsyncKeyedLocker` consistently beats any other option in terms of both speed as well as memory allocations.
-
-When the traditional dictionary-based method is used, `AsyncKeyedLocker` with pooling provides a great balance in terms of speed and memory allocations, which is an excellent, safe go-to solution.
+This library has been extensively benchmarked against several other options and [our benchmarks](https://github.com/MarkCiliaVincenti/AsyncKeyedLock/wiki/Benchmarks) run publicly and transparently on Github Actions.
 
 ## Credits
 Check out our [list of contributors](https://github.com/MarkCiliaVincenti/AsyncKeyedLock/blob/master/CONTRIBUTORS.md)!
