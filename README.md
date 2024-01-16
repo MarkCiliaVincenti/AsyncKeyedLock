@@ -5,7 +5,7 @@ An asynchronous .NET Standard 2.0 library that allows you to lock based on a key
 
 For example, suppose you were processing financial transactions, but while working on one account you wouldn't want to concurrently process a transaction for the same account. Of course, you could just add a normal lock, but then you can only process one transaction at a time. If you're processing a transaction for account A, you may want to also be processing a separate transaction for account B. That's where AsyncKeyedLock comes in: it allows you to lock but only if the key matches.
 
-The library uses two very different methods for locking, one using an underlying `ConcurrentDictionary` that's cleaned up after use whilst the other using a technique called striped locking. Both have their advantages and disadvantages, and in order to help you choose you are highly recommended to read about it in the [wiki](https://github.com/MarkCiliaVincenti/AsyncKeyedLock/wiki).
+The library uses two very different methods for locking, `AsyncKeyedLocker` which uses an underlying `ConcurrentDictionary` that's cleaned up after use and `StripedAsyncKeyedLocker` which uses a technique called striped locking. Both have their advantages and disadvantages, and in order to help you choose you are highly recommended to read about it in the [wiki](https://github.com/MarkCiliaVincenti/AsyncKeyedLock/wiki).
 
 A simple non-keyed lock is also available through [`AsyncNonKeyedLocker`](https://github.com/MarkCiliaVincenti/AsyncKeyedLock/wiki/How-to-use-AsyncNonKeyedLocker).
 
