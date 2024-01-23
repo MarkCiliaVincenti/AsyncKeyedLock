@@ -1,5 +1,5 @@
 ﻿using System;
-using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Threading;
 
@@ -7,12 +7,14 @@ namespace AsyncKeyedLock
 {
     internal sealed class AsyncKeyedLockPool<TKey> : IDisposable
     {
-        private readonly BlockingCollection<AsyncKeyedLockReleaser<TKey>> _objects;
+        private readonly IList<AsyncKeyedLockReleaser<TKey>> _objects;
         private readonly Func<TKey, AsyncKeyedLockReleaser<TKey>> _objectGenerator;
+        private readonly int _capacity;
 
         public AsyncKeyedLockPool(AsyncKeyedLockDictionary<TKey> asyncKeyedLockDictionary, int capacity, int initialFill = -1)
         {
-            _objects = new BlockingCollection<AsyncKeyedLockReleaser<TKey>>(new ConcurrentBag<AsyncKeyedLockReleaser<TKey>>(), capacity);
+            _capacity = capacity;
+            _objects = new List<AsyncKeyedLockReleaser<TKey>>(capacity);
             _objectGenerator = (key) => new AsyncKeyedLockReleaser<TKey>(
                 key,
                 new SemaphoreSlim(asyncKeyedLockDictionary.MaxCount, asyncKeyedLockDictionary.MaxCount),
@@ -41,25 +43,37 @@ namespace AsyncKeyedLock
 
         public void Dispose()
         {
-            _objects.Dispose();
+            _objects.Clear();
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public AsyncKeyedLockReleaser<TKey> GetObject(TKey key)
         {
-            if (_objects.TryTake(out var item))
+            Monitor.Enter(_objects);
+            if (_objects.Count > 0)
             {
+                int lastPos = _objects.Count - 1;
+                var item = _objects[lastPos];
+                _objects.RemoveAt(lastPos);
+                Monitor.Exit(_objects);
                 item.Key = key;
                 item.IsNotInUse = false;
                 return item;
             }
+            Monitor.Exit(_objects);
+
             return _objectGenerator(key);
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void PutObject(AsyncKeyedLockReleaser<TKey> item)
         {
-            _objects.TryAdd(item);
+            Monitor.Enter(_objects);
+            if (_objects.Count < _capacity)
+            {
+                _objects.Add(item);
+            }
+            Monitor.Exit(_objects);
         }
     }
 }
