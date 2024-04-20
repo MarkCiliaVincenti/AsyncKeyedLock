@@ -26,6 +26,21 @@ using (await _asyncKeyedLocker.LockAsync("test123"))
 }
 ```
 
+This libary also supports conditional locking. This could provide a workaround for `reentrancy` in some scenarios for example in recursion:
+```csharp
+double factorial = Factorial(number);
+
+public static double Factorial(int number, bool isFirst = true)
+{
+  using (await _asyncKeyedLocker.ConditionalLockAsync("test123", isFirst))
+  {
+    if (number == 0)
+      return 1;
+    return number * Factorial(number-1, false);
+  }
+}
+```
+
 For more help with `AsyncKeyedLocker` or for examples with `StripedAsyncKeyedLocker` or `AsyncNonKeyedLocker` (for simple, non-keyed locking), please [take a look at our wiki](https://github.com/MarkCiliaVincenti/AsyncKeyedLock/wiki).
 
 ## Benchmarks

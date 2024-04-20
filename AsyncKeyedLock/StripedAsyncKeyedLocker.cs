@@ -24,7 +24,7 @@ namespace AsyncKeyedLock
         private readonly StripedAsyncKeyedLockReleaser[] _releasers;
         private readonly IEqualityComparer<TKey> _comparer;
         private readonly int _numberOfStripes;
-        private static readonly StripedAsyncKeyedLockEmptyDisposable _emptyDisposable = new StripedAsyncKeyedLockEmptyDisposable();
+        private static readonly EmptyDisposable _emptyDisposable = new EmptyDisposable();
 
         /// <summary>
         /// 

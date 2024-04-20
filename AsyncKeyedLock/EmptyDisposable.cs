@@ -5,7 +5,7 @@ namespace AsyncKeyedLock
     /// <summary>
     /// A disposable that does absolutely nothing.
     /// </summary>
-    public class StripedAsyncKeyedLockEmptyDisposable : IDisposable
+    public class EmptyDisposable : IDisposable
     {
         /// <summary>
         /// Dispose but in reality do nothing

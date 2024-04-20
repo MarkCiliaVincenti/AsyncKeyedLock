@@ -2,13 +2,48 @@ using AsyncKeyedLock.Tests.Helpers;
 using FluentAssertions;
 using ListShuffle;
 using System.Collections.Concurrent;
-using System.Reflection;
 using Xunit;
 
 namespace AsyncKeyedLock.Tests.AsyncKeyedLocker
 {
     public class OriginalTests
     {
+        [Fact]
+        public void TestRecursion()
+        {
+            var asyncKeyedLocker = new AsyncKeyedLocker<string>(o => o.PoolSize = 1);
+
+            double Factorial(int number, bool isFirst = true)
+            {
+                using (asyncKeyedLocker.ConditionalLock("test123", isFirst))
+                {
+                    if (number == 0)
+                        return 1;
+                    return number * Factorial(number - 1, false);
+                }
+            }
+
+            Assert.Equal(120, Factorial(5));
+        }
+
+        [Fact]
+        public async Task TestRecursionAsync()
+        {
+            var asyncKeyedLocker = new AsyncKeyedLocker<string>(o => o.PoolSize = 1);
+
+            async Task<double> Factorial(int number, bool isFirst = true)
+            {
+                using (await asyncKeyedLocker.ConditionalLockAsync("test123", isFirst))
+                {
+                    if (number == 0)
+                        return 1;
+                    return number * await Factorial(number - 1, false);
+                }
+            }
+
+            Assert.Equal(120, await Factorial(5));
+        }
+
         [Fact]
         public void IsInUseRaceConditionCoverage()
         {
