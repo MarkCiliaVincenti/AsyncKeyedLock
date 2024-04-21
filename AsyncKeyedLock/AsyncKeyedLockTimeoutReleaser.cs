@@ -15,7 +15,12 @@ namespace AsyncKeyedLock
         public bool EnteredSemaphore { get; internal set; }
         internal readonly AsyncKeyedLockReleaser<TKey> _releaser;
 
-        internal AsyncKeyedLockTimeoutReleaser(bool enteredSemaphore, AsyncKeyedLockReleaser<TKey> releaser)
+        /// <summary>
+        /// Creates a releaser that only disposes the <see cref="SemaphoreSlim"/> if enteredSemaphore is true.
+        /// </summary>
+        /// <param name="enteredSemaphore">If set to true, will dispose the <see cref="SemaphoreSlim"/>.</param>
+        /// <param name="releaser">The <see cref="AsyncKeyedLockReleaser{TKey}"/> releaser.</param>
+        public AsyncKeyedLockTimeoutReleaser(bool enteredSemaphore, AsyncKeyedLockReleaser<TKey> releaser)
         {
             EnteredSemaphore = enteredSemaphore;
             _releaser = releaser;
