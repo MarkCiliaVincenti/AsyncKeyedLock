@@ -10,6 +10,222 @@ namespace AsyncKeyedLock.Tests.StripedAsyncKeyedLocker
     public class OriginalTests
     {
         [Fact]
+        public void TestRecursion()
+        {
+            var asyncKeyedLocker = new StripedAsyncKeyedLocker<string>();
+
+            double Factorial(int number, bool isFirst = true)
+            {
+                using (asyncKeyedLocker.ConditionalLock("test123", isFirst))
+                {
+                    if (number == 0)
+                        return 1;
+                    return number * Factorial(number - 1, false);
+                }
+            }
+
+            Assert.Equal(120, Factorial(5));
+        }
+
+        [Fact]
+        public async Task TestRecursionAsync()
+        {
+            var asyncKeyedLocker = new StripedAsyncKeyedLocker<string>();
+
+            async Task<double> Factorial(int number, bool isFirst = true)
+            {
+                using (await asyncKeyedLocker.ConditionalLockAsync("test123", isFirst))
+                {
+                    if (number == 0)
+                        return 1;
+                    return number * await Factorial(number - 1, false);
+                }
+            }
+
+            Assert.Equal(120, await Factorial(5));
+        }
+
+        [Fact]
+        public void TestRecursionWithCancellationToken()
+        {
+            var asyncKeyedLocker = new StripedAsyncKeyedLocker<string>();
+
+            double Factorial(int number, bool isFirst = true)
+            {
+                using (asyncKeyedLocker.ConditionalLock("test123", isFirst, new CancellationToken(false)))
+                {
+                    if (number == 0)
+                        return 1;
+                    return number * Factorial(number - 1, false);
+                }
+            }
+
+            Assert.Equal(120, Factorial(5));
+        }
+
+        [Fact]
+        public async Task TestRecursionWithCancellationTokenAsync()
+        {
+            var asyncKeyedLocker = new StripedAsyncKeyedLocker<string>();
+
+            async Task<double> Factorial(int number, bool isFirst = true)
+            {
+                using (await asyncKeyedLocker.ConditionalLockAsync("test123", isFirst, new CancellationToken(false)))
+                {
+                    if (number == 0)
+                        return 1;
+                    return number * await Factorial(number - 1, false);
+                }
+            }
+
+            Assert.Equal(120, await Factorial(5));
+        }
+
+        [Fact]
+        public void TestRecursionWithTimeout()
+        {
+            var asyncKeyedLocker = new StripedAsyncKeyedLocker<string>();
+
+            double Factorial(int number, bool isFirst = true)
+            {
+                using (asyncKeyedLocker.ConditionalLock("test123", isFirst, Timeout.Infinite, out _))
+                {
+                    if (number == 0)
+                        return 1;
+                    return number * Factorial(number - 1, false);
+                }
+            }
+
+            Assert.Equal(120, Factorial(5));
+        }
+
+        [Fact]
+        public async Task TestRecursionWithTimeoutAsync()
+        {
+            var asyncKeyedLocker = new StripedAsyncKeyedLocker<string>();
+
+            async Task<double> Factorial(int number, bool isFirst = true)
+            {
+                using (await asyncKeyedLocker.ConditionalLockAsync("test123", isFirst, Timeout.Infinite))
+                {
+                    if (number == 0)
+                        return 1;
+                    return number * await Factorial(number - 1, false);
+                }
+            }
+
+            Assert.Equal(120, await Factorial(5));
+        }
+
+        [Fact]
+        public void TestRecursionWithTimeSpan()
+        {
+            var asyncKeyedLocker = new StripedAsyncKeyedLocker<string>();
+
+            double Factorial(int number, bool isFirst = true)
+            {
+                using (asyncKeyedLocker.ConditionalLock("test123", isFirst, TimeSpan.Zero, out _))
+                {
+                    if (number == 0)
+                        return 1;
+                    return number * Factorial(number - 1, false);
+                }
+            }
+
+            Assert.Equal(120, Factorial(5));
+        }
+
+        [Fact]
+        public async Task TestRecursionWithTimeSpanAsync()
+        {
+            var asyncKeyedLocker = new StripedAsyncKeyedLocker<string>();
+
+            async Task<double> Factorial(int number, bool isFirst = true)
+            {
+                using (await asyncKeyedLocker.ConditionalLockAsync("test123", isFirst, TimeSpan.Zero))
+                {
+                    if (number == 0)
+                        return 1;
+                    return number * await Factorial(number - 1, false);
+                }
+            }
+
+            Assert.Equal(120, await Factorial(5));
+        }
+
+        [Fact]
+        public void TestRecursionWithTimeoutAndCancellationToken()
+        {
+            var asyncKeyedLocker = new StripedAsyncKeyedLocker<string>();
+
+            double Factorial(int number, bool isFirst = true)
+            {
+                using (asyncKeyedLocker.ConditionalLock("test123", isFirst, Timeout.Infinite, new CancellationToken(false), out _))
+                {
+                    if (number == 0)
+                        return 1;
+                    return number * Factorial(number - 1, false);
+                }
+            }
+
+            Assert.Equal(120, Factorial(5));
+        }
+
+        [Fact]
+        public async Task TestRecursionWithTimeoutAndCancellationTokenAsync()
+        {
+            var asyncKeyedLocker = new StripedAsyncKeyedLocker<string>();
+
+            async Task<double> Factorial(int number, bool isFirst = true)
+            {
+                using (await asyncKeyedLocker.ConditionalLockAsync("test123", isFirst, Timeout.Infinite, new CancellationToken(false)))
+                {
+                    if (number == 0)
+                        return 1;
+                    return number * await Factorial(number - 1, false);
+                }
+            }
+
+            Assert.Equal(120, await Factorial(5));
+        }
+
+        [Fact]
+        public void TestRecursionWithTimeSpanAndCancellationToken()
+        {
+            var asyncKeyedLocker = new StripedAsyncKeyedLocker<string>();
+
+            double Factorial(int number, bool isFirst = true)
+            {
+                using (asyncKeyedLocker.ConditionalLock("test123", isFirst, TimeSpan.Zero, new CancellationToken(false), out _))
+                {
+                    if (number == 0)
+                        return 1;
+                    return number * Factorial(number - 1, false);
+                }
+            }
+
+            Assert.Equal(120, Factorial(5));
+        }
+
+        [Fact]
+        public async Task TestRecursionWithTimeSpanAndCancellationTokenAsync()
+        {
+            var asyncKeyedLocker = new StripedAsyncKeyedLocker<string>();
+
+            async Task<double> Factorial(int number, bool isFirst = true)
+            {
+                using (await asyncKeyedLocker.ConditionalLockAsync("test123", isFirst, TimeSpan.Zero, new CancellationToken(false)))
+                {
+                    if (number == 0)
+                        return 1;
+                    return number * await Factorial(number - 1, false);
+                }
+            }
+
+            Assert.Equal(120, await Factorial(5));
+        }
+
+        [Fact]
         public void TestHashHelpersIsPrime0DoesNotThrow()
         {
             Action action = () =>

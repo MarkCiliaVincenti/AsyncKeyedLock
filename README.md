@@ -26,7 +26,7 @@ using (await _asyncKeyedLocker.LockAsync("test123"))
 }
 ```
 
-This libary also supports conditional locking. This could provide a workaround for `reentrancy` in some scenarios for example in recursion:
+This libary also supports conditional locking, whether for `AsyncKeyedLocker`, `StripedAsyncKeyedLocker` or `AsyncNonKeyedLocker`. This could provide a workaround for `reentrancy` in some scenarios for example in recursion:
 ```csharp
 double factorial = Factorial(number);
 
