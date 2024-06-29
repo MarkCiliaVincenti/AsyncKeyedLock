@@ -8,6 +8,7 @@
                     <Format>cobertura</Format>
                     <Include>[AsyncKeyedLock*]*</Include>
                     <Exclude>[*.Tests]*</Exclude>
+					<Exclude>[*.TestsNet8]*</Exclude>
                     <ExcludeByAttribute>Obsolete,GeneratedCodeAttribute,CompilerGeneratedAttribute</ExcludeByAttribute>
                     <IncludeTestAssembly>false</IncludeTestAssembly>
                     <SkipAutoProps>true</SkipAutoProps>

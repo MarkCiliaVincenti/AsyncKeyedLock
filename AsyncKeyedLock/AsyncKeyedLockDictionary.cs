@@ -132,13 +132,21 @@ namespace AsyncKeyedLock
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void Release(AsyncKeyedLockReleaser<TKey> releaser)
         {
+#if NET9_0_OR_GREATER
+            releaser.Lock.Enter();
+#else
             Monitor.Enter(releaser);
+#endif
 
             if (releaser.ReferenceCount == 1)
             {
                 TryRemove(releaser.Key, out _);
                 releaser.IsNotInUse = true;
+#if NET9_0_OR_GREATER
+                releaser.Lock.Exit();
+#else
                 Monitor.Exit(releaser);
+#endif
                 if (PoolingEnabled)
                 {
                     _pool.PutObject(releaser);
@@ -148,20 +156,32 @@ namespace AsyncKeyedLock
             }
 
             --releaser.ReferenceCount;
+#if NET9_0_OR_GREATER
+            releaser.Lock.Exit();
+#else
             Monitor.Exit(releaser);
+#endif
             releaser.SemaphoreSlim.Release();
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void ReleaseWithoutSemaphoreRelease(AsyncKeyedLockReleaser<TKey> releaser)
         {
+#if NET9_0_OR_GREATER
+            releaser.Lock.Enter();
+#else
             Monitor.Enter(releaser);
+#endif
 
             if (releaser.ReferenceCount == 1)
             {
                 TryRemove(releaser.Key, out _);
                 releaser.IsNotInUse = true;
+#if NET9_0_OR_GREATER
+                releaser.Lock.Exit();
+#else
                 Monitor.Exit(releaser);
+#endif
                 if (PoolingEnabled)
                 {
                     _pool.PutObject(releaser);
@@ -169,7 +189,11 @@ namespace AsyncKeyedLock
                 return;
             }
             --releaser.ReferenceCount;
+#if NET9_0_OR_GREATER
+            releaser.Lock.Exit();
+#else
             Monitor.Exit(releaser);
+#endif
         }
 
         public void Dispose()
