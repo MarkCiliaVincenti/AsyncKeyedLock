@@ -23,13 +23,13 @@ jobs:
         dotnet-quality: 'preview'
         
     - name: Restore dependencies
-      run: dotnet restore --locked-mode
+      run: dotnet restore
       
     - name: Build
-      run: dotnet build AsyncKeyedLock.Tests --no-restore --configuration Release
+      run: dotnet build --no-restore --configuration Release
       
     - name: Test
-      run: dotnet test AsyncKeyedLock.Tests --no-restore --configuration Release --verbosity normal --collect:"XPlat Code Coverage" --settings coverlet.runsettings
+      run: dotnet test --no-restore --configuration Release --verbosity normal --collect:"XPlat Code Coverage" --settings coverlet.runsettings
       
     - name: Coverage
       uses: codecov/codecov-action@v3
