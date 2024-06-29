@@ -1743,34 +1743,34 @@ namespace AsyncKeyedLock
             {
                 return false;
             }
-#if NET9_0_OR_GREATER
-            result.Lock.Enter();
-#else
+//#if NET9_0_OR_GREATER
+//            result.Lock.Enter();
+//#else
             Monitor.Enter(result);
-#endif
+//#endif
             if (result.IsNotInUse)
             {
-#if NET9_0_OR_GREATER
-                result.Lock.Exit();
-#else
+//#if NET9_0_OR_GREATER
+//                result.Lock.Exit();
+//#else
                 Monitor.Exit(result);
-#endif
+//#endif
                 return false;
             }
             if (_dictionary.PoolingEnabled && !result.Key.Equals(key))
             {
-#if NET9_0_OR_GREATER
-                result.Lock.Exit();
-#else
+//#if NET9_0_OR_GREATER
+//                result.Lock.Exit();
+//#else
                 Monitor.Exit(result);
-#endif
+//#endif
                 return false;
             }
-#if NET9_0_OR_GREATER
-            result.Lock.Exit();
-#else
+//#if NET9_0_OR_GREATER
+//            result.Lock.Exit();
+//#else
             Monitor.Exit(result);
-#endif
+//#endif
             return true;
         }
 
