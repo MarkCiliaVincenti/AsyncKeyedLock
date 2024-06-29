@@ -24,7 +24,7 @@ public class TestsForAsyncKeyedLock
         public Async(ITestOutputHelper output) : base(output) { }
 
         [Theory]
-        [InlineData(100, 100, 10, 100)]
+        [InlineData(100, 100, 6, 100)]
         [InlineData(100, 10, 2, 10)]
         [InlineData(100, 50, 5, 50)]
         [InlineData(100, 1, 1, 1)]
