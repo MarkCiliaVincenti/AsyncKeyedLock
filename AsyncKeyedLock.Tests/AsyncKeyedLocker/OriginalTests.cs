@@ -1104,8 +1104,8 @@ namespace AsyncKeyedLock.Tests.AsyncKeyedLocker
                         concurrentQueue.Enqueue(key);
                         await Task.Delay((100 * key) + 1000);
                     }
-                });
-            await Task.WhenAll(tasks.AsParallel());
+                }).ToList();
+            await Task.WhenAll(tasks);
 
             bool valid = true;
             var list = concurrentQueue.ToList();
@@ -1173,8 +1173,8 @@ namespace AsyncKeyedLock.Tests.AsyncKeyedLocker
                         concurrentQueue.Enqueue(key);
                         await Task.Delay((100 * key) + 1000);
                     }
-                });
-            await Task.WhenAll(tasks.AsParallel());
+                }).ToList();
+            await Task.WhenAll(tasks);
 
             bool valid = true;
             var list = concurrentQueue.ToList();
