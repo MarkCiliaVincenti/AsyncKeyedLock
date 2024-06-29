@@ -28,7 +28,7 @@ jobs:
       run: dotnet build --no-restore --configuration Release
       
     - name: Test
-      run: dotnet test --no-restore --configuration Release --verbosity detailed --collect:"XPlat Code Coverage" --settings coverlet.runsettings
+      run: dotnet test --no-restore --configuration Release --verbosity normal --collect:"XPlat Code Coverage" --settings coverlet.runsettings
       
     - name: Coverage
       uses: codecov/codecov-action@v3
