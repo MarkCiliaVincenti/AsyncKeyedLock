@@ -7,8 +7,6 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AsyncKeyedLock", "AsyncKeye
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AsyncKeyedLock.Tests", "AsyncKeyedLock.Tests\AsyncKeyedLock.Tests.csproj", "{0402C044-81BB-4029-BE63-168D3DFABA99}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AsyncKeyedLock.TestsNet8", "AsyncKeyedLock.TestsNet8\AsyncKeyedLock.TestsNet8.csproj", "{A93D03B9-4E9C-40EC-A0AE-7F644F732367}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -23,10 +21,6 @@ Global
 		{0402C044-81BB-4029-BE63-168D3DFABA99}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0402C044-81BB-4029-BE63-168D3DFABA99}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0402C044-81BB-4029-BE63-168D3DFABA99}.Release|Any CPU.Build.0 = Release|Any CPU
-		{A93D03B9-4E9C-40EC-A0AE-7F644F732367}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{A93D03B9-4E9C-40EC-A0AE-7F644F732367}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{A93D03B9-4E9C-40EC-A0AE-7F644F732367}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{A93D03B9-4E9C-40EC-A0AE-7F644F732367}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

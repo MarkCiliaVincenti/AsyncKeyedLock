@@ -21,32 +21,15 @@ jobs:
             8.0.x
             9.0.x
         dotnet-quality: 'preview'
+        cache: true
         
     - name: Restore dependencies
       run: dotnet restore --locked-mode
       
     - name: Build
-      with:
-        dotnet-version: '8.0.x'
-        dotnet-quality: 'preview'
-      run: dotnet build AsyncKeyedLock.TestsNet8 --no-restore --configuration Release
-      
-    - name: Test
-      with:
-        dotnet-version: '8.0.x'
-        dotnet-quality: 'preview'
-      run: dotnet test AsyncKeyedLock.TestsNet8 --no-restore --configuration Release --verbosity normal --collect:"XPlat Code Coverage" --settings coverlet.runsettings
-      
-    - name: Build
-      with:
-        dotnet-version: '9.0.x'
-        dotnet-quality: 'preview'  
       run: dotnet build AsyncKeyedLock.Tests --no-restore --configuration Release
       
     - name: Test
-      with:
-        dotnet-version: '9.0.x'
-        dotnet-quality: 'preview'    
       run: dotnet test AsyncKeyedLock.Tests --no-restore --configuration Release --verbosity normal --collect:"XPlat Code Coverage" --settings coverlet.runsettings
       
     - name: Coverage
