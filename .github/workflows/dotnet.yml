@@ -15,26 +15,21 @@ jobs:
     - uses: actions/checkout@v4
     
     - name: Setup .NET
-      uses: actions/setup-dotnet@v3
+      uses: actions/setup-dotnet@v4
       with:
-        dotnet-version: 8.0.x
+        dotnet-version: |
+            8.0.x
+            9.0.x
+        dotnet-quality: 'preview'
         
     - name: Restore dependencies
-      run: dotnet restore --configfile AsyncKeyedLock.TestsNet8/AsyncKeyedLock.TestsNet8.csproj
+      run: dotnet restore --locked-mode
       
     - name: Build
       run: dotnet build AsyncKeyedLock.TestsNet8 --no-restore --configuration Release
       
     - name: Test
       run: dotnet test AsyncKeyedLock.TestsNet8 --no-restore --configuration Release --verbosity normal --collect:"XPlat Code Coverage" --settings coverlet.runsettings
-      
-    - name: Setup .NET
-      uses: actions/setup-dotnet@v3
-      with:
-        dotnet-version: 9.0.x
-        
-    - name: Restore dependencies
-      run: dotnet restore --configfile AsyncKeyedLock.Tests/AsyncKeyedLock.Tests.csproj
       
     - name: Build
       run: dotnet build AsyncKeyedLock.Tests --no-restore --configuration Release
