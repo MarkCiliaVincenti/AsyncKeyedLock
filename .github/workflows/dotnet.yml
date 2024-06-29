@@ -20,7 +20,7 @@ jobs:
         dotnet-version: 8.0.x
         
     - name: Restore dependencies
-      run: dotnet restore AsyncKeyedLock.TestsNet8 --use-current-runtime true
+      run: dotnet restore AsyncKeyedLock.TestsNet8 --runtime net8.0
       
     - name: Build
       run: dotnet build AsyncKeyedLock.TestsNet8 --no-restore --configuration Release
@@ -34,7 +34,7 @@ jobs:
         dotnet-version: 9.0.x
         
     - name: Restore dependencies
-      run: dotnet restore AsyncKeyedLock.Tests --use-current-runtime true
+      run: dotnet restore AsyncKeyedLock.Tests --runtime net9.0
       
     - name: Build
       run: dotnet build AsyncKeyedLock.Tests --no-restore --configuration Release
