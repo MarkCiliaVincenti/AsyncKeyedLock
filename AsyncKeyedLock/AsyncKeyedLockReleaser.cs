@@ -9,9 +9,9 @@ namespace AsyncKeyedLock
     /// </summary>
     public sealed class AsyncKeyedLockReleaser<TKey> : IDisposable
     {
-#if NET9_0_OR_GREATER
-        internal Lock Lock { get; set; } = new Lock();
-#endif
+//#if NET9_0_OR_GREATER
+//        internal Lock Lock { get; set; } = new Lock();
+//#endif
 
         internal bool IsNotInUse { get; set; } = false;
 
@@ -56,27 +56,27 @@ namespace AsyncKeyedLock
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal bool TryIncrement(TKey key)
         {
-#if NET9_0_OR_GREATER
-            if (Lock.TryEnter())
-#else
+//#if NET9_0_OR_GREATER
+//            if (Lock.TryEnter())
+//#else
             if (Monitor.TryEnter(this))
-#endif
+//#endif
             {
                 if (IsNotInUse || !_key.Equals(key)) // rare race condition
                 {
-#if NET9_0_OR_GREATER
-                    Lock.Exit();
-#else
+//#if NET9_0_OR_GREATER
+//                    Lock.Exit();
+//#else
                     Monitor.Exit(this);
-#endif
+//#endif
                     return false;
                 }
                 ++_referenceCount;
-#if NET9_0_OR_GREATER
-                Lock.Exit();
-#else
+//#if NET9_0_OR_GREATER
+//                Lock.Exit();
+//#else
                 Monitor.Exit(this);
-#endif
+//#endif
                 return true;
             }
             return false;
@@ -85,27 +85,27 @@ namespace AsyncKeyedLock
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal bool TryIncrementNoPooling()
         {
-#if NET9_0_OR_GREATER
-            if (Lock.TryEnter())
-#else
+//#if NET9_0_OR_GREATER
+//            if (Lock.TryEnter())
+//#else
             if (Monitor.TryEnter(this))
-#endif
+//#endif
             {
                 if (IsNotInUse) // rare race condition
                 {
-#if NET9_0_OR_GREATER
-                    Lock.Exit();
-#else
+//#if NET9_0_OR_GREATER
+//                    Lock.Exit();
+//#else
                     Monitor.Exit(this);
-#endif
+//#endif
                     return false;
                 }
                 ++_referenceCount;
-#if NET9_0_OR_GREATER
-                Lock.Exit();
-#else
+//#if NET9_0_OR_GREATER
+//                Lock.Exit();
+//#else
                 Monitor.Exit(this);
-#endif
+//#endif
                 return true;
             }
             return false;
