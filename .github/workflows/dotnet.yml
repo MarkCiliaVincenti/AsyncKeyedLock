@@ -21,7 +21,6 @@ jobs:
             8.0.x
             9.0.x
         dotnet-quality: 'preview'
-        cache: true
         
     - name: Restore dependencies
       run: dotnet restore --locked-mode
