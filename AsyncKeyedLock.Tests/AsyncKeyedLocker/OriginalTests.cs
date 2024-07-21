@@ -238,7 +238,7 @@ namespace AsyncKeyedLock.Tests.AsyncKeyedLocker
         [Fact]
         public void IsInUseKeyChangeRaceConditionCoverage()
         {
-            var asyncKeyedLocker = new AsyncKeyedLocker<string>(o => o.PoolSize = 0);
+            var asyncKeyedLocker = new AsyncKeyedLocker<string>(o => o.PoolSize = 1);
             var releaser = asyncKeyedLocker._dictionary._pool.GetObject("test");
             asyncKeyedLocker._dictionary._pool.PutObject(releaser);
             asyncKeyedLocker.Lock("test");
@@ -255,7 +255,11 @@ namespace AsyncKeyedLock.Tests.AsyncKeyedLocker
             var timer = new System.Timers.Timer(1000);
             timer.Elapsed += (_, _) => { releaser.Dispose(); };
             timer.Start();
-            asyncKeyedLocker.Lock("test");
+            using (asyncKeyedLocker.Lock("test"))
+            {
+                Assert.True(asyncKeyedLocker.IsInUse("test"));
+            }
+            Assert.False(asyncKeyedLocker.IsInUse("test"));
         }
 
         [Fact]
