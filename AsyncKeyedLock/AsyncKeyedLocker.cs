@@ -1743,34 +1743,48 @@ namespace AsyncKeyedLock
             {
                 return false;
             }
-#if NET9_0_OR_GREATER
-            result.Lock.Enter();
-#else
-            Monitor.Enter(result);
-#endif
-            if (result.IsNotInUse)
+
+            if (_dictionary.PoolingEnabled)
             {
+#if NET9_0_OR_GREATER
+                result.Lock.Enter();
+#else
+                Monitor.Enter(result);
+#endif
+                if (result.IsNotInUse)
+                {
+#if NET9_0_OR_GREATER
+                    result.Lock.Exit();
+#else
+                    Monitor.Exit(result);
+#endif
+                    return false;
+                }
+                if (!result.Key.Equals(key))
+                {
+#if NET9_0_OR_GREATER
+                    result.Lock.Exit();
+#else
+                    Monitor.Exit(result);
+#endif
+                    return false;
+                }
 #if NET9_0_OR_GREATER
                 result.Lock.Exit();
 #else
                 Monitor.Exit(result);
 #endif
-                return false;
             }
-            if (_dictionary.PoolingEnabled && !result.Key.Equals(key))
+            else
             {
-#if NET9_0_OR_GREATER
-                result.Lock.Exit();
-#else
+                Monitor.Enter(result);
+                if (result.IsNotInUse)
+                {
+                    Monitor.Exit(result);
+                    return false;
+                }
                 Monitor.Exit(result);
-#endif
-                return false;
             }
-#if NET9_0_OR_GREATER
-            result.Lock.Exit();
-#else
-            Monitor.Exit(result);
-#endif
             return true;
         }
 
