@@ -263,7 +263,7 @@ namespace AsyncKeyedLock.Tests.AsyncKeyedLocker
         {
             Action action = () =>
             {
-                var asyncKeyedLocker = new AsyncKeyedLocker<string>(o => o.MaxCount = 0);
+                var asyncKeyedLocker = new AsyncKeyedLocker<string>(o => { o.MaxCount = 0; o.PoolSize = 0; });
             };
             action.Should().Throw<ArgumentOutOfRangeException>();
         }
@@ -311,7 +311,7 @@ namespace AsyncKeyedLock.Tests.AsyncKeyedLocker
         {
             Action action = () =>
             {
-                var asyncKeyedLocker = new AsyncKeyedLocker<string>(o => o.MaxCount = 0, EqualityComparer<string>.Default);
+                var asyncKeyedLocker = new AsyncKeyedLocker<string>(o => { o.MaxCount = 0; o.PoolSize = 0; }, EqualityComparer<string>.Default);
             };
             action.Should().Throw<ArgumentOutOfRangeException>();
         }
@@ -321,7 +321,7 @@ namespace AsyncKeyedLock.Tests.AsyncKeyedLocker
         {
             Action action = () =>
             {
-                var asyncKeyedLocker = new AsyncKeyedLocker<string>(Environment.ProcessorCount, 100);
+                var asyncKeyedLocker = new AsyncKeyedLocker<string>(o => { o.PoolSize = 0; }, Environment.ProcessorCount, 100);
             };
             action.Should().NotThrow();
         }
@@ -331,7 +331,7 @@ namespace AsyncKeyedLock.Tests.AsyncKeyedLocker
         {
             Action action = () =>
             {
-                var asyncKeyedLocker = new AsyncKeyedLocker<string>(o => o.MaxCount = 0, Environment.ProcessorCount, 100);
+                var asyncKeyedLocker = new AsyncKeyedLocker<string>(o => { o.MaxCount = 0; o.PoolSize = 0; }, Environment.ProcessorCount, 100);
             };
             action.Should().Throw<ArgumentOutOfRangeException>();
         }
@@ -341,7 +341,7 @@ namespace AsyncKeyedLock.Tests.AsyncKeyedLocker
         {
             Action action = () =>
             {
-                var asyncKeyedLocker = new AsyncKeyedLocker<string>(Environment.ProcessorCount, 100, EqualityComparer<string>.Default);
+                var asyncKeyedLocker = new AsyncKeyedLocker<string>(o => { o.PoolSize = 0; }, Environment.ProcessorCount, 100, EqualityComparer<string>.Default);
             };
             action.Should().NotThrow();
         }
@@ -351,7 +351,7 @@ namespace AsyncKeyedLock.Tests.AsyncKeyedLocker
         {
             Action action = () =>
             {
-                var asyncKeyedLocker = new AsyncKeyedLocker<string>(o => o.MaxCount = 0, Environment.ProcessorCount, 100, EqualityComparer<string>.Default);
+                var asyncKeyedLocker = new AsyncKeyedLocker<string>(o => { o.MaxCount = 0; o.PoolSize = 0; }, Environment.ProcessorCount, 100, EqualityComparer<string>.Default);
             };
             action.Should().Throw<ArgumentOutOfRangeException>();
         }
@@ -406,7 +406,7 @@ namespace AsyncKeyedLock.Tests.AsyncKeyedLocker
         [Fact]
         public void TestIndexDoesNotThrow()
         {
-            var asyncKeyedLocker = new AsyncKeyedLocker<string>();
+            var asyncKeyedLocker = new AsyncKeyedLocker<string>(o => { o.PoolSize = 0; });
             asyncKeyedLocker.Lock("test");
             asyncKeyedLocker.Index.Count.Should().Be(1);
             asyncKeyedLocker.Dispose();
@@ -415,42 +415,42 @@ namespace AsyncKeyedLock.Tests.AsyncKeyedLocker
         [Fact]
         public void TestReadingMaxCount()
         {
-            var asyncKeyedLocker = new AsyncKeyedLocker<string>(o => o.MaxCount = 2);
+            var asyncKeyedLocker = new AsyncKeyedLocker<string>(o => { o.MaxCount = 2; o.PoolSize = 0; });
             asyncKeyedLocker.MaxCount.Should().Be(2);
         }
 
         [Fact]
         public void TestReadingMaxCountViaParameter()
         {
-            var asyncKeyedLocker = new AsyncKeyedLocker<string>(new AsyncKeyedLockOptions(2));
+            var asyncKeyedLocker = new AsyncKeyedLocker<string>(new AsyncKeyedLockOptions(2, 0));
             asyncKeyedLocker.MaxCount.Should().Be(2);
         }
 
         [Fact]
         public void TestReadingMaxCountViaParameterWithComparer()
         {
-            var asyncKeyedLocker = new AsyncKeyedLocker<string>(new AsyncKeyedLockOptions(2), EqualityComparer<string>.Default);
+            var asyncKeyedLocker = new AsyncKeyedLocker<string>(new AsyncKeyedLockOptions(2, 0), EqualityComparer<string>.Default);
             asyncKeyedLocker.MaxCount.Should().Be(2);
         }
 
         [Fact]
         public void TestReadingMaxCountViaParameterWithConcurrencyLevelAndCapacity()
         {
-            var asyncKeyedLocker = new AsyncKeyedLocker<string>(new AsyncKeyedLockOptions(2), Environment.ProcessorCount, 100);
+            var asyncKeyedLocker = new AsyncKeyedLocker<string>(new AsyncKeyedLockOptions(2, 0), Environment.ProcessorCount, 100);
             asyncKeyedLocker.MaxCount.Should().Be(2);
         }
 
         [Fact]
         public void TestReadingMaxCountViaParameterWithConcurrencyLevelAndCapacityAndComparer()
         {
-            var asyncKeyedLocker = new AsyncKeyedLocker<string>(new AsyncKeyedLockOptions(2), Environment.ProcessorCount, 100, EqualityComparer<string>.Default);
+            var asyncKeyedLocker = new AsyncKeyedLocker<string>(new AsyncKeyedLockOptions(2, 0), Environment.ProcessorCount, 100, EqualityComparer<string>.Default);
             asyncKeyedLocker.MaxCount.Should().Be(2);
         }
 
         [Fact]
         public void TestGetCurrentCount()
         {
-            var asyncKeyedLocker = new AsyncKeyedLocker<string>();
+            var asyncKeyedLocker = new AsyncKeyedLocker<string>(o => { o.PoolSize = 0; });
             asyncKeyedLocker.GetRemainingCount("test").Should().Be(0);
             asyncKeyedLocker.GetCurrentCount("test").Should().Be(1);
             asyncKeyedLocker.Lock("test");
@@ -461,7 +461,7 @@ namespace AsyncKeyedLock.Tests.AsyncKeyedLocker
         [Fact]
         public async Task TestTimeoutBasic()
         {
-            var asyncKeyedLocker = new AsyncKeyedLocker<string>();
+            var asyncKeyedLocker = new AsyncKeyedLocker<string>(o => { o.PoolSize = 0; });
             using (var myLock = await asyncKeyedLocker.LockAsync("test", 0))
             {
                 Assert.True(myLock.EnteredSemaphore);
@@ -473,7 +473,7 @@ namespace AsyncKeyedLock.Tests.AsyncKeyedLocker
         [Fact]
         public void TestTimeoutBasicWithOutParameter()
         {
-            var asyncKeyedLocker = new AsyncKeyedLocker<string>();
+            var asyncKeyedLocker = new AsyncKeyedLocker<string>(o => { o.PoolSize = 0; });
             using (var myLock = asyncKeyedLocker.Lock("test", 0, out var entered))
             {
                 Assert.True(entered);
@@ -485,7 +485,7 @@ namespace AsyncKeyedLock.Tests.AsyncKeyedLocker
         [Fact]
         public async Task TestTimeout()
         {
-            var asyncKeyedLocker = new AsyncKeyedLocker<string>();
+            var asyncKeyedLocker = new AsyncKeyedLocker<string>(o => { o.PoolSize = 0; });
             using (await asyncKeyedLocker.LockAsync("test"))
             {
                 using (var myLock = await asyncKeyedLocker.LockAsync("test", 0))
@@ -500,7 +500,7 @@ namespace AsyncKeyedLock.Tests.AsyncKeyedLocker
         [Fact]
         public void TestTimeoutWithTimeSpanSynchronous()
         {
-            var asyncKeyedLocker = new AsyncKeyedLocker<string>();
+            var asyncKeyedLocker = new AsyncKeyedLocker<string>(o => { o.PoolSize = 0; });
             using (asyncKeyedLocker.Lock("test"))
             {
                 using (asyncKeyedLocker.Lock("test", TimeSpan.Zero, out bool entered))
@@ -515,7 +515,7 @@ namespace AsyncKeyedLock.Tests.AsyncKeyedLocker
         [Fact]
         public void TestTimeoutWithInfiniteTimeoutSynchronous()
         {
-            var asyncKeyedLocker = new AsyncKeyedLocker<string>();
+            var asyncKeyedLocker = new AsyncKeyedLocker<string>(o => { o.PoolSize = 0; });
             using (asyncKeyedLocker.Lock("test", Timeout.Infinite, out bool entered))
             {
                 Assert.True(entered);
@@ -527,7 +527,7 @@ namespace AsyncKeyedLock.Tests.AsyncKeyedLocker
         [Fact]
         public void TestTimeoutWithInfiniteTimeSpanSynchronous()
         {
-            var asyncKeyedLocker = new AsyncKeyedLocker<string>();
+            var asyncKeyedLocker = new AsyncKeyedLocker<string>(o => { o.PoolSize = 0; });
             using (asyncKeyedLocker.Lock("test", TimeSpan.FromMilliseconds(Timeout.Infinite), out bool entered))
             {
                 Assert.True(entered);
@@ -539,7 +539,7 @@ namespace AsyncKeyedLock.Tests.AsyncKeyedLocker
         [Fact]
         public async Task TestTimeoutWithTimeSpan()
         {
-            var asyncKeyedLocker = new AsyncKeyedLocker<string>();
+            var asyncKeyedLocker = new AsyncKeyedLocker<string>(o => { o.PoolSize = 0; });
             using (await asyncKeyedLocker.LockAsync("test"))
             {
                 using (var myLock = await asyncKeyedLocker.LockAsync("test", TimeSpan.Zero))
@@ -554,7 +554,7 @@ namespace AsyncKeyedLock.Tests.AsyncKeyedLocker
         [Fact]
         public void TestTimeoutWithInfiniteTimeoutAndCancellationToken()
         {
-            var asyncKeyedLocker = new AsyncKeyedLocker<string>();
+            var asyncKeyedLocker = new AsyncKeyedLocker<string>(o => { o.PoolSize = 0; });
             using (asyncKeyedLocker.Lock("test", Timeout.Infinite, new CancellationToken(false), out bool entered))
             {
                 Assert.True(entered);
@@ -566,7 +566,7 @@ namespace AsyncKeyedLock.Tests.AsyncKeyedLocker
         [Fact]
         public void TestTimeoutWithZeroTimeoutAndCancellationToken()
         {
-            var asyncKeyedLocker = new AsyncKeyedLocker<string>();
+            var asyncKeyedLocker = new AsyncKeyedLocker<string>(o => { o.PoolSize = 0; });
             using (asyncKeyedLocker.Lock("test", 0, new CancellationToken(false), out bool entered))
             {
                 Assert.True(entered);
@@ -578,7 +578,7 @@ namespace AsyncKeyedLock.Tests.AsyncKeyedLocker
         [Fact]
         public void TestTimeoutWithZeroTimeoutAndCancelledToken()
         {
-            var asyncKeyedLocker = new AsyncKeyedLocker<string>();
+            var asyncKeyedLocker = new AsyncKeyedLocker<string>(o => { o.PoolSize = 0; });
             Action action = () =>
             {
                 asyncKeyedLocker.Lock("test", 0, new CancellationToken(true), out bool entered);
@@ -590,7 +590,7 @@ namespace AsyncKeyedLock.Tests.AsyncKeyedLocker
         [Fact]
         public void TestTimeoutWithInfiniteTimeSpanAndCancellationToken()
         {
-            var asyncKeyedLocker = new AsyncKeyedLocker<string>();
+            var asyncKeyedLocker = new AsyncKeyedLocker<string>(o => { o.PoolSize = 0; });
             using (asyncKeyedLocker.Lock("test", TimeSpan.FromMilliseconds(Timeout.Infinite), new CancellationToken(false), out bool entered))
             {
                 Assert.True(entered);
@@ -602,7 +602,7 @@ namespace AsyncKeyedLock.Tests.AsyncKeyedLocker
         [Fact]
         public void TestTimeoutWithZeroTimeSpanAndCancellationToken()
         {
-            var asyncKeyedLocker = new AsyncKeyedLocker<string>();
+            var asyncKeyedLocker = new AsyncKeyedLocker<string>(o => { o.PoolSize = 0; });
             using (asyncKeyedLocker.Lock("test", TimeSpan.FromMilliseconds(0), new CancellationToken(false), out bool entered))
             {
                 Assert.True(entered);
@@ -614,7 +614,7 @@ namespace AsyncKeyedLock.Tests.AsyncKeyedLocker
         [Fact]
         public void TestTimeoutWithZeroTimeSpanAndCancelledToken()
         {
-            var asyncKeyedLocker = new AsyncKeyedLocker<string>();
+            var asyncKeyedLocker = new AsyncKeyedLocker<string>(o => { o.PoolSize = 0; });
             Action action = () =>
             {
                 asyncKeyedLocker.Lock("test", TimeSpan.FromMilliseconds(0), new CancellationToken(true), out bool entered);
@@ -626,7 +626,7 @@ namespace AsyncKeyedLock.Tests.AsyncKeyedLocker
         [Fact]
         public void TestTimeoutTryLock()
         {
-            var asyncKeyedLocker = new AsyncKeyedLocker<string>();
+            var asyncKeyedLocker = new AsyncKeyedLocker<string>(o => { o.PoolSize = 0; });
             using (asyncKeyedLocker.Lock("test"))
             {
                 Assert.True(asyncKeyedLocker.IsInUse("test"));
@@ -641,7 +641,7 @@ namespace AsyncKeyedLock.Tests.AsyncKeyedLocker
         {
             var locks = 5000;
             var concurrency = 50;
-            var asyncKeyedLocker = new AsyncKeyedLocker<object>();
+            var asyncKeyedLocker = new AsyncKeyedLocker<object>(o => { o.PoolSize = 0; });
             var concurrentQueue = new ConcurrentQueue<(bool entered, int key)>();
 
             var tasks = Enumerable.Range(1, locks * concurrency)
@@ -693,7 +693,7 @@ namespace AsyncKeyedLock.Tests.AsyncKeyedLocker
         {
             var locks = 5000;
             var concurrency = 50;
-            var asyncKeyedLocker = new AsyncKeyedLocker<int>();
+            var asyncKeyedLocker = new AsyncKeyedLocker<int>(o => { o.PoolSize = 0; });
             var concurrentQueue = new ConcurrentQueue<(bool entered, int key)>();
 
             var tasks = Enumerable.Range(1, locks * concurrency)
@@ -1006,7 +1006,7 @@ namespace AsyncKeyedLock.Tests.AsyncKeyedLocker
         {
             var locks = 5000;
             var concurrency = 50;
-            var asyncKeyedLocker = new AsyncKeyedLocker<string>();
+            var asyncKeyedLocker = new AsyncKeyedLocker<string>(o => { o.PoolSize = 0; });
             var concurrentQueue = new ConcurrentQueue<(bool entered, string key)>();
 
             var tasks = Enumerable.Range(1, locks * concurrency)
@@ -1057,7 +1057,7 @@ namespace AsyncKeyedLock.Tests.AsyncKeyedLocker
         public async Task Test1AtATime()
         {
             var range = 25000;
-            var asyncKeyedLocker = new AsyncKeyedLocker<object>();
+            var asyncKeyedLocker = new AsyncKeyedLocker<object>(o => { o.PoolSize = 0; });
             var concurrentQueue = new ConcurrentQueue<int>();
 
             int threadNum = 0;
@@ -1092,7 +1092,7 @@ namespace AsyncKeyedLock.Tests.AsyncKeyedLocker
         public async Task Test2AtATime()
         {
             var range = 4;
-            var asyncKeyedLocker = new AsyncKeyedLocker<object>(o => o.MaxCount = 2);
+            var asyncKeyedLocker = new AsyncKeyedLocker<object>(o => { o.MaxCount = 2; o.PoolSize = 0; });
             var concurrentQueue = new ConcurrentQueue<int>();
 
             var tasks = Enumerable.Range(1, range * 4)
@@ -1126,7 +1126,7 @@ namespace AsyncKeyedLock.Tests.AsyncKeyedLocker
         public async Task Test1AtATimeGenerics()
         {
             var range = 25000;
-            var asyncKeyedLocker = new AsyncKeyedLocker<int>();
+            var asyncKeyedLocker = new AsyncKeyedLocker<int>(o => { o.PoolSize = 0; });
             var concurrentQueue = new ConcurrentQueue<int>();
 
             int threadNum = 0;
@@ -1161,7 +1161,7 @@ namespace AsyncKeyedLock.Tests.AsyncKeyedLocker
         public async Task Test2AtATimeGenerics()
         {
             var range = 4;
-            var asyncKeyedLocker = new AsyncKeyedLocker<int>(o => o.MaxCount = 2);
+            var asyncKeyedLocker = new AsyncKeyedLocker<int>(o => { o.MaxCount = 2; o.PoolSize = 0; });
             var concurrentQueue = new ConcurrentQueue<int>();
 
             var tasks = Enumerable.Range(1, range * 4)
@@ -1203,7 +1203,7 @@ namespace AsyncKeyedLock.Tests.AsyncKeyedLocker
         {
             const string Key = "test";
 
-            var asyncKeyedLocker = new AsyncKeyedLocker<string>();
+            var asyncKeyedLocker = new AsyncKeyedLocker<string>(o => { o.PoolSize = 0; });
             var testContext = new TestSynchronizationContext();
 
             void Callback()
@@ -1252,7 +1252,7 @@ namespace AsyncKeyedLock.Tests.AsyncKeyedLocker
         {
             const string Key = "test";
 
-            var asyncKeyedLocker = new AsyncKeyedLocker<string>();
+            var asyncKeyedLocker = new AsyncKeyedLocker<string>(o => { o.PoolSize = 0; });
             var testContext = new TestSynchronizationContext();
 
             void Callback()

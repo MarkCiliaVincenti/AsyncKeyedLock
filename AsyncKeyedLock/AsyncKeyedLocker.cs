@@ -173,7 +173,7 @@ namespace AsyncKeyedLock
         /// </summary>
         public AsyncKeyedLocker()
         {
-            _dictionary = new AsyncKeyedLockDictionary<TKey>();
+            _dictionary = new AsyncKeyedLockDictionary<TKey>(AsyncKeyedLockOptions.Default);
         }
 
         /// <summary>
@@ -206,7 +206,7 @@ namespace AsyncKeyedLock
         /// <exception cref="ArgumentNullException"><paramref name="comparer"/> is null.</exception>
         public AsyncKeyedLocker(IEqualityComparer<TKey> comparer)
         {
-            _dictionary = new AsyncKeyedLockDictionary<TKey>(comparer);
+            _dictionary = new AsyncKeyedLockDictionary<TKey>(AsyncKeyedLockOptions.Default, comparer);
         }
 
         /// <summary>
@@ -244,7 +244,7 @@ namespace AsyncKeyedLock
         /// <exception cref="ArgumentOutOfRangeException">Parameter is out of range.</exception>
         public AsyncKeyedLocker(int concurrencyLevel, int capacity)
         {
-            _dictionary = new AsyncKeyedLockDictionary<TKey>(concurrencyLevel, capacity);
+            _dictionary = new AsyncKeyedLockDictionary<TKey>(AsyncKeyedLockOptions.Default, concurrencyLevel, capacity);
         }
 
         /// <summary>
@@ -284,7 +284,7 @@ namespace AsyncKeyedLock
         /// <exception cref="ArgumentNullException"><paramref name="comparer"/> is null.</exception>
         public AsyncKeyedLocker(int concurrencyLevel, int capacity, IEqualityComparer<TKey> comparer)
         {
-            _dictionary = new AsyncKeyedLockDictionary<TKey>(concurrencyLevel, capacity, comparer);
+            _dictionary = new AsyncKeyedLockDictionary<TKey>(AsyncKeyedLockOptions.Default, concurrencyLevel, capacity, comparer);
         }
 
         /// <summary>
@@ -1743,34 +1743,34 @@ namespace AsyncKeyedLock
             {
                 return false;
             }
-//#if NET9_0_OR_GREATER
-//            result.Lock.Enter();
-//#else
+#if NET9_0_OR_GREATER
+            result.Lock.Enter();
+#else
             Monitor.Enter(result);
-//#endif
+#endif
             if (result.IsNotInUse)
             {
-//#if NET9_0_OR_GREATER
-//                result.Lock.Exit();
-//#else
+#if NET9_0_OR_GREATER
+                result.Lock.Exit();
+#else
                 Monitor.Exit(result);
-//#endif
+#endif
                 return false;
             }
             if (_dictionary.PoolingEnabled && !result.Key.Equals(key))
             {
-//#if NET9_0_OR_GREATER
-//                result.Lock.Exit();
-//#else
+#if NET9_0_OR_GREATER
+                result.Lock.Exit();
+#else
                 Monitor.Exit(result);
-//#endif
+#endif
                 return false;
             }
-//#if NET9_0_OR_GREATER
-//            result.Lock.Exit();
-//#else
+#if NET9_0_OR_GREATER
+            result.Lock.Exit();
+#else
             Monitor.Exit(result);
-//#endif
+#endif
             return true;
         }
 

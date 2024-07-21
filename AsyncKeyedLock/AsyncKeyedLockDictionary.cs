@@ -12,10 +12,6 @@ namespace AsyncKeyedLock
         internal readonly AsyncKeyedLockPool<TKey> _pool;
         internal bool PoolingEnabled { get; private set; }
 
-        public AsyncKeyedLockDictionary() : base()
-        {
-        }
-
         public AsyncKeyedLockDictionary(AsyncKeyedLockOptions options) : base()
         {
             if (options.MaxCount < 1) throw new ArgumentOutOfRangeException(nameof(options), options.MaxCount, $"{nameof(options.MaxCount)} should be greater than or equal to 1.");
@@ -26,10 +22,6 @@ namespace AsyncKeyedLock
                 PoolingEnabled = true;
                 _pool = new AsyncKeyedLockPool<TKey>(this, options.PoolSize, options.PoolInitialFill);
             }
-        }
-
-        public AsyncKeyedLockDictionary(IEqualityComparer<TKey> comparer) : base(comparer)
-        {
         }
 
         public AsyncKeyedLockDictionary(AsyncKeyedLockOptions options, IEqualityComparer<TKey> comparer) : base(comparer)
@@ -44,10 +36,6 @@ namespace AsyncKeyedLock
             }
         }
 
-        public AsyncKeyedLockDictionary(int concurrencyLevel, int capacity) : base(concurrencyLevel, capacity)
-        {
-        }
-
         public AsyncKeyedLockDictionary(AsyncKeyedLockOptions options, int concurrencyLevel, int capacity) : base(concurrencyLevel, capacity)
         {
             if (options.MaxCount < 1) throw new ArgumentOutOfRangeException(nameof(options), options.MaxCount, $"{nameof(options.MaxCount)} should be greater than or equal to 1.");
@@ -58,10 +46,6 @@ namespace AsyncKeyedLock
                 PoolingEnabled = true;
                 _pool = new AsyncKeyedLockPool<TKey>(this, options.PoolSize, options.PoolInitialFill);
             }
-        }
-
-        public AsyncKeyedLockDictionary(int concurrencyLevel, int capacity, IEqualityComparer<TKey> comparer) : base(concurrencyLevel, capacity, comparer)
-        {
         }
 
         public AsyncKeyedLockDictionary(AsyncKeyedLockOptions options, int concurrencyLevel, int capacity, IEqualityComparer<TKey> comparer) : base(concurrencyLevel, capacity, comparer)
@@ -132,68 +116,98 @@ namespace AsyncKeyedLock
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void Release(AsyncKeyedLockReleaser<TKey> releaser)
         {
-//#if NET9_0_OR_GREATER
-//            releaser.Lock.Enter();
-//#else
-            Monitor.Enter(releaser);
-//#endif
-
-            if (releaser.ReferenceCount == 1)
+            if (PoolingEnabled)
             {
-                TryRemove(releaser.Key, out _);
-                releaser.IsNotInUse = true;
-//#if NET9_0_OR_GREATER
-//                releaser.Lock.Exit();
-//#else
-                Monitor.Exit(releaser);
-//#endif
-                if (PoolingEnabled)
-                {
-                    _pool.PutObject(releaser);
-                }
-                releaser.SemaphoreSlim.Release();
-                return;
-            }
+#if NET9_0_OR_GREATER
+                releaser.Lock.Enter();
+#else
+                Monitor.Enter(releaser);
+#endif
 
-            --releaser.ReferenceCount;
-//#if NET9_0_OR_GREATER
-//            releaser.Lock.Exit();
-//#else
-            Monitor.Exit(releaser);
-//#endif
+                if (releaser.ReferenceCount == 1)
+                {
+                    TryRemove(releaser.Key, out _);
+                    releaser.IsNotInUse = true;
+#if NET9_0_OR_GREATER
+                    releaser.Lock.Exit();
+#else
+                    Monitor.Exit(releaser);
+#endif
+                    _pool.PutObject(releaser);
+                    releaser.SemaphoreSlim.Release();
+                    return;
+                }
+
+                --releaser.ReferenceCount;
+#if NET9_0_OR_GREATER
+                releaser.Lock.Exit();
+#else
+                Monitor.Exit(releaser);
+#endif
+            }
+            else
+            {
+                Monitor.Enter(releaser);
+
+                if (releaser.ReferenceCount == 1)
+                {
+                    TryRemove(releaser.Key, out _);
+                    releaser.IsNotInUse = true;
+                    Monitor.Exit(releaser);
+                    releaser.SemaphoreSlim.Release();
+                    return;
+                }
+
+                --releaser.ReferenceCount;
+                Monitor.Exit(releaser);
+            }
             releaser.SemaphoreSlim.Release();
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void ReleaseWithoutSemaphoreRelease(AsyncKeyedLockReleaser<TKey> releaser)
         {
-//#if NET9_0_OR_GREATER
-//            releaser.Lock.Enter();
-//#else
-            Monitor.Enter(releaser);
-//#endif
-
-            if (releaser.ReferenceCount == 1)
+            if (PoolingEnabled)
             {
-                TryRemove(releaser.Key, out _);
-                releaser.IsNotInUse = true;
-//#if NET9_0_OR_GREATER
-//                releaser.Lock.Exit();
-//#else
-                Monitor.Exit(releaser);
-//#endif
-                if (PoolingEnabled)
+#if NET9_0_OR_GREATER
+                releaser.Lock.Enter();
+#else
+                Monitor.Enter(releaser);
+#endif
+
+                if (releaser.ReferenceCount == 1)
                 {
+                    TryRemove(releaser.Key, out _);
+                    releaser.IsNotInUse = true;
+#if NET9_0_OR_GREATER
+                    releaser.Lock.Exit();
+#else
+                    Monitor.Exit(releaser);
+#endif
                     _pool.PutObject(releaser);
+                    return;
                 }
-                return;
+                --releaser.ReferenceCount;
+#if NET9_0_OR_GREATER
+                releaser.Lock.Exit();
+#else
+                Monitor.Exit(releaser);
+#endif
             }
-            --releaser.ReferenceCount;
-//#if NET9_0_OR_GREATER
-//            releaser.Lock.Exit();
-//#else
-            Monitor.Exit(releaser);
-//#endif
+            else
+            {
+                Monitor.Enter(releaser);
+
+                if (releaser.ReferenceCount == 1)
+                {
+                    TryRemove(releaser.Key, out _);
+                    releaser.IsNotInUse = true;
+                    Monitor.Exit(releaser);
+                    return;
+                }
+                --releaser.ReferenceCount;
+                Monitor.Exit(releaser);
+            }
         }
 
         public void Dispose()

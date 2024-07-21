@@ -10,7 +10,7 @@ namespace AsyncKeyedLock
 #if NET9_0_OR_GREATER
         private readonly Lock _lock = new Lock();
 #endif
-        private readonly IList<AsyncKeyedLockReleaser<TKey>> _objects;
+        private readonly List<AsyncKeyedLockReleaser<TKey>> _objects;
         private readonly Func<TKey, AsyncKeyedLockReleaser<TKey>> _objectGenerator;
         private readonly int _capacity;
 
