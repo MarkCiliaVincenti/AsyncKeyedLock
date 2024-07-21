@@ -233,6 +233,8 @@ namespace AsyncKeyedLock.Tests.AsyncKeyedLocker
             asyncKeyedLocker.Lock("test");
             releaser.IsNotInUse = true; // internal
             Assert.False(asyncKeyedLocker.IsInUse("test"));
+            asyncKeyedLocker._dictionary.PoolingEnabled = false; // internal
+            Assert.False(asyncKeyedLocker.IsInUse("test"));
         }
 
         [Fact]
@@ -244,6 +246,8 @@ namespace AsyncKeyedLock.Tests.AsyncKeyedLocker
             asyncKeyedLocker.Lock("test");
             releaser.Key = "test2"; // internal
             Assert.False(asyncKeyedLocker.IsInUse("test"));
+            asyncKeyedLocker._dictionary.PoolingEnabled = false; // internal
+            Assert.True(asyncKeyedLocker.IsInUse("test"));
         }
 
         [Fact]

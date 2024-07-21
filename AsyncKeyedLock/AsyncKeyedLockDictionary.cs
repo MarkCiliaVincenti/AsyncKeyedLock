@@ -10,7 +10,7 @@ namespace AsyncKeyedLock
     {
         public int MaxCount { get; private set; } = 1;
         internal readonly AsyncKeyedLockPool<TKey> _pool;
-        internal bool PoolingEnabled { get; private set; }
+        public bool PoolingEnabled { get; internal set; }
 
         public AsyncKeyedLockDictionary(AsyncKeyedLockOptions options) : base()
         {
