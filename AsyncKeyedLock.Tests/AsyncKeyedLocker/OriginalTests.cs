@@ -83,7 +83,7 @@ namespace AsyncKeyedLock.Tests.AsyncKeyedLocker
         [Fact]
         public void TestRecursionWithTimeout()
         {
-            var asyncKeyedLocker = new AsyncKeyedLocker<string>(o => o.PoolSize = 1);
+            var asyncKeyedLocker = new AsyncKeyedLocker<string>();
 
             double Factorial(int number, bool isFirst = true)
             {
@@ -101,7 +101,7 @@ namespace AsyncKeyedLock.Tests.AsyncKeyedLocker
         [Fact]
         public async Task TestRecursionWithTimeoutAsync()
         {
-            var asyncKeyedLocker = new AsyncKeyedLocker<string>(o => o.PoolSize = 1);
+            var asyncKeyedLocker = new AsyncKeyedLocker();
 
             async Task<double> Factorial(int number, bool isFirst = true)
             {
