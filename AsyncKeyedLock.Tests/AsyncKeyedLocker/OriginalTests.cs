@@ -11,7 +11,7 @@ namespace AsyncKeyedLock.Tests.AsyncKeyedLocker
         [Fact]
         public void TestRecursion()
         {
-            var asyncKeyedLocker = new AsyncKeyedLocker<string>(o => o.PoolSize = 1);
+            var asyncKeyedLocker = new AsyncKeyedLocker<string>(o => { o.PoolSize = 1; o.PoolInitialFill = -1; });
 
             double Factorial(int number, bool isFirst = true)
             {
