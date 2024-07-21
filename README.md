@@ -12,11 +12,7 @@ A simple non-keyed lock is also available through [`AsyncNonKeyedLocker`](https:
 ## Installation and usage
 Using this library is straightforward. Here's a simple example for using `AsyncKeyedLocker`:
 ```csharp
-private static readonly AsyncKeyedLocker<string> _asyncKeyedLocker = new(o =>
-  {
-    o.PoolSize = 20; // this is NOT a concurrency limit
-    o.PoolInitialFill = 1;
-  });
+private static readonly AsyncKeyedLocker<string> _asyncKeyedLocker = new();
 
 ...
 
@@ -42,6 +38,9 @@ public static double Factorial(int number, bool isFirst = true)
 ```
 
 For more help with `AsyncKeyedLocker` or for examples with `StripedAsyncKeyedLocker` or `AsyncNonKeyedLocker` (for simple, non-keyed locking), please [take a look at our wiki](https://github.com/MarkCiliaVincenti/AsyncKeyedLock/wiki).
+
+## Pooling change in v7.0.0
+Prior to AsyncKeyedLock 7.0.0, pooling was disabled by default and you needed to specify a pool size in order to enable it. Now pooling is enabled by default with an initial fill of 1 and a pool size of 20. In order to retain the same functionality you need to now specify a pool size of 0 within AsyncKeyedLockOptions. Read more about pooling in [our wiki](https://github.com/MarkCiliaVincenti/AsyncKeyedLock/wiki/How-to-use-AsyncKeyedLocker#pooling).
 
 ## Benchmarks
 This library has been extensively benchmarked against several other options and [our benchmarks](https://github.com/MarkCiliaVincenti/AsyncKeyedLock/wiki/Benchmarks) run publicly and transparently on Github Actions.
