@@ -321,7 +321,7 @@ namespace AsyncKeyedLock.Tests.AsyncKeyedLocker
         {
             Action action = () =>
             {
-                var asyncKeyedLocker = new AsyncKeyedLocker<string>(o => { o.PoolSize = 0; }, Environment.ProcessorCount, 100);
+                var asyncKeyedLocker = new AsyncKeyedLocker<string>(Environment.ProcessorCount, 100);
             };
             action.Should().NotThrow();
         }
@@ -341,7 +341,7 @@ namespace AsyncKeyedLock.Tests.AsyncKeyedLocker
         {
             Action action = () =>
             {
-                var asyncKeyedLocker = new AsyncKeyedLocker<string>(o => { o.PoolSize = 0; }, Environment.ProcessorCount, 100, EqualityComparer<string>.Default);
+                var asyncKeyedLocker = new AsyncKeyedLocker<string>(Environment.ProcessorCount, 100, EqualityComparer<string>.Default);
             };
             action.Should().NotThrow();
         }
