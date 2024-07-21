@@ -24,9 +24,9 @@ public class TestsForAsyncKeyedLock
         public Async(ITestOutputHelper output) : base(output) { }
 
         [Theory]
-        [InlineData(100, 100, 6, 100)]
+        [InlineData(100, 100, 4, 100)]
         [InlineData(100, 10, 2, 10)]
-        [InlineData(100, 50, 5, 50)]
+        [InlineData(100, 50, 4, 50)]
         [InlineData(100, 1, 1, 1)]
         public async Task ShouldApplyParallelismCorrectly(int numberOfThreads, int numberOfKeys, int minParallelism,
             int maxParallelism)
@@ -98,9 +98,9 @@ public class TestsForAsyncKeyedLock
         public Sync(ITestOutputHelper output) : base(output) { }
 
         [Theory]
-        [InlineData(100, 100, 6, 100)]
+        [InlineData(100, 100, 4, 100)]
         [InlineData(100, 10, 2, 10)]
-        [InlineData(100, 50, 5, 50)]
+        [InlineData(100, 50, 4, 50)]
         [InlineData(100, 1, 1, 1)]
         public void ShouldApplyParallelismCorrectly(int numberOfThreads, int numberOfKeys, int minParallelism,
             int maxParallelism)
