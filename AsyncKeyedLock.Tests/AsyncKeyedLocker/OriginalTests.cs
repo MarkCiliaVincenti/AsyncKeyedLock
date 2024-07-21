@@ -101,7 +101,7 @@ namespace AsyncKeyedLock.Tests.AsyncKeyedLocker
         [Fact]
         public async Task TestRecursionWithTimeoutAsync()
         {
-            var asyncKeyedLocker = new AsyncKeyedLocker();
+            var asyncKeyedLocker = new AsyncKeyedLocker<string>();
 
             async Task<double> Factorial(int number, bool isFirst = true)
             {
