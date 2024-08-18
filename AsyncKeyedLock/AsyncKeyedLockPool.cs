@@ -7,7 +7,10 @@ namespace AsyncKeyedLock
 {
     internal sealed class AsyncKeyedLockPool<TKey> : IDisposable
     {
-        private readonly IList<AsyncKeyedLockReleaser<TKey>> _objects;
+#if NET9_0_OR_GREATER
+        private readonly Lock _lock = new Lock();
+#endif
+        private readonly List<AsyncKeyedLockReleaser<TKey>> _objects;
         private readonly Func<TKey, AsyncKeyedLockReleaser<TKey>> _objectGenerator;
         private readonly int _capacity;
 
@@ -49,18 +52,30 @@ namespace AsyncKeyedLock
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public AsyncKeyedLockReleaser<TKey> GetObject(TKey key)
         {
+#if NET9_0_OR_GREATER
+            _lock.Enter();
+#else
             Monitor.Enter(_objects);
+#endif
             if (_objects.Count > 0)
             {
                 int lastPos = _objects.Count - 1;
                 var item = _objects[lastPos];
                 _objects.RemoveAt(lastPos);
+#if NET9_0_OR_GREATER
+                _lock.Exit();
+#else
                 Monitor.Exit(_objects);
+#endif
                 item.Key = key;
                 item.IsNotInUse = false;
                 return item;
             }
+#if NET9_0_OR_GREATER
+            _lock.Exit();
+#else
             Monitor.Exit(_objects);
+#endif
 
             return _objectGenerator(key);
         }
@@ -68,12 +83,20 @@ namespace AsyncKeyedLock
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public void PutObject(AsyncKeyedLockReleaser<TKey> item)
         {
+#if NET9_0_OR_GREATER
+            _lock.Enter();
+#else
             Monitor.Enter(_objects);
+#endif
             if (_objects.Count < _capacity)
             {
                 _objects.Add(item);
             }
+#if NET9_0_OR_GREATER
+            _lock.Exit();
+#else
             Monitor.Exit(_objects);
+#endif
         }
     }
 }

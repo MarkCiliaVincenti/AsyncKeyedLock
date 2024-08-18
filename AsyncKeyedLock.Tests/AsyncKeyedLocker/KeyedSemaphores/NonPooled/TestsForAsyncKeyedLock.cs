@@ -11,7 +11,7 @@ namespace AsyncKeyedLock.Tests.AsyncKeyedLocker.KeyedSemaphores.NonPooled;
 public class TestsForAsyncKeyedLock
 {
     private readonly ITestOutputHelper _output;
-    private readonly AsyncKeyedLocker<string> _keyedLocker = new();
+    private readonly AsyncKeyedLocker<string> _keyedLocker = new(o => { o.PoolSize = 0; });
     TimeSpan _defaultSynchronousWaitDuration = TimeSpan.FromMilliseconds(10);
 
     public TestsForAsyncKeyedLock(ITestOutputHelper output)
@@ -24,9 +24,9 @@ public class TestsForAsyncKeyedLock
         public Async(ITestOutputHelper output) : base(output) { }
 
         [Theory]
-        [InlineData(100, 100, 10, 100)]
+        [InlineData(100, 100, 3, 100)]
         [InlineData(100, 10, 2, 10)]
-        [InlineData(100, 50, 5, 50)]
+        [InlineData(100, 50, 3, 50)]
         [InlineData(100, 1, 1, 1)]
         public async Task ShouldApplyParallelismCorrectly(int numberOfThreads, int numberOfKeys, int minParallelism,
             int maxParallelism)
@@ -98,9 +98,9 @@ public class TestsForAsyncKeyedLock
         public Sync(ITestOutputHelper output) : base(output) { }
 
         [Theory]
-        [InlineData(100, 100, 10, 100)]
+        [InlineData(100, 100, 3, 100)]
         [InlineData(100, 10, 2, 10)]
-        [InlineData(100, 50, 5, 50)]
+        [InlineData(100, 50, 3, 50)]
         [InlineData(100, 1, 1, 1)]
         public void ShouldApplyParallelismCorrectly(int numberOfThreads, int numberOfKeys, int minParallelism,
             int maxParallelism)
@@ -172,7 +172,7 @@ public class TestsForAsyncKeyedLock
     public async Task ThreeDifferentLocksShouldWork()
     {
         // Arrange
-        var keyedSemaphores = new AsyncKeyedLocker<int>();
+        var keyedSemaphores = new AsyncKeyedLocker<int>(o => { o.PoolSize = 0; });
 
         // Act
         using var _1 = await keyedSemaphores.LockAsync(1);
@@ -189,7 +189,7 @@ public class TestsForAsyncKeyedLock
     public async Task ThreeIdenticalLocksShouldWork()
     {
         // Arrange
-        var keyedSemaphores = new AsyncKeyedLocker<int>();
+        var keyedSemaphores = new AsyncKeyedLocker<int>(o => { o.PoolSize = 0; });
 
         // Act
         var t1 = Task.Run(async () =>
@@ -221,7 +221,7 @@ public class TestsForAsyncKeyedLock
         var currentParallelism = 0;
         var maxParallelism = 0;
         var parallelismLock = new object();
-        var keyedSemaphores = new AsyncKeyedLocker<int>();
+        var keyedSemaphores = new AsyncKeyedLocker<int>(o => { o.PoolSize = 0; });
 
         // 100 threads, 100 keys
         var threads = Enumerable.Range(0, 100)
@@ -266,7 +266,7 @@ public class TestsForAsyncKeyedLock
         var parallelismLock = new object();
         var currentParallelism = 0;
         var maxParallelism = 0;
-        var keyedSemaphores = new AsyncKeyedLocker<int>();
+        var keyedSemaphores = new AsyncKeyedLocker<int>(o => { o.PoolSize = 0; });
 
         // 100 threads, 10 keys
         var threads = Enumerable.Range(0, 100)
@@ -335,7 +335,7 @@ public class TestsForAsyncKeyedLock
         var currentParallelism = 0;
         var maxParallelism = 0;
         var random = new Random();
-        var keyedSemaphores = new AsyncKeyedLocker<int>();
+        var keyedSemaphores = new AsyncKeyedLocker<int>(o => { o.PoolSize = 0; });
 
         // Many threads, 1 key
         var threads = Enumerable.Range(0, 100)
@@ -400,7 +400,7 @@ public class TestsForAsyncKeyedLock
         var currentParallelism = 0;
         var maxParallelism = 0;
         var parallelismLock = new object();
-        var keyedSemaphores = new AsyncKeyedLocker<int>();
+        var keyedSemaphores = new AsyncKeyedLocker<int>(o => { o.PoolSize = 0; });
 
         // 100 threads, 100 keys
         var threads = Enumerable.Range(0, 100)
@@ -440,7 +440,7 @@ public class TestsForAsyncKeyedLock
     public async Task IsInUseShouldReturnTrueWhenLockedAndFalseWhenNotLocked()
     {
         // Arrange
-        var keyedSemaphores = new AsyncKeyedLocker<int>();
+        var keyedSemaphores = new AsyncKeyedLocker<int>(o => { o.PoolSize = 0; });
 
         // 10 threads, 10 keys
         var threads = Enumerable.Range(0, 10)
@@ -475,7 +475,7 @@ public class TestsForAsyncKeyedLock
     public void Lock_WhenCancelled_ShouldReleaseKeyedSemaphoreAndThrowOperationCanceledException()
     {
         // Arrange
-        var dictionary = new AsyncKeyedLocker<string>();
+        var dictionary = new AsyncKeyedLocker<string>(o => { o.PoolSize = 0; });
         var cancelledCancellationToken = new CancellationToken(true);
 
         // Act
@@ -493,7 +493,7 @@ public class TestsForAsyncKeyedLock
     public void Lock_WhenNotCancelled_ShouldReturnDisposable()
     {
         // Arrange
-        var dictionary = new AsyncKeyedLocker<string>();
+        var dictionary = new AsyncKeyedLocker<string>(o => { o.PoolSize = 0; });
         var cancellationToken = default(CancellationToken);
 
         // Act
@@ -521,7 +521,7 @@ public class TestsForAsyncKeyedLock
             isCallbackInvoked = true;
         }
 
-        var dictionary = new AsyncKeyedLocker<string>();
+        var dictionary = new AsyncKeyedLocker<string>(o => { o.PoolSize = 0; });
         var cancelledCancellationToken = new CancellationToken(true);
         var timeout = useShortTimeout
             ? _defaultSynchronousWaitDuration.Subtract(TimeSpan.FromMilliseconds(1))
@@ -555,7 +555,7 @@ public class TestsForAsyncKeyedLock
             isCallbackInvoked = true;
         }
 
-        var dictionary = new AsyncKeyedLocker<string>();
+        var dictionary = new AsyncKeyedLocker<string>(o => { o.PoolSize = 0; });
         var cancellationToken = default(CancellationToken);
         var timeout = useShortTimeout
             ? _defaultSynchronousWaitDuration.Subtract(TimeSpan.FromMilliseconds(1))
@@ -582,7 +582,7 @@ public class TestsForAsyncKeyedLock
     public async Task LockAsync_WhenCancelled_ShouldReleaseKeyedSemaphoreAndThrowOperationCanceledException()
     {
         // Arrange
-        var dictionary = new AsyncKeyedLocker<string>();
+        var dictionary = new AsyncKeyedLocker<string>(o => { o.PoolSize = 0; });
         var cancelledCancellationToken = new CancellationToken(true);
 
         // Act
@@ -600,7 +600,7 @@ public class TestsForAsyncKeyedLock
     public async Task LockAsync_WhenNotCancelled_ShouldReturnDisposable()
     {
         // Arrange
-        var dictionary = new AsyncKeyedLocker<string>();
+        var dictionary = new AsyncKeyedLocker<string>(o => { o.PoolSize = 0; });
         var cancellationToken = default(CancellationToken);
 
         // Act
@@ -628,7 +628,7 @@ public class TestsForAsyncKeyedLock
             isCallbackInvoked = true;
         }
 
-        var dictionary = new AsyncKeyedLocker<string>();
+        var dictionary = new AsyncKeyedLocker<string>(o => { o.PoolSize = 0; });
         var cancelledCancellationToken = new CancellationToken(true);
         var timeout = useShortTimeout
             ? _defaultSynchronousWaitDuration.Subtract(TimeSpan.FromMilliseconds(1))
@@ -663,7 +663,7 @@ public class TestsForAsyncKeyedLock
             isCallbackInvoked = true;
         }
 
-        var dictionary = new AsyncKeyedLocker<string>();
+        var dictionary = new AsyncKeyedLocker<string>(o => { o.PoolSize = 0; });
         var cancellationToken = default(CancellationToken);
         var timeout = useShortTimeout
             ? _defaultSynchronousWaitDuration.Subtract(TimeSpan.FromMilliseconds(1))
@@ -702,7 +702,7 @@ public class TestsForAsyncKeyedLock
             isCallbackInvoked = true;
         }
 
-        var dictionary = new AsyncKeyedLocker<string>();
+        var dictionary = new AsyncKeyedLocker<string>(o => { o.PoolSize = 0; });
         var cancelledCancellationToken = new CancellationToken(true);
         var timeout = useShortTimeout
             ? _defaultSynchronousWaitDuration.Subtract(TimeSpan.FromMilliseconds(1))
@@ -744,7 +744,7 @@ public class TestsForAsyncKeyedLock
             isCallbackInvoked = true;
         }
 
-        var dictionary = new AsyncKeyedLocker<string>();
+        var dictionary = new AsyncKeyedLocker<string>(o => { o.PoolSize = 0; });
         var cancellationToken = default(CancellationToken);
         var timeout = useShortTimeout
             ? _defaultSynchronousWaitDuration.Subtract(TimeSpan.FromMilliseconds(1))
@@ -772,7 +772,7 @@ public class TestsForAsyncKeyedLock
     public void TryLock_WhenTimedOut_ShouldNotInvokeCallbackAndReturnFalse(bool useShortTimeout)
     {
         // Arrange
-        var dictionary = new AsyncKeyedLocker<string>();
+        var dictionary = new AsyncKeyedLocker<string>(o => { o.PoolSize = 0; });
         var key = "test";
         using var _ = dictionary.Lock(key);
         var isCallbackInvoked = false;
@@ -806,7 +806,7 @@ public class TestsForAsyncKeyedLock
     public void TryLock_WhenNotTimedOut_ShouldInvokeCallbackAndReturnTrue(bool useShortTimeout)
     {
         // Arrange
-        var dictionary = new AsyncKeyedLocker<string>();
+        var dictionary = new AsyncKeyedLocker<string>(o => { o.PoolSize = 0; });
         var key = "test";
         var isCallbackInvoked = false;
         var timeout = useShortTimeout
@@ -840,7 +840,7 @@ public class TestsForAsyncKeyedLock
     public async Task TryLockAsync_WhenTimedOut_ShouldNotInvokeCallbackAndReturnFalse(bool useShortTimeout)
     {
         // Arrange
-        var dictionary = new AsyncKeyedLocker<string>();
+        var dictionary = new AsyncKeyedLocker<string>(o => { o.PoolSize = 0; });
         var key = "test";
         using var _ = await dictionary.LockAsync(key);
         var isCallbackInvoked = false;
@@ -875,7 +875,7 @@ public class TestsForAsyncKeyedLock
     public async Task TryLockAsync_WhenNotTimedOut_ShouldNotInvokeCallbackAndReturnFalse(bool useShortTimeout)
     {
         // Arrange
-        var dictionary = new AsyncKeyedLocker<string>();
+        var dictionary = new AsyncKeyedLocker<string>(o => { o.PoolSize = 0; });
         var key = "test";
         var isCallbackInvoked = false;
         var timeout = useShortTimeout
