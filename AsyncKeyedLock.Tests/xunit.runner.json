@@ -5,5 +5,5 @@
   "parallelizeTestCollections": true,
   "stopOnFail": true,
   "showLiveOutput": true,
-  "maxParallelThreads": -1
+  "maxParallelThreads": "0.25x"
 }
