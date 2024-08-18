@@ -2,7 +2,7 @@
   "$schema": "https://xunit.net/schema/current/xunit.runner.schema.json",
   "parallelAlgorithm": "aggressive",
   "parallelizeAssembly": false,
-  "parallelizeTestCollections": false,
+  "parallelizeTestCollections": true,
   "stopOnFail": true,
   "showLiveOutput": true,
   "maxParallelThreads": -1
