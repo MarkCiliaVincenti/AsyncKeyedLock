@@ -8,6 +8,8 @@ namespace AsyncKeyedLock.Tests.AsyncKeyedLocker.KeyedSemaphores.NonPooled;
 /// <summary>
 /// Adapted from https://raw.githubusercontent.com/amoerie/keyed-semaphores/main/KeyedSemaphores.Tests/TestsForKeyedSemaphore.cs and https://raw.githubusercontent.com/amoerie/keyed-semaphores/main/KeyedSemaphores.Tests/TestsForKeyedSemaphoresCollection.cs
 /// </summary>
+[Collection("KeyedSemaphores Tests")]
+[CollectionDefinition("KeyedSemaphores Tests", DisableParallelization = false)]
 public class TestsForAsyncKeyedLock
 {
     private readonly ITestOutputHelper _output;
@@ -19,6 +21,8 @@ public class TestsForAsyncKeyedLock
         _output = output ?? throw new ArgumentNullException(nameof(output));
     }
 
+    [Collection("KeyedSemaphores Tests")]
+    [CollectionDefinition("KeyedSemaphores Tests", DisableParallelization = false)]
     public class Async : TestsForAsyncKeyedLock
     {
         public Async(ITestOutputHelper output) : base(output) { }
@@ -93,6 +97,8 @@ public class TestsForAsyncKeyedLock
         }
     }
 
+    [Collection("KeyedSemaphores Tests")]
+    [CollectionDefinition("KeyedSemaphores Tests", DisableParallelization = false)]
     public class Sync : TestsForAsyncKeyedLock
     {
         public Sync(ITestOutputHelper output) : base(output) { }

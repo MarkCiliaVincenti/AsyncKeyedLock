@@ -8,6 +8,8 @@ namespace AsyncKeyedLock.Tests.StripedAsyncKeyedLocker.KeyedSemaphores;
 /// <summary>
 /// Adapted from https://raw.githubusercontent.com/amoerie/keyed-semaphores/main/KeyedSemaphores.Tests/TestsForKeyedSemaphore.cs and https://raw.githubusercontent.com/amoerie/keyed-semaphores/main/KeyedSemaphores.Tests/TestsForKeyedSemaphoresCollection.cs
 /// </summary>
+[Collection("KeyedSemaphore Tests")]
+[CollectionDefinition("KeyedSemaphore Tests", DisableParallelization = false)]
 public class TestsForStripedAsyncKeyedLock
 {
     private readonly ITestOutputHelper _output;
@@ -19,6 +21,8 @@ public class TestsForStripedAsyncKeyedLock
         _output = output ?? throw new ArgumentNullException(nameof(output));
     }
 
+    [Collection("KeyedSemaphore Tests")]
+    [CollectionDefinition("KeyedSemaphore Tests", DisableParallelization = false)]
     public class Async : TestsForStripedAsyncKeyedLock
     {
         public Async(ITestOutputHelper output) : base(output) { }
@@ -93,6 +97,8 @@ public class TestsForStripedAsyncKeyedLock
         }
     }
 
+    [Collection("KeyedSemaphore Tests")]
+    [CollectionDefinition("KeyedSemaphore Tests", DisableParallelization = false)]
     public class Sync : TestsForStripedAsyncKeyedLock
     {
         public Sync(ITestOutputHelper output) : base(output) { }

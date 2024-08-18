@@ -3,6 +3,8 @@ using Xunit;
 
 namespace AsyncKeyedLock.Tests.AsyncNonKeyedLockerTests
 {
+    [Collection("NonKeyed Tests")]
+    [CollectionDefinition("NonKeyed Tests", DisableParallelization = false)]
     public class OriginalTests
     {
         [Fact]
