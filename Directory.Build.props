@@ -1,0 +1,14 @@
+<Project>
+  <PropertyGroup>
+	  <LangVersion>preview</LangVersion>
+	  <SuppressNETCoreSdkPreviewMessage>true</SuppressNETCoreSdkPreviewMessage>
+	  <CheckNotRecommendedTargetFramework>false</CheckNotRecommendedTargetFramework>
+	  <CheckEolTargetFramework>false</CheckEolTargetFramework>
+  </PropertyGroup>
+  <PropertyGroup Condition="$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'net6.0'))">
+	<DefineConstants>TRIMMING_COMPATIBLE</DefineConstants>
+  </PropertyGroup>
+  <PropertyGroup Condition="$([MSBuild]::IsTargetFrameworkCompatible('$(TargetFramework)', 'net7.0'))">
+	<DefineConstants>AOT_COMPATIBLE</DefineConstants>
+  </PropertyGroup>
+</Project>
