@@ -42,6 +42,6 @@
         /// Default lock options for the <see cref="AsyncKeyedLocker"/> constructors.
         /// Sets <see cref="MaxCount"/> to 1, <see cref="PoolSize"/> to 20 and <see cref="PoolInitialFill"/> to 1.
         /// </summary>
-        public static AsyncKeyedLockOptions Default => new AsyncKeyedLockOptions();
+        public static AsyncKeyedLockOptions Default => new();
     }
 }
