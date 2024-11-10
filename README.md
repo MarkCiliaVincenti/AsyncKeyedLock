@@ -22,6 +22,22 @@ using (await _asyncKeyedLocker.LockAsync("test123"))
 }
 ```
 
+or with timeouts:
+```csharp
+private static readonly AsyncKeyedLocker<string> _asyncKeyedLocker = new();
+private const _timeout = 100;
+
+...
+
+using (var releaser = await _asyncKeyedLocker.LockOrNullAsync("test123", _timeout))
+{
+  if (releaser is not null)
+  {
+    ...
+  }
+}
+```
+
 This libary also supports conditional locking, whether for `AsyncKeyedLocker`, `StripedAsyncKeyedLocker` or `AsyncNonKeyedLocker`. This could provide a workaround for `reentrancy` in some scenarios for example in recursion:
 ```csharp
 double factorial = Factorial(number);

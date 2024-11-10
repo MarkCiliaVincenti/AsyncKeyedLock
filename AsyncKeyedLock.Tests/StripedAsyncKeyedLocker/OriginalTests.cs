@@ -88,7 +88,7 @@ namespace AsyncKeyedLock.Tests.StripedAsyncKeyedLocker
 
             double Factorial(int number, bool isFirst = true)
             {
-                using (asyncKeyedLocker.ConditionalLock("test123", isFirst, Timeout.Infinite, out _))
+                using (asyncKeyedLocker.ConditionalLock("test123", isFirst, Timeout.Infinite))
                 {
                     if (number == 0)
                         return 1;
@@ -124,7 +124,7 @@ namespace AsyncKeyedLock.Tests.StripedAsyncKeyedLocker
 
             double Factorial(int number, bool isFirst = true)
             {
-                using (asyncKeyedLocker.ConditionalLock("test123", isFirst, TimeSpan.Zero, out _))
+                using (asyncKeyedLocker.ConditionalLock("test123", isFirst, TimeSpan.Zero))
                 {
                     if (number == 0)
                         return 1;
@@ -160,7 +160,7 @@ namespace AsyncKeyedLock.Tests.StripedAsyncKeyedLocker
 
             double Factorial(int number, bool isFirst = true)
             {
-                using (asyncKeyedLocker.ConditionalLock("test123", isFirst, Timeout.Infinite, new CancellationToken(false), out _))
+                using (asyncKeyedLocker.ConditionalLock("test123", isFirst, Timeout.Infinite, new CancellationToken(false)))
                 {
                     if (number == 0)
                         return 1;
@@ -196,7 +196,7 @@ namespace AsyncKeyedLock.Tests.StripedAsyncKeyedLocker
 
             double Factorial(int number, bool isFirst = true)
             {
-                using (asyncKeyedLocker.ConditionalLock("test123", isFirst, TimeSpan.Zero, new CancellationToken(false), out _))
+                using (asyncKeyedLocker.ConditionalLock("test123", isFirst, TimeSpan.Zero, new CancellationToken(false)))
                 {
                     if (number == 0)
                         return 1;
@@ -368,6 +368,18 @@ namespace AsyncKeyedLock.Tests.StripedAsyncKeyedLocker
         }
 
         [Fact]
+        public async Task TestTimeoutOrNullBasic()
+        {
+            var stripedAsyncKeyedLocker = new StripedAsyncKeyedLocker<string>();
+            using (var myLock = await stripedAsyncKeyedLocker.LockOrNullAsync("test", 0))
+            {
+                Assert.NotNull(myLock);
+                Assert.True(stripedAsyncKeyedLocker.IsInUse("test"));
+            }
+            Assert.False(stripedAsyncKeyedLocker.IsInUse("test"));
+        }
+
+        [Fact]
         public void TestTimeoutBasicWithOutParameter()
         {
             var stripedAsyncKeyedLocker = new StripedAsyncKeyedLocker<string>();
@@ -384,6 +396,22 @@ namespace AsyncKeyedLock.Tests.StripedAsyncKeyedLocker
         }
 
         [Fact]
+        public void TestTimeoutOrNullBasicWithOutParameter()
+        {
+            var stripedAsyncKeyedLocker = new StripedAsyncKeyedLocker<string>();
+            using (var myLock = stripedAsyncKeyedLocker.LockOrNull("test", 0))
+            {
+                Assert.NotNull(myLock);
+                Assert.True(stripedAsyncKeyedLocker.IsInUse("test"));
+                var entered = stripedAsyncKeyedLocker.LockOrNull("test", 0);
+                Assert.Null(entered);
+                entered = stripedAsyncKeyedLocker.LockOrNull("test", TimeSpan.Zero);
+                Assert.Null(entered);
+            }
+            Assert.False(stripedAsyncKeyedLocker.IsInUse("test"));
+        }
+
+        [Fact]
         public async Task TestTimeout()
         {
             var stripedAsyncKeyedLocker = new StripedAsyncKeyedLocker<string>();
@@ -392,6 +420,21 @@ namespace AsyncKeyedLock.Tests.StripedAsyncKeyedLocker
                 using (var myLock = await stripedAsyncKeyedLocker.LockAsync("test", 0))
                 {
                     Assert.False(myLock.EnteredSemaphore);
+                }
+                Assert.True(stripedAsyncKeyedLocker.IsInUse("test"));
+            }
+            Assert.False(stripedAsyncKeyedLocker.IsInUse("test"));
+        }
+
+        [Fact]
+        public async Task TestTimeoutOrNull()
+        {
+            var stripedAsyncKeyedLocker = new StripedAsyncKeyedLocker<string>();
+            using (await stripedAsyncKeyedLocker.LockAsync("test"))
+            {
+                using (var myLock = await stripedAsyncKeyedLocker.LockOrNullAsync("test", 0))
+                {
+                    Assert.Null(myLock);
                 }
                 Assert.True(stripedAsyncKeyedLocker.IsInUse("test"));
             }
@@ -414,6 +457,21 @@ namespace AsyncKeyedLock.Tests.StripedAsyncKeyedLocker
         }
 
         [Fact]
+        public void TestTimeoutOrNullWithTimeSpanSynchronous()
+        {
+            var stripedAsyncKeyedLocker = new StripedAsyncKeyedLocker<string>();
+            using (stripedAsyncKeyedLocker.Lock("test"))
+            {
+                using (var result = stripedAsyncKeyedLocker.LockOrNull("test", TimeSpan.Zero))
+                {
+                    Assert.Null(result);
+                }
+                Assert.True(stripedAsyncKeyedLocker.IsInUse("test"));
+            }
+            Assert.False(stripedAsyncKeyedLocker.IsInUse("test"));
+        }
+
+        [Fact]
         public void TestTimeoutWithInfiniteTimeoutSynchronous()
         {
             var stripedAsyncKeyedLocker = new StripedAsyncKeyedLocker<string>();
@@ -426,12 +484,36 @@ namespace AsyncKeyedLock.Tests.StripedAsyncKeyedLocker
         }
 
         [Fact]
+        public void TestTimeoutOrNullWithInfiniteTimeoutSynchronous()
+        {
+            var stripedAsyncKeyedLocker = new StripedAsyncKeyedLocker<string>();
+            using (var result = stripedAsyncKeyedLocker.LockOrNull("test", Timeout.Infinite))
+            {
+                Assert.NotNull(result);
+                Assert.True(stripedAsyncKeyedLocker.IsInUse("test"));
+            }
+            Assert.False(stripedAsyncKeyedLocker.IsInUse("test"));
+        }
+
+        [Fact]
         public void TestTimeoutWithInfiniteTimeSpanSynchronous()
         {
             var stripedAsyncKeyedLocker = new StripedAsyncKeyedLocker<string>();
             using (stripedAsyncKeyedLocker.Lock("test", TimeSpan.FromMilliseconds(Timeout.Infinite), out bool entered))
             {
                 Assert.True(entered);
+                Assert.True(stripedAsyncKeyedLocker.IsInUse("test"));
+            }
+            Assert.False(stripedAsyncKeyedLocker.IsInUse("test"));
+        }
+
+        [Fact]
+        public void TestTimeoutOrNullWithInfiniteTimeSpanSynchronous()
+        {
+            var stripedAsyncKeyedLocker = new StripedAsyncKeyedLocker<string>();
+            using (var result = stripedAsyncKeyedLocker.LockOrNull("test", TimeSpan.FromMilliseconds(Timeout.Infinite)))
+            {
+                Assert.NotNull(result);
                 Assert.True(stripedAsyncKeyedLocker.IsInUse("test"));
             }
             Assert.False(stripedAsyncKeyedLocker.IsInUse("test"));
@@ -453,12 +535,39 @@ namespace AsyncKeyedLock.Tests.StripedAsyncKeyedLocker
         }
 
         [Fact]
+        public async Task TestTimeoutOrNullWithTimeSpan()
+        {
+            var stripedAsyncKeyedLocker = new StripedAsyncKeyedLocker<string>();
+            using (await stripedAsyncKeyedLocker.LockAsync("test"))
+            {
+                using (var myLock = await stripedAsyncKeyedLocker.LockOrNullAsync("test", TimeSpan.Zero))
+                {
+                    Assert.Null(myLock);
+                }
+                Assert.True(stripedAsyncKeyedLocker.IsInUse("test"));
+            }
+            Assert.False(stripedAsyncKeyedLocker.IsInUse("test"));
+        }
+
+        [Fact]
         public void TestTimeoutWithInfiniteTimeoutAndCancellationToken()
         {
             var stripedAsyncKeyedLocker = new StripedAsyncKeyedLocker<string>();
             using (stripedAsyncKeyedLocker.Lock("test", Timeout.Infinite, new CancellationToken(false), out bool entered))
             {
                 Assert.True(entered);
+                Assert.True(stripedAsyncKeyedLocker.IsInUse("test"));
+            }
+            Assert.False(stripedAsyncKeyedLocker.IsInUse("test"));
+        }
+
+        [Fact]
+        public void TestTimeoutOrNullWithInfiniteTimeoutAndCancellationToken()
+        {
+            var stripedAsyncKeyedLocker = new StripedAsyncKeyedLocker<string>();
+            using (var result = stripedAsyncKeyedLocker.LockOrNull("test", Timeout.Infinite, new CancellationToken(false)))
+            {
+                Assert.NotNull(result);
                 Assert.True(stripedAsyncKeyedLocker.IsInUse("test"));
             }
             Assert.False(stripedAsyncKeyedLocker.IsInUse("test"));
@@ -481,12 +590,40 @@ namespace AsyncKeyedLock.Tests.StripedAsyncKeyedLocker
         }
 
         [Fact]
+        public void TestTimeoutOrNullWithZeroTimeoutAndCancellationToken()
+        {
+            var stripedAsyncKeyedLocker = new StripedAsyncKeyedLocker<string>();
+            using (var result = stripedAsyncKeyedLocker.LockOrNull("test", 0, new CancellationToken(false)))
+            {
+                Assert.NotNull(result);
+                Assert.True(stripedAsyncKeyedLocker.IsInUse("test"));
+                var entered = stripedAsyncKeyedLocker.LockOrNull("test", 0, new CancellationToken(false));
+                Assert.Null(entered);
+                entered = stripedAsyncKeyedLocker.LockOrNull("test", TimeSpan.Zero, new CancellationToken(false));
+                Assert.Null(entered);
+            }
+            Assert.False(stripedAsyncKeyedLocker.IsInUse("test"));
+        }
+
+        [Fact]
         public void TestTimeoutWithZeroTimeoutAndCancelledToken()
         {
             var stripedAsyncKeyedLocker = new StripedAsyncKeyedLocker<string>();
             Action action = () =>
             {
                 stripedAsyncKeyedLocker.Lock("test", 0, new CancellationToken(true), out bool entered);
+            };
+            action.Should().Throw<OperationCanceledException>();
+            stripedAsyncKeyedLocker.IsInUse("test").Should().BeFalse();
+        }
+
+        [Fact]
+        public void TestTimeoutOrNullWithZeroTimeoutAndCancelledToken()
+        {
+            var stripedAsyncKeyedLocker = new StripedAsyncKeyedLocker<string>();
+            Action action = () =>
+            {
+                stripedAsyncKeyedLocker.LockOrNull("test", 0, new CancellationToken(true));
             };
             action.Should().Throw<OperationCanceledException>();
             stripedAsyncKeyedLocker.IsInUse("test").Should().BeFalse();
@@ -505,12 +642,36 @@ namespace AsyncKeyedLock.Tests.StripedAsyncKeyedLocker
         }
 
         [Fact]
+        public void TestTimeoutOrNullWithInfiniteTimeSpanAndCancellationToken()
+        {
+            var stripedAsyncKeyedLocker = new StripedAsyncKeyedLocker<string>();
+            using (var result = stripedAsyncKeyedLocker.LockOrNull("test", TimeSpan.FromMilliseconds(Timeout.Infinite), new CancellationToken(false)))
+            {
+                Assert.NotNull(result);
+                Assert.True(stripedAsyncKeyedLocker.IsInUse("test"));
+            }
+            Assert.False(stripedAsyncKeyedLocker.IsInUse("test"));
+        }
+
+        [Fact]
         public void TestTimeoutWithZeroTimeSpanAndCancellationToken()
         {
             var stripedAsyncKeyedLocker = new StripedAsyncKeyedLocker<string>();
             using (stripedAsyncKeyedLocker.Lock("test", TimeSpan.FromMilliseconds(0), new CancellationToken(false), out bool entered))
             {
                 Assert.True(entered);
+                Assert.True(stripedAsyncKeyedLocker.IsInUse("test"));
+            }
+            Assert.False(stripedAsyncKeyedLocker.IsInUse("test"));
+        }
+
+        [Fact]
+        public void TestTimeoutOrNullWithZeroTimeSpanAndCancellationToken()
+        {
+            var stripedAsyncKeyedLocker = new StripedAsyncKeyedLocker<string>();
+            using (var result = stripedAsyncKeyedLocker.LockOrNull("test", TimeSpan.FromMilliseconds(0), new CancellationToken(false)))
+            {
+                Assert.NotNull(result);
                 Assert.True(stripedAsyncKeyedLocker.IsInUse("test"));
             }
             Assert.False(stripedAsyncKeyedLocker.IsInUse("test"));
@@ -529,12 +690,38 @@ namespace AsyncKeyedLock.Tests.StripedAsyncKeyedLocker
         }
 
         [Fact]
+        public void TestTimeoutOrNullWithZeroTimeSpanAndCancelledToken()
+        {
+            var stripedAsyncKeyedLocker = new StripedAsyncKeyedLocker<string>();
+            Action action = () =>
+            {
+                stripedAsyncKeyedLocker.LockOrNull("test", TimeSpan.FromMilliseconds(0), new CancellationToken(true));
+            };
+            action.Should().Throw<OperationCanceledException>();
+            stripedAsyncKeyedLocker.IsInUse("test").Should().BeFalse();
+        }
+
+        [Fact]
         public void TestTimeoutTryLock()
         {
             var stripedAsyncKeyedLocker = new StripedAsyncKeyedLocker<string>();
             using (stripedAsyncKeyedLocker.Lock("test", TimeSpan.Zero, out bool entered))
             {
                 Assert.True(entered);
+                Assert.True(stripedAsyncKeyedLocker.IsInUse("test"));
+                Assert.False(stripedAsyncKeyedLocker.TryLock("test", () => { }, 0, CancellationToken.None));
+                Assert.False(stripedAsyncKeyedLocker.TryLock("test", () => { }, TimeSpan.Zero, CancellationToken.None));
+            }
+            Assert.False(stripedAsyncKeyedLocker.IsInUse("test"));
+        }
+
+        [Fact]
+        public void TestTimeoutOrNullTryLock()
+        {
+            var stripedAsyncKeyedLocker = new StripedAsyncKeyedLocker<string>();
+            using (var result = stripedAsyncKeyedLocker.LockOrNull("test", TimeSpan.Zero))
+            {
+                Assert.NotNull(result);
                 Assert.True(stripedAsyncKeyedLocker.IsInUse("test"));
                 Assert.False(stripedAsyncKeyedLocker.TryLock("test", () => { }, 0, CancellationToken.None));
                 Assert.False(stripedAsyncKeyedLocker.TryLock("test", () => { }, TimeSpan.Zero, CancellationToken.None));
