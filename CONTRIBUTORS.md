@@ -9,4 +9,4 @@
 * [Theodor Zoulias](https://github.com/theodorzoulias) for his valued help with race conditions
 * [MagicAndre1981](https://github.com/MagicAndre1981) for enabling deterministic builds
 * [c0nd3v](https://github.com/c0nd3v) for allowing optionally passing on continueOnCapturedContext
-* [Jody Donetti](https://github.com/jodydonetti) for his idea for LockOrNull
+* [Jody Donetti](https://github.com/jodydonetti) for his idea for LockOrNull / LockOrNullAsync
