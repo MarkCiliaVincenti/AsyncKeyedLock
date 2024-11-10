@@ -498,10 +498,11 @@ namespace AsyncKeyedLock.Tests.AsyncKeyedLocker
             {
                 Assert.True(entered);
                 Assert.True(asyncKeyedLocker.IsInUse("test"));
-                asyncKeyedLocker.Lock("test", 0, out entered);
-                Assert.False(entered);
-                asyncKeyedLocker.Lock("test", TimeSpan.Zero, out entered);
-                Assert.False(entered);
+                using (asyncKeyedLocker.Lock("test", 0, out entered))
+                    Assert.False(entered);
+                using (asyncKeyedLocker.Lock("test", TimeSpan.Zero, out entered))
+                    Assert.False(entered);
+                Assert.True(asyncKeyedLocker.IsInUse("test"));
             }
             Assert.False(asyncKeyedLocker.IsInUse("test"));
         }
