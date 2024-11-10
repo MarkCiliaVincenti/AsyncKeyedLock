@@ -7,7 +7,7 @@
 		<PackageProjectUrl>https://github.com/MarkCiliaVincenti/AsyncKeyedLock</PackageProjectUrl>
 		<Copyright>MIT</Copyright>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
-		<Version>7.1.0</Version>
+		<Version>7.1.1</Version>
 		<Nullable>Enable</Nullable>
 		<PackageIcon>logo.png</PackageIcon>
 		<PackageReleaseNotes>Performance improvements for timeout-based locking and StripedAsyncKeyedLocker; fixes in ConditionalLocks.</PackageReleaseNotes>
@@ -16,8 +16,8 @@
 		<PackageTags>async,lock,key,keyed,semaphore,striped,dictionary,concurrentdictionary,pooling,duplicate,synchronization</PackageTags>
 		<RepositoryType>git</RepositoryType>
 		<GeneratePackageOnBuild>false</GeneratePackageOnBuild>
-		<AssemblyVersion>7.1.0.0</AssemblyVersion>
-		<FileVersion>7.1.0.0</FileVersion>
+		<AssemblyVersion>7.1.1.0</AssemblyVersion>
+		<FileVersion>7.1.1.0</FileVersion>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
 		<IsPackable>true</IsPackable>
 		<EnforceCodeStyleInBuild>True</EnforceCodeStyleInBuild>
