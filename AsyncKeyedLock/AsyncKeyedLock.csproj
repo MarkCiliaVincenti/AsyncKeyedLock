@@ -10,7 +10,7 @@
 		<Version>7.1.3</Version>
 		<Nullable>Enable</Nullable>
 		<PackageIcon>logo.png</PackageIcon>
-		<PackageReleaseNotes>Fix null check for AsyncNonKeyedLockReleaser.</PackageReleaseNotes>
+		<PackageReleaseNotes>Performance improvements for timeout-based locking and StripedAsyncKeyedLocker; fixes in ConditionalLocks.</PackageReleaseNotes>
 		<Description>An asynchronous .NET Standard 2.0 library that allows you to lock based on a key (keyed semaphores), limiting concurrent threads sharing the same key to a specified number, with optional pooling for reducing memory allocations.</Description>
 		<Copyright>© 2024 Mark Cilia Vincenti</Copyright>
 		<PackageTags>async,lock,key,keyed,semaphore,striped,dictionary,concurrentdictionary,pooling,duplicate,synchronization</PackageTags>
