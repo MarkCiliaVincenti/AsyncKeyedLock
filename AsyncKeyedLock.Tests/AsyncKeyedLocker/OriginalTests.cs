@@ -491,6 +491,22 @@ namespace AsyncKeyedLock.Tests.AsyncKeyedLocker
         }
 
         [Fact]
+        public void TestTimeoutBasicWithOutParameter()
+        {
+            var asyncKeyedLocker = new AsyncKeyedLocker<string>(o => { o.PoolSize = 0; });
+            using (var myLock = asyncKeyedLocker.Lock("test", 0, out var entered))
+            {
+                Assert.True(entered);
+                Assert.True(asyncKeyedLocker.IsInUse("test"));
+                asyncKeyedLocker.Lock("test", 0, out entered);
+                Assert.False(entered);
+                asyncKeyedLocker.Lock("test", TimeSpan.Zero, out entered);
+                Assert.False(entered);
+            }
+            Assert.False(asyncKeyedLocker.IsInUse("test"));
+        }
+
+        [Fact]
         public void TestTimeoutOrNullBasicWithOutParameter()
         {
             var asyncKeyedLocker = new AsyncKeyedLocker<string>(o => { o.PoolSize = 0; });
@@ -498,6 +514,10 @@ namespace AsyncKeyedLock.Tests.AsyncKeyedLocker
             {
                 Assert.NotNull(myLock);
                 Assert.True(asyncKeyedLocker.IsInUse("test"));
+                var entered = asyncKeyedLocker.LockOrNull("test", 0);
+                Assert.Null(entered);
+                entered = asyncKeyedLocker.LockOrNull("test", TimeSpan.Zero);
+                Assert.Null(entered);
             }
             Assert.False(asyncKeyedLocker.IsInUse("test"));
         }
