@@ -59,6 +59,7 @@ namespace AsyncKeyedLock
         /// <param name="millisecondsTimeout">The number of milliseconds to wait, <see cref="Timeout.Infinite"/> (-1) to wait indefinitely, or zero to test the state of the wait handle and return immediately.</param>
         /// <param name="entered">An out parameter showing whether or not the semaphore was entered.</param>
         /// <returns>A disposable value.</returns>
+        [Obsolete("Use LockOrNull method instead as it is more performant.")]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public IDisposable Lock(int millisecondsTimeout, out bool entered)
         {
@@ -78,6 +79,7 @@ namespace AsyncKeyedLock
         /// <param name="timeout">A <see cref="TimeSpan"/> that represents the number of milliseconds to wait, a <see cref="TimeSpan"/> that represents -1 milliseconds to wait indefinitely, or a <see cref="TimeSpan"/> that represents 0 milliseconds to test the wait handle and return immediately.</param>
         /// <param name="entered">An out parameter showing whether or not the semaphore was entered.</param>
         /// <returns>A disposable value.</returns>
+        [Obsolete("Use LockOrNull method instead as it is more performant.")]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public IDisposable Lock(TimeSpan timeout, out bool entered)
         {
@@ -98,6 +100,7 @@ namespace AsyncKeyedLock
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> to observe.</param>
         /// <param name="entered">An out parameter showing whether or not the semaphore was entered.</param>
         /// <returns>A disposable value.</returns>
+        [Obsolete("Use LockOrNull method instead as it is more performant.")]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public IDisposable Lock(int millisecondsTimeout, CancellationToken cancellationToken, out bool entered)
         {
@@ -116,7 +119,7 @@ namespace AsyncKeyedLock
             {
                 entered = false;
                 throw;
-            }            
+            }
         }
 
         /// <summary>
@@ -126,6 +129,7 @@ namespace AsyncKeyedLock
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> to observe.</param>
         /// <param name="entered">An out parameter showing whether or not the semaphore was entered.</param>
         /// <returns>A disposable value.</returns>
+        [Obsolete("Use LockOrNull method instead as it is more performant.")]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public IDisposable Lock(TimeSpan timeout, CancellationToken cancellationToken, out bool entered)
         {
@@ -145,6 +149,68 @@ namespace AsyncKeyedLock
                 entered = false;
                 throw;
             }
+        }
+
+        /// <summary>
+        /// Synchronously lock, setting a limit for the number of milliseconds to wait.
+        /// </summary>
+        /// <param name="millisecondsTimeout">The number of milliseconds to wait, <see cref="Timeout.Infinite"/> (-1) to wait indefinitely, or zero to test the state of the wait handle and return immediately.</param>
+        /// <returns>A disposable value if entered, otherwise null.</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public IDisposable? LockOrNull(int millisecondsTimeout)
+        {
+            if (_semaphoreSlim.Wait(millisecondsTimeout))
+            {
+                return new AsyncNonKeyedLockReleaser(this);
+            }
+            return null;
+        }
+
+        /// <summary>
+        /// Synchronously lock, setting a limit for the <see cref="TimeSpan"/> to wait.
+        /// </summary>
+        /// <param name="timeout">A <see cref="TimeSpan"/> that represents the number of milliseconds to wait, a <see cref="TimeSpan"/> that represents -1 milliseconds to wait indefinitely, or a <see cref="TimeSpan"/> that represents 0 milliseconds to test the wait handle and return immediately.</param>
+        /// <returns>A disposable value if entered, otherwise null.</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public IDisposable? LockOrNull(TimeSpan timeout)
+        {
+            if (_semaphoreSlim.Wait(timeout))
+            {
+                return new AsyncNonKeyedLockReleaser(this);
+            }
+            return null;
+        }
+
+        /// <summary>
+        /// Synchronously lock, setting a limit for the number of milliseconds to wait, while observing a <see cref="CancellationToken"/>.
+        /// </summary>
+        /// <param name="millisecondsTimeout">The number of milliseconds to wait, <see cref="Timeout.Infinite"/> (-1) to wait indefinitely, or zero to test the state of the wait handle and return immediately.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> to observe.</param>
+        /// <returns>A disposable value if entered, otherwise null.</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public IDisposable? LockOrNull(int millisecondsTimeout, CancellationToken cancellationToken)
+        {
+            if (_semaphoreSlim.Wait(millisecondsTimeout, cancellationToken))
+            {
+                return new AsyncNonKeyedLockReleaser(this);
+            }
+            return null;
+        }
+
+        /// <summary>
+        /// Synchronously lock, setting a limit for the <see cref="System.TimeSpan"/> to wait, while observing a <see cref="CancellationToken"/>.
+        /// </summary>
+        /// <param name="timeout">A <see cref="TimeSpan"/> that represents the number of milliseconds to wait, a <see cref="TimeSpan"/> that represents -1 milliseconds to wait indefinitely, or a <see cref="TimeSpan"/> that represents 0 milliseconds to test the wait handle and return immediately.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> to observe.</param>
+        /// <returns>A disposable value if entered, otherwise null.</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public IDisposable? LockOrNull(TimeSpan timeout, CancellationToken cancellationToken)
+        {
+            if (_semaphoreSlim.Wait(timeout, cancellationToken))
+            {
+                return new AsyncNonKeyedLockReleaser(this);
+            }
+            return null;
         }
         #endregion Synchronous
 
@@ -180,6 +246,7 @@ namespace AsyncKeyedLock
         /// <param name="millisecondsTimeout">The number of milliseconds to wait, <see cref="Timeout.Infinite"/> (-1) to wait indefinitely, or zero to test the state of the wait handle and return immediately.</param>
         /// <param name="continueOnCapturedContext">true to attempt to marshal the continuation back to the original context captured; otherwise, false. Defaults to false.</param>
         /// <returns>A disposable value of type <see cref="AsyncNonKeyedLockTimeoutReleaser"/>.</returns>
+        [Obsolete("Use LockOrNullAsync method instead as it is more performant.")]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public async ValueTask<AsyncNonKeyedLockTimeoutReleaser> LockAsync(int millisecondsTimeout, bool continueOnCapturedContext = false)
         {
@@ -193,6 +260,7 @@ namespace AsyncKeyedLock
         /// <param name="timeout">A <see cref="TimeSpan"/> that represents the number of milliseconds to wait, a <see cref="TimeSpan"/> that represents -1 milliseconds to wait indefinitely, or a <see cref="TimeSpan"/> that represents 0 milliseconds to test the wait handle and return immediately.</param>
         /// <param name="continueOnCapturedContext">true to attempt to marshal the continuation back to the original context captured; otherwise, false. Defaults to false.</param>
         /// <returns>A disposable value of type <see cref="AsyncNonKeyedLockTimeoutReleaser"/>.</returns>
+        [Obsolete("Use LockOrNullAsync method instead as it is more performant.")]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public async ValueTask<AsyncNonKeyedLockTimeoutReleaser> LockAsync(TimeSpan timeout, bool continueOnCapturedContext = false)
         {
@@ -207,6 +275,7 @@ namespace AsyncKeyedLock
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> to observe.</param>
         /// <param name="continueOnCapturedContext">true to attempt to marshal the continuation back to the original context captured; otherwise, false. Defaults to false.</param>
         /// <returns>A disposable value of type <see cref="AsyncNonKeyedLockTimeoutReleaser"/>.</returns>
+        [Obsolete("Use LockOrNullAsync method instead as it is more performant.")]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public async ValueTask<AsyncNonKeyedLockTimeoutReleaser> LockAsync(int millisecondsTimeout, CancellationToken cancellationToken, bool continueOnCapturedContext = false)
         {
@@ -229,6 +298,7 @@ namespace AsyncKeyedLock
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> to observe.</param>
         /// <param name="continueOnCapturedContext">true to attempt to marshal the continuation back to the original context captured; otherwise, false. Defaults to false.</param>
         /// <returns>A disposable value of type <see cref="AsyncNonKeyedLockTimeoutReleaser"/>.</returns>
+        [Obsolete("Use LockOrNullAsync method instead as it is more performant.")]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public async ValueTask<AsyncNonKeyedLockTimeoutReleaser> LockAsync(TimeSpan timeout, CancellationToken cancellationToken, bool continueOnCapturedContext = false)
         {
@@ -242,6 +312,72 @@ namespace AsyncKeyedLock
                 return new AsyncNonKeyedLockTimeoutReleaser(this, false);
                 throw;
             }
+        }
+
+        /// <summary>
+        /// Asynchronously lock, setting a limit for the number of milliseconds to wait.
+        /// </summary>
+        /// <param name="millisecondsTimeout">The number of milliseconds to wait, <see cref="Timeout.Infinite"/> (-1) to wait indefinitely, or zero to test the state of the wait handle and return immediately.</param>
+        /// <param name="continueOnCapturedContext">true to attempt to marshal the continuation back to the original context captured; otherwise, false. Defaults to false.</param>
+        /// <returns>A disposable value if entered, otherwise null.</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public async ValueTask<IDisposable?> LockOrNullAsync(int millisecondsTimeout, bool continueOnCapturedContext = false)
+        {
+            if (await _semaphoreSlim.WaitAsync(millisecondsTimeout).ConfigureAwait(continueOnCapturedContext))
+            {
+                return new AsyncNonKeyedLockReleaser(this);
+            }
+            return null;
+        }
+
+        /// <summary>
+        /// Asynchronously lock, setting a limit for the <see cref="TimeSpan"/> to wait.
+        /// </summary>
+        /// <param name="timeout">A <see cref="TimeSpan"/> that represents the number of milliseconds to wait, a <see cref="TimeSpan"/> that represents -1 milliseconds to wait indefinitely, or a <see cref="TimeSpan"/> that represents 0 milliseconds to test the wait handle and return immediately.</param>
+        /// <param name="continueOnCapturedContext">true to attempt to marshal the continuation back to the original context captured; otherwise, false. Defaults to false.</param>
+        /// <returns>A disposable value if entered, otherwise null.</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public async ValueTask<IDisposable?> LockOrNullAsync(TimeSpan timeout, bool continueOnCapturedContext = false)
+        {
+            if (await _semaphoreSlim.WaitAsync(timeout).ConfigureAwait(continueOnCapturedContext))
+            {
+                return new AsyncNonKeyedLockReleaser(this);
+            }
+            return null;
+        }
+
+        /// <summary>
+        /// Asynchronously lock, setting a limit for the number of milliseconds to wait, while observing a <see cref="CancellationToken"/>.
+        /// </summary>
+        /// <param name="millisecondsTimeout">The number of milliseconds to wait, <see cref="Timeout.Infinite"/> (-1) to wait indefinitely, or zero to test the state of the wait handle and return immediately.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> to observe.</param>
+        /// <param name="continueOnCapturedContext">true to attempt to marshal the continuation back to the original context captured; otherwise, false. Defaults to false.</param>
+        /// <returns>A disposable value if entered, otherwise null.</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public async ValueTask<IDisposable?> LockOrNullAsync(int millisecondsTimeout, CancellationToken cancellationToken, bool continueOnCapturedContext = false)
+        {
+            if (await _semaphoreSlim.WaitAsync(millisecondsTimeout, cancellationToken).ConfigureAwait(continueOnCapturedContext))
+            {
+                return new AsyncNonKeyedLockReleaser(this);
+            }
+            return null;
+        }
+
+        /// <summary>
+        /// Asynchronously lock, setting a limit for the <see cref="System.TimeSpan"/> to wait, while observing a <see cref="CancellationToken"/>.
+        /// </summary>
+        /// <param name="timeout">A <see cref="TimeSpan"/> that represents the number of milliseconds to wait, a <see cref="TimeSpan"/> that represents -1 milliseconds to wait indefinitely, or a <see cref="TimeSpan"/> that represents 0 milliseconds to test the wait handle and return immediately.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> to observe.</param>
+        /// <param name="continueOnCapturedContext">true to attempt to marshal the continuation back to the original context captured; otherwise, false. Defaults to false.</param>
+        /// <returns>A disposable value if entered, otherwise null.</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public async ValueTask<IDisposable?> LockOrNullAsync(TimeSpan timeout, CancellationToken cancellationToken, bool continueOnCapturedContext = false)
+        {
+            if (await _semaphoreSlim.WaitAsync(timeout, cancellationToken).ConfigureAwait(continueOnCapturedContext))
+            {
+                return new AsyncNonKeyedLockReleaser(this);
+            }
+            return null;
         }
         #endregion Asynchronous
 
@@ -278,6 +414,7 @@ namespace AsyncKeyedLock
         /// <param name="millisecondsTimeout">The number of milliseconds to wait, <see cref="Timeout.Infinite"/> (-1) to wait indefinitely, or zero to test the state of the wait handle and return immediately.</param>
         /// <param name="configureAwaitOptions">Options used to configure how awaits on this task are performed.</param>
         /// <returns>A disposable value of type <see cref="AsyncNonKeyedLockTimeoutReleaser"/>.</returns>
+        [Obsolete("Use LockOrNullAsync method instead as it is more performant.")]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public async ValueTask<AsyncNonKeyedLockTimeoutReleaser> LockAsync(int millisecondsTimeout, ConfigureAwaitOptions configureAwaitOptions)
         {
@@ -291,6 +428,7 @@ namespace AsyncKeyedLock
         /// <param name="timeout">A <see cref="TimeSpan"/> that represents the number of milliseconds to wait, a <see cref="TimeSpan"/> that represents -1 milliseconds to wait indefinitely, or a <see cref="TimeSpan"/> that represents 0 milliseconds to test the wait handle and return immediately.</param>
         /// <param name="configureAwaitOptions">Options used to configure how awaits on this task are performed.</param>
         /// <returns>A disposable value of type <see cref="AsyncNonKeyedLockTimeoutReleaser"/>.</returns>
+        [Obsolete("Use LockOrNullAsync method instead as it is more performant.")]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public async ValueTask<AsyncNonKeyedLockTimeoutReleaser> LockAsync(TimeSpan timeout, ConfigureAwaitOptions configureAwaitOptions)
         {
@@ -305,6 +443,7 @@ namespace AsyncKeyedLock
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> to observe.</param>
         /// <param name="configureAwaitOptions">Options used to configure how awaits on this task are performed.</param>
         /// <returns>A disposable value of type <see cref="AsyncNonKeyedLockTimeoutReleaser"/>.</returns>
+        [Obsolete("Use LockOrNullAsync method instead as it is more performant.")]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public async ValueTask<AsyncNonKeyedLockTimeoutReleaser> LockAsync(int millisecondsTimeout, CancellationToken cancellationToken, ConfigureAwaitOptions configureAwaitOptions)
         {
@@ -327,6 +466,7 @@ namespace AsyncKeyedLock
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> to observe.</param>
         /// <param name="configureAwaitOptions">Options used to configure how awaits on this task are performed.</param>
         /// <returns>A disposable value of type <see cref="AsyncNonKeyedLockTimeoutReleaser"/>.</returns>
+        [Obsolete("Use LockOrNullAsync method instead as it is more performant.")]
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public async ValueTask<AsyncNonKeyedLockTimeoutReleaser> LockAsync(TimeSpan timeout, CancellationToken cancellationToken, ConfigureAwaitOptions configureAwaitOptions)
         {
@@ -341,6 +481,72 @@ namespace AsyncKeyedLock
                 throw;
             }
         }
+
+        /// <summary>
+        /// Asynchronously lock, setting a limit for the number of milliseconds to wait.
+        /// </summary>
+        /// <param name="millisecondsTimeout">The number of milliseconds to wait, <see cref="Timeout.Infinite"/> (-1) to wait indefinitely, or zero to test the state of the wait handle and return immediately.</param>
+        /// <param name="configureAwaitOptions">Options used to configure how awaits on this task are performed.</param>
+        /// <returns>A disposable value if entered, otherwise null.</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public async ValueTask<IDisposable?> LockOrNullAsync(int millisecondsTimeout, ConfigureAwaitOptions configureAwaitOptions)
+        {
+            if (await _semaphoreSlim.WaitAsync(millisecondsTimeout).ConfigureAwait(configureAwaitOptions))
+            {
+                return new AsyncNonKeyedLockReleaser(this);
+            }
+            return null;
+        }
+
+        /// <summary>
+        /// Asynchronously lock, setting a limit for the <see cref="TimeSpan"/> to wait.
+        /// </summary>
+        /// <param name="timeout">A <see cref="TimeSpan"/> that represents the number of milliseconds to wait, a <see cref="TimeSpan"/> that represents -1 milliseconds to wait indefinitely, or a <see cref="TimeSpan"/> that represents 0 milliseconds to test the wait handle and return immediately.</param>
+        /// <param name="configureAwaitOptions">Options used to configure how awaits on this task are performed.</param>
+        /// <returns>A disposable value if entered, otherwise null.</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public async ValueTask<IDisposable?> LockOrNullAsync(TimeSpan timeout, ConfigureAwaitOptions configureAwaitOptions)
+        {
+            if (await _semaphoreSlim.WaitAsync(timeout).ConfigureAwait(configureAwaitOptions))
+            {
+                return new AsyncNonKeyedLockReleaser(this);
+            }
+            return null;
+        }
+
+        /// <summary>
+        /// Asynchronously lock, setting a limit for the number of milliseconds to wait, while observing a <see cref="CancellationToken"/>.
+        /// </summary>
+        /// <param name="millisecondsTimeout">The number of milliseconds to wait, <see cref="Timeout.Infinite"/> (-1) to wait indefinitely, or zero to test the state of the wait handle and return immediately.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> to observe.</param>
+        /// <param name="configureAwaitOptions">Options used to configure how awaits on this task are performed.</param>
+        /// <returns>A disposable value if entered, otherwise null.</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public async ValueTask<IDisposable?> LockOrNullAsync(int millisecondsTimeout, CancellationToken cancellationToken, ConfigureAwaitOptions configureAwaitOptions)
+        {
+            if (await _semaphoreSlim.WaitAsync(millisecondsTimeout, cancellationToken).ConfigureAwait(configureAwaitOptions))
+            {
+                return new AsyncNonKeyedLockReleaser(this);
+            }
+            return null;
+        }
+
+        /// <summary>
+        /// Asynchronously lock, setting a limit for the <see cref="System.TimeSpan"/> to wait, while observing a <see cref="CancellationToken"/>.
+        /// </summary>
+        /// <param name="timeout">A <see cref="TimeSpan"/> that represents the number of milliseconds to wait, a <see cref="TimeSpan"/> that represents -1 milliseconds to wait indefinitely, or a <see cref="TimeSpan"/> that represents 0 milliseconds to test the wait handle and return immediately.</param>
+        /// <param name="cancellationToken">The <see cref="CancellationToken"/> to observe.</param>
+        /// <param name="configureAwaitOptions">Options used to configure how awaits on this task are performed.</param>
+        /// <returns>A disposable value if entered, otherwise null.</returns>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public async ValueTask<IDisposable?> LockOrNullAsync(TimeSpan timeout, CancellationToken cancellationToken, ConfigureAwaitOptions configureAwaitOptions)
+        {
+            if (await _semaphoreSlim.WaitAsync(timeout, cancellationToken).ConfigureAwait(configureAwaitOptions))
+            {
+                return new AsyncNonKeyedLockReleaser(this);
+            }
+            return null;
+        }
 #endif
         #endregion AsynchronousNet8.0
 
@@ -349,15 +555,15 @@ namespace AsyncKeyedLock
         /// Synchronously lock. If the condition is false, it enters without locking.
         /// </summary>
         /// <param name="getLock">Condition for getting lock if true, otherwise enters without locking.</param>
-        /// <returns>A disposable value of type <see cref="AsyncNonKeyedLockReleaser"/>.</returns>
+        /// <returns>A disposable value if entered, otherwise null.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public AsyncNonKeyedLockReleaser ConditionalLock(bool getLock)
+        public IDisposable? ConditionalLock(bool getLock)
         {
-            if (!getLock)
+            if (getLock)
             {
-                return new AsyncNonKeyedLockReleaser(null);
+                return Lock();
             }
-            return Lock();
+            return null;
         }
 
         /// <summary>
@@ -365,15 +571,15 @@ namespace AsyncKeyedLock
         /// </summary>
         /// <param name="getLock">Condition for getting lock if true, otherwise enters without locking.</param>
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> to observe.</param>
-        /// <returns>A disposable value of type <see cref="AsyncNonKeyedLockReleaser"/>.</returns>
+        /// <returns>A disposable value if entered, otherwise null.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public AsyncNonKeyedLockReleaser ConditionalLock(bool getLock, CancellationToken cancellationToken)
+        public IDisposable? ConditionalLock(bool getLock, CancellationToken cancellationToken)
         {
-            if (!getLock)
+            if (getLock)
             {
-                return new AsyncNonKeyedLockReleaser(null);
+                return Lock(cancellationToken);
             }
-            return Lock(cancellationToken);
+            return null;
         }
 
         /// <summary>
@@ -381,17 +587,15 @@ namespace AsyncKeyedLock
         /// </summary>
         /// <param name="getLock">Condition for getting lock if true, otherwise enters without locking.</param>
         /// <param name="millisecondsTimeout">The number of milliseconds to wait, <see cref="Timeout.Infinite"/> (-1) to wait indefinitely, or zero to test the state of the wait handle and return immediately.</param>
-        /// <param name="entered">An out parameter showing whether or not the semaphore was entered.</param>
-        /// <returns>A disposable value.</returns>
+        /// <returns>A disposable value if entered, otherwise null.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public IDisposable ConditionalLock(bool getLock, int millisecondsTimeout, out bool entered)
+        public IDisposable? ConditionalLock(bool getLock, int millisecondsTimeout)
         {
-            if (!getLock)
+            if (getLock)
             {
-                entered = false;
-                return new AsyncNonKeyedLockTimeoutReleaser(null, false);
+                return LockOrNull(millisecondsTimeout);
             }
-            return Lock(millisecondsTimeout, out entered);
+            return null;
         }
 
         /// <summary>
@@ -399,17 +603,15 @@ namespace AsyncKeyedLock
         /// </summary>
         /// <param name="getLock">Condition for getting lock if true, otherwise enters without locking.</param>
         /// <param name="timeout">A <see cref="TimeSpan"/> that represents the number of milliseconds to wait, a <see cref="TimeSpan"/> that represents -1 milliseconds to wait indefinitely, or a <see cref="TimeSpan"/> that represents 0 milliseconds to test the wait handle and return immediately.</param>
-        /// <param name="entered">An out parameter showing whether or not the semaphore was entered.</param>
-        /// <returns>A disposable value.</returns>
+        /// <returns>A disposable value if entered, otherwise null.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public IDisposable ConditionalLock(bool getLock, TimeSpan timeout, out bool entered)
+        public IDisposable? ConditionalLock(bool getLock, TimeSpan timeout)
         {
-            if (!getLock)
+            if (getLock)
             {
-                entered = false;
-                return new AsyncNonKeyedLockTimeoutReleaser(null, false);
+                return LockOrNull(timeout);
             }
-            return Lock(timeout, out entered);
+            return null;
         }
 
         /// <summary>
@@ -418,17 +620,15 @@ namespace AsyncKeyedLock
         /// <param name="getLock">Condition for getting lock if true, otherwise enters without locking.</param>
         /// <param name="millisecondsTimeout">The number of milliseconds to wait, <see cref="Timeout.Infinite"/> (-1) to wait indefinitely, or zero to test the state of the wait handle and return immediately.</param>
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> to observe.</param>
-        /// <param name="entered">An out parameter showing whether or not the semaphore was entered.</param>
-        /// <returns>A disposable value.</returns>
+        /// <returns>A disposable value if entered, otherwise null.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public IDisposable ConditionalLock(bool getLock, int millisecondsTimeout, CancellationToken cancellationToken, out bool entered)
+        public IDisposable? ConditionalLock(bool getLock, int millisecondsTimeout, CancellationToken cancellationToken)
         {
-            if (!getLock)
+            if (getLock)
             {
-                entered = false;
-                return new AsyncNonKeyedLockTimeoutReleaser(null, false);
+                return LockOrNull(millisecondsTimeout, cancellationToken);
             }
-            return Lock(millisecondsTimeout, cancellationToken, out entered);
+            return null;
         }
 
         /// <summary>
@@ -437,17 +637,15 @@ namespace AsyncKeyedLock
         /// <param name="getLock">Condition for getting lock if true, otherwise enters without locking.</param>
         /// <param name="timeout">A <see cref="TimeSpan"/> that represents the number of milliseconds to wait, a <see cref="TimeSpan"/> that represents -1 milliseconds to wait indefinitely, or a <see cref="TimeSpan"/> that represents 0 milliseconds to test the wait handle and return immediately.</param>
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> to observe.</param>
-        /// <param name="entered">An out parameter showing whether or not the semaphore was entered.</param>
-        /// <returns>A disposable value.</returns>
+        /// <returns>A disposable value if entered, otherwise null.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public IDisposable ConditionalLock(bool getLock, TimeSpan timeout, CancellationToken cancellationToken, out bool entered)
+        public IDisposable? ConditionalLock(bool getLock, TimeSpan timeout, CancellationToken cancellationToken)
         {
-            if (!getLock)
+            if (getLock)
             {
-                entered = false;
-                return new AsyncNonKeyedLockTimeoutReleaser(null, false);
+                return LockOrNull(timeout, cancellationToken);
             }
-            return Lock(timeout, cancellationToken, out entered);
+            return null;
         }
         #endregion ConditionalSynchronous
 
@@ -457,15 +655,15 @@ namespace AsyncKeyedLock
         /// </summary>
         /// <param name="getLock">Condition for getting lock if true, otherwise enters without locking.</param>
         /// <param name="continueOnCapturedContext">true to attempt to marshal the continuation back to the original context captured; otherwise, false. Defaults to false.</param>
-        /// <returns>A disposable value of type <see cref="AsyncNonKeyedLockReleaser"/>.</returns>
+        /// <returns>A disposable value if entered, otherwise null.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public async ValueTask<AsyncNonKeyedLockReleaser> ConditionalLockAsync(bool getLock, bool continueOnCapturedContext = false)
+        public async ValueTask<IDisposable?> ConditionalLockAsync(bool getLock, bool continueOnCapturedContext = false)
         {
-            if (!getLock)
+            if (getLock)
             {
-                return new AsyncNonKeyedLockReleaser(null);
+                return await LockAsync(continueOnCapturedContext).ConfigureAwait(continueOnCapturedContext);
             }
-            return await LockAsync(continueOnCapturedContext).ConfigureAwait(continueOnCapturedContext);
+            return null;
         }
 
         /// <summary>
@@ -474,15 +672,15 @@ namespace AsyncKeyedLock
         /// <param name="getLock">Condition for getting lock if true, otherwise enters without locking.</param>
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> to observe.</param>
         /// <param name="continueOnCapturedContext">true to attempt to marshal the continuation back to the original context captured; otherwise, false. Defaults to false.</param>
-        /// <returns>A disposable value of type <see cref="AsyncNonKeyedLockReleaser"/>.</returns>
+        /// <returns>A disposable value if entered, otherwise null.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public async ValueTask<AsyncNonKeyedLockReleaser> ConditionalLockAsync(bool getLock, CancellationToken cancellationToken, bool continueOnCapturedContext = false)
+        public async ValueTask<IDisposable?> ConditionalLockAsync(bool getLock, CancellationToken cancellationToken, bool continueOnCapturedContext = false)
         {
-            if (!getLock)
+            if (getLock)
             {
-                return new AsyncNonKeyedLockReleaser(null);
+                return await LockAsync(cancellationToken, continueOnCapturedContext).ConfigureAwait(continueOnCapturedContext);
             }
-            return await LockAsync(cancellationToken, continueOnCapturedContext).ConfigureAwait(continueOnCapturedContext);
+            return null;
         }
 
         /// <summary>
@@ -491,12 +689,15 @@ namespace AsyncKeyedLock
         /// <param name="getLock">Condition for getting lock if true, otherwise enters without locking.</param>
         /// <param name="millisecondsTimeout">The number of milliseconds to wait, <see cref="Timeout.Infinite"/> (-1) to wait indefinitely, or zero to test the state of the wait handle and return immediately.</param>
         /// <param name="continueOnCapturedContext">true to attempt to marshal the continuation back to the original context captured; otherwise, false. Defaults to false.</param>
-        /// <returns>A disposable value of type <see cref="AsyncNonKeyedLockTimeoutReleaser"/>.</returns>
+        /// <returns>A disposable value if entered, otherwise null.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public async ValueTask<AsyncNonKeyedLockTimeoutReleaser> ConditionalLockAsync(bool getLock, int millisecondsTimeout, bool continueOnCapturedContext = false)
+        public async ValueTask<IDisposable?> ConditionalLockAsync(bool getLock, int millisecondsTimeout, bool continueOnCapturedContext = false)
         {
-            bool entered = getLock && await _semaphoreSlim.WaitAsync(millisecondsTimeout).ConfigureAwait(continueOnCapturedContext);
-            return new AsyncNonKeyedLockTimeoutReleaser(this, entered);
+            if (getLock)
+            {
+                return await LockOrNullAsync(millisecondsTimeout, continueOnCapturedContext).ConfigureAwait(continueOnCapturedContext);
+            }
+            return null;
         }
 
         /// <summary>
@@ -505,12 +706,15 @@ namespace AsyncKeyedLock
         /// <param name="getLock">Condition for getting lock if true, otherwise enters without locking.</param>
         /// <param name="timeout">A <see cref="TimeSpan"/> that represents the number of milliseconds to wait, a <see cref="TimeSpan"/> that represents -1 milliseconds to wait indefinitely, or a <see cref="TimeSpan"/> that represents 0 milliseconds to test the wait handle and return immediately.</param>
         /// <param name="continueOnCapturedContext">true to attempt to marshal the continuation back to the original context captured; otherwise, false. Defaults to false.</param>
-        /// <returns>A disposable value of type <see cref="AsyncNonKeyedLockTimeoutReleaser"/>.</returns>
+        /// <returns>A disposable value if entered, otherwise null.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public async ValueTask<AsyncNonKeyedLockTimeoutReleaser> ConditionalLockAsync(bool getLock, TimeSpan timeout, bool continueOnCapturedContext = false)
+        public async ValueTask<IDisposable?> ConditionalLockAsync(bool getLock, TimeSpan timeout, bool continueOnCapturedContext = false)
         {
-            bool entered = getLock && await _semaphoreSlim.WaitAsync(timeout).ConfigureAwait(continueOnCapturedContext);
-            return new AsyncNonKeyedLockTimeoutReleaser(this, entered);
+            if (getLock)
+            {
+                return await LockOrNullAsync(timeout, continueOnCapturedContext).ConfigureAwait(continueOnCapturedContext);
+            }
+            return null;
         }
 
         /// <summary>
@@ -520,20 +724,15 @@ namespace AsyncKeyedLock
         /// <param name="millisecondsTimeout">The number of milliseconds to wait, <see cref="Timeout.Infinite"/> (-1) to wait indefinitely, or zero to test the state of the wait handle and return immediately.</param>
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> to observe.</param>
         /// <param name="continueOnCapturedContext">true to attempt to marshal the continuation back to the original context captured; otherwise, false. Defaults to false.</param>
-        /// <returns>A disposable value of type <see cref="AsyncNonKeyedLockTimeoutReleaser"/>.</returns>
+        /// <returns>A disposable value if entered, otherwise null.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public async ValueTask<AsyncNonKeyedLockTimeoutReleaser> ConditionalLockAsync(bool getLock, int millisecondsTimeout, CancellationToken cancellationToken, bool continueOnCapturedContext = false)
+        public async ValueTask<IDisposable?> ConditionalLockAsync(bool getLock, int millisecondsTimeout, CancellationToken cancellationToken, bool continueOnCapturedContext = false)
         {
-            try
+            if (getLock)
             {
-                bool entered = getLock && await _semaphoreSlim.WaitAsync(millisecondsTimeout, cancellationToken).ConfigureAwait(continueOnCapturedContext);
-                return new AsyncNonKeyedLockTimeoutReleaser(this, entered);
+                return await LockOrNullAsync(millisecondsTimeout, cancellationToken, continueOnCapturedContext).ConfigureAwait(continueOnCapturedContext);
             }
-            catch (OperationCanceledException)
-            {
-                return new AsyncNonKeyedLockTimeoutReleaser(this, false);
-                throw;
-            }
+            return null;
         }
 
         /// <summary>
@@ -543,20 +742,15 @@ namespace AsyncKeyedLock
         /// <param name="timeout">A <see cref="TimeSpan"/> that represents the number of milliseconds to wait, a <see cref="TimeSpan"/> that represents -1 milliseconds to wait indefinitely, or a <see cref="TimeSpan"/> that represents 0 milliseconds to test the wait handle and return immediately.</param>
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> to observe.</param>
         /// <param name="continueOnCapturedContext">true to attempt to marshal the continuation back to the original context captured; otherwise, false. Defaults to false.</param>
-        /// <returns>A disposable value of type <see cref="AsyncNonKeyedLockTimeoutReleaser"/>.</returns>
+        /// <returns>A disposable value if entered, otherwise null.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public async ValueTask<AsyncNonKeyedLockTimeoutReleaser> ConditionalLockAsync(bool getLock, TimeSpan timeout, CancellationToken cancellationToken, bool continueOnCapturedContext = false)
+        public async ValueTask<IDisposable?> ConditionalLockAsync(bool getLock, TimeSpan timeout, CancellationToken cancellationToken, bool continueOnCapturedContext = false)
         {
-            try
+            if (getLock)
             {
-                bool entered = getLock && await _semaphoreSlim.WaitAsync(timeout, cancellationToken).ConfigureAwait(continueOnCapturedContext);
-                return new AsyncNonKeyedLockTimeoutReleaser(this, entered);
+                return await LockOrNullAsync(timeout, cancellationToken, continueOnCapturedContext).ConfigureAwait(continueOnCapturedContext);
             }
-            catch (OperationCanceledException)
-            {
-                return new AsyncNonKeyedLockTimeoutReleaser(this, false);
-                throw;
-            }
+            return null;
         }
         #endregion ConditionalAsynchronous
 
@@ -567,16 +761,16 @@ namespace AsyncKeyedLock
         /// </summary>
         /// <param name="getLock">Condition for getting lock if true, otherwise enters without locking.</param>
         /// <param name="configureAwaitOptions">Options used to configure how awaits on this task are performed.</param>
-        /// <returns>A disposable value of type <see cref="AsyncNonKeyedLockReleaser"/>.</returns>
+        /// <returns>A disposable value if entered, otherwise null.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public async ValueTask<AsyncNonKeyedLockReleaser> ConditionalLockAsync(bool getLock, ConfigureAwaitOptions configureAwaitOptions)
+        public async ValueTask<IDisposable?> ConditionalLockAsync(bool getLock, ConfigureAwaitOptions configureAwaitOptions)
         {
-            if (!getLock)
+            if (getLock)
             {
-                return new AsyncNonKeyedLockReleaser(null);
+                await _semaphoreSlim.WaitAsync().ConfigureAwait(configureAwaitOptions);
+                return new AsyncNonKeyedLockReleaser(this);
             }
-            await _semaphoreSlim.WaitAsync().ConfigureAwait(configureAwaitOptions);
-            return new AsyncNonKeyedLockReleaser(this);
+            return null;
         }
 
         /// <summary>
@@ -585,16 +779,16 @@ namespace AsyncKeyedLock
         /// <param name="getLock">Condition for getting lock if true, otherwise enters without locking.</param>
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> to observe.</param>
         /// <param name="configureAwaitOptions">Options used to configure how awaits on this task are performed.</param>
-        /// <returns>A disposable value of type <see cref="AsyncNonKeyedLockReleaser"/>.</returns>
+        /// <returns>A disposable value if entered, otherwise null.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public async ValueTask<AsyncNonKeyedLockReleaser> ConditionalLockAsync(bool getLock, CancellationToken cancellationToken, ConfigureAwaitOptions configureAwaitOptions)
+        public async ValueTask<IDisposable?> ConditionalLockAsync(bool getLock, CancellationToken cancellationToken, ConfigureAwaitOptions configureAwaitOptions)
         {
-            if (!getLock)
+            if (getLock)
             {
-                return new AsyncNonKeyedLockReleaser(null);
+                await _semaphoreSlim.WaitAsync(cancellationToken).ConfigureAwait(configureAwaitOptions);
+                return new AsyncNonKeyedLockReleaser(this);
             }
-            await _semaphoreSlim.WaitAsync(cancellationToken).ConfigureAwait(configureAwaitOptions);
-            return new AsyncNonKeyedLockReleaser(this);
+            return null;
         }
 
         /// <summary>
@@ -603,12 +797,19 @@ namespace AsyncKeyedLock
         /// <param name="getLock">Condition for getting lock if true, otherwise enters without locking.</param>
         /// <param name="millisecondsTimeout">The number of milliseconds to wait, <see cref="Timeout.Infinite"/> (-1) to wait indefinitely, or zero to test the state of the wait handle and return immediately.</param>
         /// <param name="configureAwaitOptions">Options used to configure how awaits on this task are performed.</param>
-        /// <returns>A disposable value of type <see cref="AsyncNonKeyedLockTimeoutReleaser"/>.</returns>
+        /// <returns>A disposable value if entered, otherwise null.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public async ValueTask<AsyncNonKeyedLockTimeoutReleaser> ConditionalLockAsync(bool getLock, int millisecondsTimeout, ConfigureAwaitOptions configureAwaitOptions)
+        public async ValueTask<IDisposable?> ConditionalLockAsync(bool getLock, int millisecondsTimeout, ConfigureAwaitOptions configureAwaitOptions)
         {
-            bool entered = getLock && await _semaphoreSlim.WaitAsync(millisecondsTimeout).ConfigureAwait(configureAwaitOptions);
-            return new AsyncNonKeyedLockTimeoutReleaser(this, entered);
+            if (getLock)
+            {
+                if (await _semaphoreSlim.WaitAsync(millisecondsTimeout).ConfigureAwait(configureAwaitOptions))
+                {
+                    return new AsyncNonKeyedLockReleaser(this);
+                }
+                return null;
+            }
+            return null;
         }
 
         /// <summary>
@@ -617,12 +818,19 @@ namespace AsyncKeyedLock
         /// <param name="getLock">Condition for getting lock if true, otherwise enters without locking.</param>
         /// <param name="timeout">A <see cref="TimeSpan"/> that represents the number of milliseconds to wait, a <see cref="TimeSpan"/> that represents -1 milliseconds to wait indefinitely, or a <see cref="TimeSpan"/> that represents 0 milliseconds to test the wait handle and return immediately.</param>
         /// <param name="configureAwaitOptions">Options used to configure how awaits on this task are performed.</param>
-        /// <returns>A disposable value of type <see cref="AsyncNonKeyedLockTimeoutReleaser"/>.</returns>
+        /// <returns>A disposable value if entered, otherwise null.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public async ValueTask<AsyncNonKeyedLockTimeoutReleaser> ConditionalLockAsync(bool getLock, TimeSpan timeout, ConfigureAwaitOptions configureAwaitOptions)
+        public async ValueTask<IDisposable?> ConditionalLockAsync(bool getLock, TimeSpan timeout, ConfigureAwaitOptions configureAwaitOptions)
         {
-            bool entered = getLock && await _semaphoreSlim.WaitAsync(timeout).ConfigureAwait(configureAwaitOptions);
-            return new AsyncNonKeyedLockTimeoutReleaser(this, entered);
+            if (getLock)
+            {
+                if (await _semaphoreSlim.WaitAsync(timeout).ConfigureAwait(configureAwaitOptions))
+                {
+                    return new AsyncNonKeyedLockReleaser(this);
+                }
+                return null;
+            }
+            return null;
         }
 
         /// <summary>
@@ -632,20 +840,19 @@ namespace AsyncKeyedLock
         /// <param name="millisecondsTimeout">The number of milliseconds to wait, <see cref="Timeout.Infinite"/> (-1) to wait indefinitely, or zero to test the state of the wait handle and return immediately.</param>
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> to observe.</param>
         /// <param name="configureAwaitOptions">Options used to configure how awaits on this task are performed.</param>
-        /// <returns>A disposable value of type <see cref="AsyncNonKeyedLockTimeoutReleaser"/>.</returns>
+        /// <returns>A disposable value if entered, otherwise null.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public async ValueTask<AsyncNonKeyedLockTimeoutReleaser> ConditionalLockAsync(bool getLock, int millisecondsTimeout, CancellationToken cancellationToken, ConfigureAwaitOptions configureAwaitOptions)
+        public async ValueTask<IDisposable?> ConditionalLockAsync(bool getLock, int millisecondsTimeout, CancellationToken cancellationToken, ConfigureAwaitOptions configureAwaitOptions)
         {
-            try
+            if (getLock)
             {
-                bool entered = getLock && await _semaphoreSlim.WaitAsync(millisecondsTimeout, cancellationToken).ConfigureAwait(configureAwaitOptions);
-                return new AsyncNonKeyedLockTimeoutReleaser(this, entered);
+                if (await _semaphoreSlim.WaitAsync(millisecondsTimeout, cancellationToken).ConfigureAwait(configureAwaitOptions))
+                {
+                    return new AsyncNonKeyedLockReleaser(this);
+                }
+                return null;
             }
-            catch (OperationCanceledException)
-            {
-                return new AsyncNonKeyedLockTimeoutReleaser(this, false);
-                throw;
-            }
+            return null;
         }
 
         /// <summary>
@@ -655,20 +862,19 @@ namespace AsyncKeyedLock
         /// <param name="timeout">A <see cref="TimeSpan"/> that represents the number of milliseconds to wait, a <see cref="TimeSpan"/> that represents -1 milliseconds to wait indefinitely, or a <see cref="TimeSpan"/> that represents 0 milliseconds to test the wait handle and return immediately.</param>
         /// <param name="cancellationToken">The <see cref="CancellationToken"/> to observe.</param>
         /// <param name="configureAwaitOptions">Options used to configure how awaits on this task are performed.</param>
-        /// <returns>A disposable value of type <see cref="AsyncNonKeyedLockTimeoutReleaser"/>.</returns>
+        /// <returns>A disposable value if entered, otherwise null.</returns>
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public async ValueTask<AsyncNonKeyedLockTimeoutReleaser> ConditionalLockAsync(bool getLock, TimeSpan timeout, CancellationToken cancellationToken, ConfigureAwaitOptions configureAwaitOptions)
+        public async ValueTask<IDisposable?> ConditionalLockAsync(bool getLock, TimeSpan timeout, CancellationToken cancellationToken, ConfigureAwaitOptions configureAwaitOptions)
         {
-            try
+            if (getLock)
             {
-                bool entered = getLock && await _semaphoreSlim.WaitAsync(timeout, cancellationToken).ConfigureAwait(configureAwaitOptions);
-                return new AsyncNonKeyedLockTimeoutReleaser(this, entered);
+                if (await _semaphoreSlim.WaitAsync(timeout, cancellationToken).ConfigureAwait(configureAwaitOptions))
+                {
+                    return new AsyncNonKeyedLockReleaser(this);
+                }
+                return null;
             }
-            catch (OperationCanceledException)
-            {
-                return new AsyncNonKeyedLockTimeoutReleaser(this, false);
-                throw;
-            }
+            return null;
         }
 #endif
         #endregion ConditionalAsynchronousNet8.0

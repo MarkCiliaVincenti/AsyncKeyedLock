@@ -86,7 +86,7 @@ namespace AsyncKeyedLock.Tests.AsyncNonKeyedLockerTests
 
             double Factorial(int number, bool isFirst = true)
             {
-                using (asyncNonKeyedLocker.ConditionalLock(isFirst, Timeout.Infinite, out _))
+                using (asyncNonKeyedLocker.ConditionalLock(isFirst, Timeout.Infinite))
                 {
                     if (number == 0)
                         return 1;
@@ -122,7 +122,7 @@ namespace AsyncKeyedLock.Tests.AsyncNonKeyedLockerTests
 
             double Factorial(int number, bool isFirst = true)
             {
-                using (asyncNonKeyedLocker.ConditionalLock(isFirst, TimeSpan.Zero, out _))
+                using (asyncNonKeyedLocker.ConditionalLock(isFirst, TimeSpan.Zero))
                 {
                     if (number == 0)
                         return 1;
@@ -158,7 +158,7 @@ namespace AsyncKeyedLock.Tests.AsyncNonKeyedLockerTests
 
             double Factorial(int number, bool isFirst = true)
             {
-                using (asyncNonKeyedLocker.ConditionalLock(isFirst, Timeout.Infinite, new CancellationToken(false), out _))
+                using (asyncNonKeyedLocker.ConditionalLock(isFirst, Timeout.Infinite, new CancellationToken(false)))
                 {
                     if (number == 0)
                         return 1;
@@ -194,7 +194,7 @@ namespace AsyncKeyedLock.Tests.AsyncNonKeyedLockerTests
 
             double Factorial(int number, bool isFirst = true)
             {
-                using (asyncNonKeyedLocker.ConditionalLock(isFirst, TimeSpan.Zero, new CancellationToken(false), out _))
+                using (asyncNonKeyedLocker.ConditionalLock(isFirst, TimeSpan.Zero, new CancellationToken(false)))
                 {
                     if (number == 0)
                         return 1;
@@ -307,6 +307,26 @@ namespace AsyncKeyedLock.Tests.AsyncNonKeyedLockerTests
         }
 
         [Fact]
+        public void TestLockOrNullAndMillisecondsTimeout()
+        {
+            var asyncNonKeyedLocker = new AsyncNonKeyedLocker();
+            Assert.Equal(0, asyncNonKeyedLocker.GetRemainingCount());
+            Assert.Equal(1, asyncNonKeyedLocker.GetCurrentCount());
+            using (var myLock = asyncNonKeyedLocker.LockOrNull(Timeout.Infinite))
+            {
+                Assert.NotNull(myLock);
+                Assert.Equal(1, asyncNonKeyedLocker.GetRemainingCount());
+                Assert.Equal(0, asyncNonKeyedLocker.GetCurrentCount());
+                using (var myLock2 = asyncNonKeyedLocker.LockOrNull(0))
+                {
+                    Assert.Null(myLock2);
+                }
+            }
+            Assert.Equal(0, asyncNonKeyedLocker.GetRemainingCount());
+            Assert.Equal(1, asyncNonKeyedLocker.GetCurrentCount());
+        }
+
+        [Fact]
         public void TestLockAndTimeout()
         {
             var asyncNonKeyedLocker = new AsyncNonKeyedLocker();
@@ -321,6 +341,26 @@ namespace AsyncKeyedLock.Tests.AsyncNonKeyedLockerTests
                 {
                     Assert.False(entered);
                     Assert.False(((AsyncNonKeyedLockTimeoutReleaser)myLock2).EnteredSemaphore);
+                }
+            }
+            Assert.Equal(0, asyncNonKeyedLocker.GetRemainingCount());
+            Assert.Equal(1, asyncNonKeyedLocker.GetCurrentCount());
+        }
+
+        [Fact]
+        public void TestLockOrNullAndTimeout()
+        {
+            var asyncNonKeyedLocker = new AsyncNonKeyedLocker();
+            Assert.Equal(0, asyncNonKeyedLocker.GetRemainingCount());
+            Assert.Equal(1, asyncNonKeyedLocker.GetCurrentCount());
+            using (var myLock = asyncNonKeyedLocker.LockOrNull(Timeout.InfiniteTimeSpan))
+            {
+                Assert.NotNull(myLock);
+                Assert.Equal(1, asyncNonKeyedLocker.GetRemainingCount());
+                Assert.Equal(0, asyncNonKeyedLocker.GetCurrentCount());
+                using (var myLock2 = asyncNonKeyedLocker.LockOrNull(TimeSpan.Zero))
+                {
+                    Assert.Null(myLock2);
                 }
             }
             Assert.Equal(0, asyncNonKeyedLocker.GetRemainingCount());
@@ -355,6 +395,32 @@ namespace AsyncKeyedLock.Tests.AsyncNonKeyedLockerTests
         }
 
         [Fact]
+        public void TestLockOrNullAndMillisecondsTimeoutAndCancellationToken()
+        {
+            var asyncNonKeyedLocker = new AsyncNonKeyedLocker();
+            Assert.Equal(0, asyncNonKeyedLocker.GetRemainingCount());
+            Assert.Equal(1, asyncNonKeyedLocker.GetCurrentCount());
+            using (var myLock = asyncNonKeyedLocker.LockOrNull(0, CancellationToken.None))
+            {
+                Assert.NotNull(myLock);
+                Assert.Equal(1, asyncNonKeyedLocker.GetRemainingCount());
+                Assert.Equal(0, asyncNonKeyedLocker.GetCurrentCount());
+            }
+            using (var myLock = asyncNonKeyedLocker.LockOrNull(Timeout.Infinite, CancellationToken.None))
+            {
+                Assert.NotNull(myLock);
+                Assert.Equal(1, asyncNonKeyedLocker.GetRemainingCount());
+                Assert.Equal(0, asyncNonKeyedLocker.GetCurrentCount());
+                using (var myLock2 = asyncNonKeyedLocker.LockOrNull(0, CancellationToken.None))
+                {
+                    Assert.Null(myLock2);
+                }
+            }
+            Assert.Equal(0, asyncNonKeyedLocker.GetRemainingCount());
+            Assert.Equal(1, asyncNonKeyedLocker.GetCurrentCount());
+        }
+
+        [Fact]
         public void TestLockAndMillisecondsTimeoutAndCancelledCancellationToken()
         {
             bool entered = false;
@@ -369,6 +435,20 @@ namespace AsyncKeyedLock.Tests.AsyncNonKeyedLockerTests
         }
 
         [Fact]
+        public void TestLockOrNullAndMillisecondsTimeoutAndCancelledCancellationToken()
+        {
+            bool entered = false;
+            Action action = () =>
+            {
+                var asyncNonKeyedLocker = new AsyncNonKeyedLocker();
+                using (asyncNonKeyedLocker.LockOrNull(0, new CancellationToken(true)))
+                { }
+            };
+            action.Should().Throw<OperationCanceledException>();
+            entered.Should().BeFalse();
+        }
+
+        [Fact]
         public void TestLockAndInfiniteMillisecondsTimeoutAndCancelledCancellationToken()
         {
             bool entered = false;
@@ -376,6 +456,20 @@ namespace AsyncKeyedLock.Tests.AsyncNonKeyedLockerTests
             {
                 var asyncNonKeyedLocker = new AsyncNonKeyedLocker();
                 using (asyncNonKeyedLocker.Lock(Timeout.Infinite, new CancellationToken(true), out entered))
+                { }
+            };
+            action.Should().Throw<OperationCanceledException>();
+            entered.Should().BeFalse();
+        }
+
+        [Fact]
+        public void TestLockOrNullAndInfiniteMillisecondsTimeoutAndCancelledCancellationToken()
+        {
+            bool entered = false;
+            Action action = () =>
+            {
+                var asyncNonKeyedLocker = new AsyncNonKeyedLocker();
+                using (asyncNonKeyedLocker.LockOrNull(Timeout.Infinite, new CancellationToken(true)))
                 { }
             };
             action.Should().Throw<OperationCanceledException>();
@@ -410,6 +504,32 @@ namespace AsyncKeyedLock.Tests.AsyncNonKeyedLockerTests
         }
 
         [Fact]
+        public void TestLockOrNullAndTimeoutAndCancellationToken()
+        {
+            var asyncNonKeyedLocker = new AsyncNonKeyedLocker();
+            Assert.Equal(0, asyncNonKeyedLocker.GetRemainingCount());
+            Assert.Equal(1, asyncNonKeyedLocker.GetCurrentCount());
+            using (var myLock = asyncNonKeyedLocker.LockOrNull(TimeSpan.Zero, CancellationToken.None))
+            {
+                Assert.NotNull(myLock);
+                Assert.Equal(1, asyncNonKeyedLocker.GetRemainingCount());
+                Assert.Equal(0, asyncNonKeyedLocker.GetCurrentCount());
+            }
+            using (var myLock = asyncNonKeyedLocker.LockOrNull(Timeout.InfiniteTimeSpan, CancellationToken.None))
+            {
+                Assert.NotNull(myLock);
+                Assert.Equal(1, asyncNonKeyedLocker.GetRemainingCount());
+                Assert.Equal(0, asyncNonKeyedLocker.GetCurrentCount());
+                using (var myLock2 = asyncNonKeyedLocker.LockOrNull(TimeSpan.Zero, CancellationToken.None))
+                {
+                    Assert.Null(myLock2);
+                }
+            }
+            Assert.Equal(0, asyncNonKeyedLocker.GetRemainingCount());
+            Assert.Equal(1, asyncNonKeyedLocker.GetCurrentCount());
+        }
+
+        [Fact]
         public void TestLockAndTimeoutAndCancelledCancellationToken()
         {
             bool entered = false;
@@ -424,6 +544,20 @@ namespace AsyncKeyedLock.Tests.AsyncNonKeyedLockerTests
         }
 
         [Fact]
+        public void TestLockOrNullAndTimeoutAndCancelledCancellationToken()
+        {
+            bool entered = false;
+            Action action = () =>
+            {
+                var asyncNonKeyedLocker = new AsyncNonKeyedLocker();
+                using (asyncNonKeyedLocker.LockOrNull(TimeSpan.Zero, new CancellationToken(true)))
+                { }
+            };
+            action.Should().Throw<OperationCanceledException>();
+            entered.Should().BeFalse();
+        }
+
+        [Fact]
         public void TestLockAndInfiniteTimeoutAndCancelledCancellationToken()
         {
             bool entered = false;
@@ -431,6 +565,20 @@ namespace AsyncKeyedLock.Tests.AsyncNonKeyedLockerTests
             {
                 var asyncNonKeyedLocker = new AsyncNonKeyedLocker();
                 using (asyncNonKeyedLocker.Lock(Timeout.InfiniteTimeSpan, new CancellationToken(true), out entered))
+                { }
+            };
+            action.Should().Throw<OperationCanceledException>();
+            entered.Should().BeFalse();
+        }
+
+        [Fact]
+        public void TestLockOrNullAndInfiniteTimeoutAndCancelledCancellationToken()
+        {
+            bool entered = false;
+            Action action = () =>
+            {
+                var asyncNonKeyedLocker = new AsyncNonKeyedLocker();
+                using (asyncNonKeyedLocker.LockOrNull(Timeout.InfiniteTimeSpan, new CancellationToken(true)))
                 { }
             };
             action.Should().Throw<OperationCanceledException>();

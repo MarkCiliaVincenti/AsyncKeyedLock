@@ -22,7 +22,7 @@ namespace AsyncKeyedLock
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         public readonly void Dispose()
         {
-            _locker?._semaphoreSlim.Release();
+            _locker._semaphoreSlim.Release();
         }
     }
 }
