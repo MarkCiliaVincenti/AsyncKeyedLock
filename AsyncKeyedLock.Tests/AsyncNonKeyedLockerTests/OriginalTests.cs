@@ -8,6 +8,13 @@ namespace AsyncKeyedLock.Tests.AsyncNonKeyedLockerTests
     public class OriginalTests
     {
         [Fact]
+        public void NullReleaser()
+        {
+            AsyncNonKeyedLockReleaser releaser = new();
+            releaser.Dispose();
+        }
+
+        [Fact]
         public void TestRecursion()
         {
             var asyncNonKeyedLocker = new AsyncNonKeyedLocker();
