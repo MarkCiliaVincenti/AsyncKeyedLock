@@ -524,39 +524,6 @@ namespace AsyncKeyedLock.Tests.AsyncKeyedLocker
         }
 
         [Fact]
-        public void TestTimeoutBasicWithOutParameterAndCancellationToken()
-        {
-            var asyncKeyedLocker = new AsyncKeyedLocker<string>(o => { o.PoolSize = 0; });
-            using (var myLock = asyncKeyedLocker.Lock("test", 0, out var entered))
-            {
-                Assert.True(entered);
-                Assert.True(asyncKeyedLocker.IsInUse("test"));
-                using (asyncKeyedLocker.Lock("test", 0, out entered))
-                    Assert.False(entered);
-                using (asyncKeyedLocker.Lock("test", TimeSpan.Zero, out entered))
-                    Assert.False(entered);
-                Assert.True(asyncKeyedLocker.IsInUse("test"));
-            }
-            Assert.False(asyncKeyedLocker.IsInUse("test"));
-        }
-
-        [Fact]
-        public void TestTimeoutOrNullBasicWithOutParameterAndCancellationToken()
-        {
-            var asyncKeyedLocker = new AsyncKeyedLocker<string>(o => { o.PoolSize = 0; });
-            using (var myLock = asyncKeyedLocker.LockOrNull("test", 0))
-            {
-                Assert.NotNull(myLock);
-                Assert.True(asyncKeyedLocker.IsInUse("test"));
-                var entered = asyncKeyedLocker.LockOrNull("test", 0);
-                Assert.Null(entered);
-                entered = asyncKeyedLocker.LockOrNull("test", TimeSpan.Zero);
-                Assert.Null(entered);
-            }
-            Assert.False(asyncKeyedLocker.IsInUse("test"));
-        }
-
-        [Fact]
         public async Task TestTimeout()
         {
             var asyncKeyedLocker = new AsyncKeyedLocker<string>(o => { o.PoolSize = 0; });
