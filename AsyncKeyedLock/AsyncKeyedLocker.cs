@@ -2059,6 +2059,7 @@ namespace AsyncKeyedLock
 
             if (_dictionary.PoolingEnabled)
             {
+#pragma warning disable CS8602 // Dereference of a possibly null reference.
 #if NET9_0_OR_GREATER
                 result.Lock.Enter();
 #else
@@ -2087,6 +2088,7 @@ namespace AsyncKeyedLock
 #else
                 Monitor.Exit(result);
 #endif
+#pragma warning restore CS8602 // Dereference of a possibly null reference.
             }
             else
             {

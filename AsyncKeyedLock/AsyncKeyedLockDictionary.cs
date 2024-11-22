@@ -6,10 +6,10 @@ using System.Threading;
 
 namespace AsyncKeyedLock
 {
-    internal sealed class AsyncKeyedLockDictionary<TKey> : ConcurrentDictionary<TKey, AsyncKeyedLockReleaser<TKey>>, IDisposable
+    internal sealed class AsyncKeyedLockDictionary<TKey> : ConcurrentDictionary<TKey, AsyncKeyedLockReleaser<TKey>>, IDisposable where TKey : notnull
     {
         public int MaxCount { get; private set; } = 1;
-        internal readonly AsyncKeyedLockPool<TKey> _pool;
+        internal readonly AsyncKeyedLockPool<TKey>? _pool;
         public bool PoolingEnabled { get; internal set; }
 
         public AsyncKeyedLockDictionary(AsyncKeyedLockOptions options) : base()
@@ -70,7 +70,9 @@ namespace AsyncKeyedLock
                     return releaser;
                 }
 
+#pragma warning disable CS8602 // Dereference of a possibly null reference.
                 var releaserToAdd = _pool.GetObject(key);
+#pragma warning restore CS8602 // Dereference of a possibly null reference.
                 if (TryAdd(key, releaserToAdd))
                 {
                     return releaserToAdd;
@@ -118,6 +120,7 @@ namespace AsyncKeyedLock
         {
             if (PoolingEnabled)
             {
+#pragma warning disable CS8602 // Dereference of a possibly null reference.
 #if NET9_0_OR_GREATER
                 releaser.Lock.Enter();
 #else
@@ -133,7 +136,9 @@ namespace AsyncKeyedLock
 #else
                     Monitor.Exit(releaser);
 #endif
+#pragma warning disable CS8602 // Dereference of a possibly null reference.
                     _pool.PutObject(releaser);
+#pragma warning restore CS8602 // Dereference of a possibly null reference.
                     releaser.SemaphoreSlim.Release();
                     return;
                 }
@@ -144,6 +149,7 @@ namespace AsyncKeyedLock
 #else
                 Monitor.Exit(releaser);
 #endif
+#pragma warning restore CS8602 // Dereference of a possibly null reference.
             }
             else
             {
@@ -169,6 +175,7 @@ namespace AsyncKeyedLock
         {
             if (PoolingEnabled)
             {
+#pragma warning disable CS8602 // Dereference of a possibly null reference.
 #if NET9_0_OR_GREATER
                 releaser.Lock.Enter();
 #else
@@ -184,7 +191,9 @@ namespace AsyncKeyedLock
 #else
                     Monitor.Exit(releaser);
 #endif
+#pragma warning disable CS8602 // Dereference of a possibly null reference.
                     _pool.PutObject(releaser);
+#pragma warning restore CS8602 // Dereference of a possibly null reference.
                     return;
                 }
                 --releaser.ReferenceCount;
@@ -193,6 +202,7 @@ namespace AsyncKeyedLock
 #else
                 Monitor.Exit(releaser);
 #endif
+#pragma warning restore CS8602 // Dereference of a possibly null reference.
             }
             else
             {
@@ -226,7 +236,7 @@ namespace AsyncKeyedLock
             Clear();
             if (PoolingEnabled)
             {
-                _pool.Dispose();
+                _pool?.Dispose();
             }
         }
     }

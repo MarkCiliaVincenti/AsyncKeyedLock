@@ -7,7 +7,7 @@ namespace AsyncKeyedLock
     /// <summary>
     /// Represents an <see cref="IDisposable"/> for AsyncKeyedLock with timeouts.
     /// </summary>
-    public sealed class AsyncKeyedLockTimeoutReleaser<TKey> : IDisposable
+    public sealed class AsyncKeyedLockTimeoutReleaser<TKey> : IDisposable where TKey : notnull
     {
         /// <summary>
         /// True if the timeout was reached, false if not.

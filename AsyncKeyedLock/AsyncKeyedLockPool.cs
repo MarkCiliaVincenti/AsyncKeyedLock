@@ -5,10 +5,10 @@ using System.Threading;
 
 namespace AsyncKeyedLock
 {
-    internal sealed class AsyncKeyedLockPool<TKey> : IDisposable
+    internal sealed class AsyncKeyedLockPool<TKey> : IDisposable where TKey : notnull
     {
 #if NET9_0_OR_GREATER
-        private readonly Lock _lock = new Lock();
+        private readonly Lock _lock = new();
 #endif
         private readonly List<AsyncKeyedLockReleaser<TKey>> _objects;
         private readonly Func<TKey, AsyncKeyedLockReleaser<TKey>> _objectGenerator;
@@ -27,7 +27,9 @@ namespace AsyncKeyedLock
             {
                 for (int i = 0; i < capacity; ++i)
                 {
+#pragma warning disable CS8604 // Possible null reference argument.
                     var releaser = _objectGenerator(default);
+#pragma warning restore CS8604 // Possible null reference argument.
                     releaser.IsNotInUse = true;
                     _objects.Add(releaser);
                 }
@@ -37,7 +39,9 @@ namespace AsyncKeyedLock
                 initialFill = Math.Min(initialFill, capacity);
                 for (int i = 0; i < initialFill; ++i)
                 {
+#pragma warning disable CS8604 // Possible null reference argument.
                     var releaser = _objectGenerator(default);
+#pragma warning restore CS8604 // Possible null reference argument.
                     releaser.IsNotInUse = true;
                     _objects.Add(releaser);
                 }
