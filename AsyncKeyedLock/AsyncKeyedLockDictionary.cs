@@ -236,7 +236,15 @@ namespace AsyncKeyedLock
             Clear();
             if (PoolingEnabled)
             {
-                _pool?.Dispose();
+                try
+                {
+#pragma warning disable CS8602 // Dereference of a possibly null reference.
+                    _pool.Dispose();
+#pragma warning restore CS8602 // Dereference of a possibly null reference.
+                catch
+                {
+                    // do nothing
+                }
             }
         }
     }
