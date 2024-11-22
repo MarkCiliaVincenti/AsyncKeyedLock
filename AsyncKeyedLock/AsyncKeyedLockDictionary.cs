@@ -241,6 +241,7 @@ namespace AsyncKeyedLock
 #pragma warning disable CS8602 // Dereference of a possibly null reference.
                     _pool.Dispose();
 #pragma warning restore CS8602 // Dereference of a possibly null reference.
+                }
                 catch
                 {
                     // do nothing
