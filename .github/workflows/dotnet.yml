@@ -30,7 +30,7 @@ jobs:
     - name: Test
       run: dotnet test --no-restore --configuration Release --logger:"console;verbosity=normal" --collect:"XPlat Code Coverage" --settings coverlet.runsettings
       
-    - name: Coverage
+    - name: Code Coverage
       uses: codecov/codecov-action@v5
       with:
           token: ${{ secrets.CODECOV_TOKEN }}
