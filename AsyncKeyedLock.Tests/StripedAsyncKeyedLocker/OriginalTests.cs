@@ -12,7 +12,7 @@ namespace AsyncKeyedLock.Tests.StripedAsyncKeyedLocker
         [Fact]
         public void TestRecursion()
         {
-            var asyncKeyedLocker = new StripedAsyncKeyedLocker<string>();
+            using var asyncKeyedLocker = new StripedAsyncKeyedLocker<string>();
 
             double Factorial(int number, bool isFirst = true)
             {
