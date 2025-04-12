@@ -15,7 +15,7 @@ namespace AsyncKeyedLock
     /// 
     /// </summary>
     /// <typeparam name="TKey"></typeparam>
-    public sealed class StripedAsyncKeyedLocker<TKey> where TKey : notnull
+    public sealed class StripedAsyncKeyedLocker<TKey> : IDisposable where TKey : notnull
     {
         /// <summary>
         /// The maximum number of requests for the semaphore that can be granted concurrently. Defaults to 1.
@@ -41,18 +41,12 @@ namespace AsyncKeyedLock
             _releasers = new StripedAsyncKeyedLockReleaser[_numberOfStripes];
             for (int i = 0; i < _numberOfStripes; ++i)
             {
-                _releasers[i] = new StripedAsyncKeyedLockReleaser
-                {
-                    SemaphoreSlim = new SemaphoreSlim(maxCount, maxCount)
-                };
+                _releasers[i] = new StripedAsyncKeyedLockReleaser(new SemaphoreSlim(maxCount, maxCount));
             }
         }
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private StripedAsyncKeyedLockReleaser Get(TKey key)
-        {
-            return _releasers[(_comparer.GetHashCode(key) & int.MaxValue) % _numberOfStripes];
-        }
+        private StripedAsyncKeyedLockReleaser Get(TKey key) => _releasers[(_comparer.GetHashCode(key) & int.MaxValue) % _numberOfStripes];
 
         #region Synchronous
         /// <summary>
@@ -1547,6 +1541,24 @@ namespace AsyncKeyedLock
         public bool IsInUse(TKey key)
         {
             return Get(key).SemaphoreSlim.CurrentCount < MaxCount;
+        }
+
+        /// <summary>
+        /// Disposes the StripedAsyncKeyedLocker.
+        /// </summary>
+        public void Dispose()
+        {
+            foreach (var releaser in _releasers)
+            {
+                try
+                {
+                    releaser.SemaphoreSlim.Dispose();
+                }
+                catch
+                {
+                    // do nothing
+                }
+            }
         }
     }
 }

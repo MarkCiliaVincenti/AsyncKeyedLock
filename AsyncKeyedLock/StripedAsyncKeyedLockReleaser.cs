@@ -6,12 +6,17 @@ namespace AsyncKeyedLock
     /// <summary>
     /// Represents an <see cref="IDisposable"/> for AsyncKeyedLock.
     /// </summary>
-    public struct StripedAsyncKeyedLockReleaser : IDisposable
+    public readonly struct StripedAsyncKeyedLockReleaser : IDisposable
     {
+        internal StripedAsyncKeyedLockReleaser(SemaphoreSlim semaphoreSlim)
+        {
+            SemaphoreSlim = semaphoreSlim;
+        }
+
         /// <summary>
         /// The exposed <see cref="System.Threading.SemaphoreSlim"/> instance used to limit the number of threads that can access the lock concurrently.
         /// </summary>
-        public SemaphoreSlim SemaphoreSlim { get; internal set; }
+        public readonly SemaphoreSlim SemaphoreSlim { get; }
 
         /// <summary>
         /// Releases the <see cref="System.Threading.SemaphoreSlim"/> object once.

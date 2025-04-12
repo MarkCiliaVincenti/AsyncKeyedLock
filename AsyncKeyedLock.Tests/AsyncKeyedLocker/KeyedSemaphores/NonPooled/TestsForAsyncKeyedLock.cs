@@ -49,8 +49,8 @@ public class TestsForAsyncKeyedLock
             // Act + Assert
             await Task.WhenAll(threads);
 
-            peakParallelism.Should().BeLessOrEqualTo(maxParallelism);
-            peakParallelism.Should().BeGreaterOrEqualTo(minParallelism);
+            peakParallelism.Should().BeLessThanOrEqualTo(maxParallelism);
+            peakParallelism.Should().BeGreaterThanOrEqualTo(minParallelism);
 
             _output.WriteLine("Peak parallelism was " + peakParallelism);
 
@@ -282,7 +282,7 @@ public class TestsForAsyncKeyedLock
         // Act + Assert
         await Task.WhenAll(threads);
 
-        maxParallelism.Should().BeLessOrEqualTo(10);
+        maxParallelism.Should().BeLessThanOrEqualTo(10);
         foreach (var key in Enumerable.Range(0, 100))
         {
             keyedSemaphores.IsInUse(key % 10).Should().BeFalse();
