@@ -9,6 +9,18 @@ namespace AsyncKeyedLock.Tests.AsyncKeyedLocker
     public class OriginalTests
     {
         [Fact]
+        public void DoubleDispose_ShouldNotThrow()
+        {
+            Action action = () =>
+            {
+                var asyncKeyedLocker = new AsyncKeyedLocker<string>(o => { o.PoolSize = 0; });
+                asyncKeyedLocker.Dispose();
+                asyncKeyedLocker.Dispose();
+            };
+            action.Should().NotThrow();            
+        }
+
+        [Fact]
         public void TestRecursion()
         {
             var asyncKeyedLocker = new AsyncKeyedLocker<string>(o => { o.PoolSize = 1; o.PoolInitialFill = -1; });

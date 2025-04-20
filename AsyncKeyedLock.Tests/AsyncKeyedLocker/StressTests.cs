@@ -1,3 +1,4 @@
+using FluentAssertions;
 using ListShuffle;
 using System.Collections.Concurrent;
 using Xunit;
@@ -8,6 +9,21 @@ namespace AsyncKeyedLock.Tests.AsyncKeyedLocker
     [CollectionDefinition("Stress Tests", DisableParallelization = true)]
     public class StressTests
     {
+        [Fact]
+        public async Task ConcurrentDispose()
+        {
+            Func<Task> action = async () =>
+            {
+                var concurrency = 50;
+                var asyncKeyedLocker = new AsyncKeyedLocker<object>(o => { o.PoolSize = 0; });
+                var tasks = Enumerable.Range(1, concurrency)
+                    .Select(i => Task.Run(() => asyncKeyedLocker.Dispose()));
+                await Task.WhenAll(tasks);
+            };
+
+            await action.Should().NotThrowAsync();
+        }
+
         [Fact]
         public async Task StressTest()
         {

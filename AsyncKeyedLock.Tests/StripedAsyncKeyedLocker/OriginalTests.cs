@@ -10,6 +10,18 @@ namespace AsyncKeyedLock.Tests.StripedAsyncKeyedLocker
     public class OriginalTests
     {
         [Fact]
+        public void ConcurrentDispose_ShouldNotThrow()
+        {
+            Action action = () =>
+            {
+                var asyncKeyedLocker = new StripedAsyncKeyedLocker<string>();
+                asyncKeyedLocker.Dispose();
+                asyncKeyedLocker.Dispose();
+            };
+            action.Should().NotThrow();
+        }
+
+        [Fact]
         public void TestRecursion()
         {
             using var asyncKeyedLocker = new StripedAsyncKeyedLocker<string>();
