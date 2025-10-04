@@ -141,7 +141,7 @@ public class StressTests
 
         if (!_shuffledIntegers.TryGetValue(Contention * NumberOfLocks, out var ShuffledIntegers))
         {
-            ShuffledIntegers = Enumerable.Range(0, Contention * NumberOfLocks).ToList();
+            ShuffledIntegers = [.. Enumerable.Range(0, Contention * NumberOfLocks)];
             ShuffledIntegers.Shuffle();
             _shuffledIntegers[Contention * NumberOfLocks] = ShuffledIntegers;
         }
