@@ -1554,10 +1554,7 @@ public sealed class StripedAsyncKeyedLocker<TKey> : IDisposable where TKey : not
             {
                 releaser.SemaphoreSlim.Dispose();
             }
-            catch
-            {
-                // do nothing
-            }
+            catch { } // do nothing
         }
     }
 }

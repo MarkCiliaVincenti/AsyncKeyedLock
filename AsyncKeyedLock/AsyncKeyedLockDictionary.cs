@@ -228,10 +228,7 @@ internal sealed class AsyncKeyedLockDictionary<TKey> : ConcurrentDictionary<TKey
             {
                 semaphore.Dispose();
             }
-            catch
-            {
-                // do nothing
-            }
+            catch { } // do nothing
         }
         Clear();
         if (PoolingEnabled)
@@ -242,10 +239,7 @@ internal sealed class AsyncKeyedLockDictionary<TKey> : ConcurrentDictionary<TKey
                 _pool.Dispose();
 #pragma warning restore CS8602 // Dereference of a possibly null reference.
             }
-            catch
-            {
-                // do nothing
-            }
+            catch { } // do nothing
         }
     }
 }
