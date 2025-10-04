@@ -1,13 +1,12 @@
-﻿namespace AsyncKeyedLock.Tests.Helpers
-{
-    public class TestSynchronizationContext : SynchronizationContext
-    {
-        public int LastPostThreadId { get; private set; }
+﻿namespace AsyncKeyedLock.Tests.Helpers;
 
-        public override void Post(SendOrPostCallback d, object? state)
-        {
-            LastPostThreadId = Environment.CurrentManagedThreadId;
-            d(state);
-        }
+public class TestSynchronizationContext : SynchronizationContext
+{
+    public int LastPostThreadId { get; private set; }
+
+    public override void Post(SendOrPostCallback d, object? state)
+    {
+        LastPostThreadId = Environment.CurrentManagedThreadId;
+        d(state);
     }
 }

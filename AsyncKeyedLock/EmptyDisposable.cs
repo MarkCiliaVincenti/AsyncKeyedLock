@@ -1,18 +1,17 @@
 ﻿using System;
 
-namespace AsyncKeyedLock
+namespace AsyncKeyedLock;
+
+/// <summary>
+/// A disposable that does absolutely nothing.
+/// </summary>
+public sealed class EmptyDisposable : IDisposable
 {
     /// <summary>
-    /// A disposable that does absolutely nothing.
+    /// Dispose but in reality do nothing
     /// </summary>
-    public class EmptyDisposable : IDisposable
+    public void Dispose()
     {
-        /// <summary>
-        /// Dispose but in reality do nothing
-        /// </summary>
-        public void Dispose()
-        {
-            GC.SuppressFinalize(this);
-        }
+        GC.SuppressFinalize(this);
     }
 }

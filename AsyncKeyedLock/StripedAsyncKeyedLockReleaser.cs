@@ -1,29 +1,28 @@
 ﻿using System;
 using System.Threading;
 
-namespace AsyncKeyedLock
+namespace AsyncKeyedLock;
+
+/// <summary>
+/// Represents an <see cref="IDisposable"/> for AsyncKeyedLock.
+/// </summary>
+public readonly struct StripedAsyncKeyedLockReleaser : IDisposable
 {
-    /// <summary>
-    /// Represents an <see cref="IDisposable"/> for AsyncKeyedLock.
-    /// </summary>
-    public readonly struct StripedAsyncKeyedLockReleaser : IDisposable
+    internal StripedAsyncKeyedLockReleaser(SemaphoreSlim semaphoreSlim)
     {
-        internal StripedAsyncKeyedLockReleaser(SemaphoreSlim semaphoreSlim)
-        {
-            SemaphoreSlim = semaphoreSlim;
-        }
+        SemaphoreSlim = semaphoreSlim;
+    }
 
-        /// <summary>
-        /// The exposed <see cref="System.Threading.SemaphoreSlim"/> instance used to limit the number of threads that can access the lock concurrently.
-        /// </summary>
-        public readonly SemaphoreSlim SemaphoreSlim { get; }
+    /// <summary>
+    /// The exposed <see cref="System.Threading.SemaphoreSlim"/> instance used to limit the number of threads that can access the lock concurrently.
+    /// </summary>
+    public readonly SemaphoreSlim SemaphoreSlim { get; }
 
-        /// <summary>
-        /// Releases the <see cref="System.Threading.SemaphoreSlim"/> object once.
-        /// </summary>
-        public void Dispose()
-        {
-            SemaphoreSlim.Release();
-        }
+    /// <summary>
+    /// Releases the <see cref="System.Threading.SemaphoreSlim"/> object once.
+    /// </summary>
+    public void Dispose()
+    {
+        SemaphoreSlim.Release();
     }
 }
