@@ -21,8 +21,5 @@ public readonly struct StripedAsyncKeyedLockReleaser : IDisposable
     /// <summary>
     /// Releases the <see cref="System.Threading.SemaphoreSlim"/> object once.
     /// </summary>
-    public void Dispose()
-    {
-        SemaphoreSlim.Release();
-    }
+    public void Dispose() => SemaphoreSlim.Release();
 }

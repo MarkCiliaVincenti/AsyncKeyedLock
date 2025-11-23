@@ -20,8 +20,5 @@ public readonly struct AsyncNonKeyedLockReleaser : IDisposable
     /// Releases the <see cref="SemaphoreSlim"/> object once.
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public readonly void Dispose()
-    {
-        _locker?._semaphoreSlim.Release();
-    }
+    public readonly void Dispose() => _locker?._semaphoreSlim.Release();
 }

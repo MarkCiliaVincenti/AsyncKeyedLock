@@ -7,12 +7,17 @@ namespace AsyncKeyedLock;
 /// <summary>
 /// Represents an <see cref="IDisposable"/> for AsyncKeyedLock with timeouts.
 /// </summary>
+#if NET5_0_OR_GREATER
+    [SkipLocalsInit]
+#endif
 public sealed class AsyncKeyedLockTimeoutReleaser<TKey> : IDisposable where TKey : notnull
 {
     /// <summary>
     /// True if the timeout was reached, false if not.
     /// </summary>
-    public bool EnteredSemaphore { get; internal set; }
+    public bool EnteredSemaphore => _enteredSemaphore;
+
+    private readonly bool _enteredSemaphore;
     internal readonly AsyncKeyedLockReleaser<TKey> _releaser;
 
     /// <summary>
@@ -22,7 +27,7 @@ public sealed class AsyncKeyedLockTimeoutReleaser<TKey> : IDisposable where TKey
     /// <param name="releaser">The <see cref="AsyncKeyedLockReleaser{TKey}"/> releaser.</param>
     public AsyncKeyedLockTimeoutReleaser(bool enteredSemaphore, AsyncKeyedLockReleaser<TKey> releaser)
     {
-        EnteredSemaphore = enteredSemaphore;
+        _enteredSemaphore = enteredSemaphore;
         _releaser = releaser;
     }
 

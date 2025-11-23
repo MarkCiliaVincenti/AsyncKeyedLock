@@ -34,7 +34,6 @@ public sealed class AsyncNonKeyedLocker : IDisposable
     /// Synchronously lock.
     /// </summary>
     /// <returns>A disposable value of type <see cref="AsyncNonKeyedLockReleaser"/>.</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public AsyncNonKeyedLockReleaser Lock()
     {
         _semaphoreSlim.Wait();
@@ -46,7 +45,6 @@ public sealed class AsyncNonKeyedLocker : IDisposable
     /// </summary>
     /// <param name="cancellationToken">The <see cref="CancellationToken"/> to observe.</param>
     /// <returns>A disposable value of type <see cref="AsyncNonKeyedLockReleaser"/>.</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public AsyncNonKeyedLockReleaser Lock(CancellationToken cancellationToken)
     {
         _semaphoreSlim.Wait(cancellationToken);
@@ -60,7 +58,6 @@ public sealed class AsyncNonKeyedLocker : IDisposable
     /// <param name="entered">An out parameter showing whether or not the semaphore was entered.</param>
     /// <returns>A disposable value.</returns>
     [Obsolete("Use LockOrNull method instead as it is more performant.")]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public IDisposable Lock(int millisecondsTimeout, out bool entered)
     {
         if (millisecondsTimeout == Timeout.Infinite)
@@ -80,7 +77,6 @@ public sealed class AsyncNonKeyedLocker : IDisposable
     /// <param name="entered">An out parameter showing whether or not the semaphore was entered.</param>
     /// <returns>A disposable value.</returns>
     [Obsolete("Use LockOrNull method instead as it is more performant.")]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public IDisposable Lock(TimeSpan timeout, out bool entered)
     {
         if (timeout.TotalMilliseconds == Timeout.Infinite)
@@ -101,7 +97,6 @@ public sealed class AsyncNonKeyedLocker : IDisposable
     /// <param name="entered">An out parameter showing whether or not the semaphore was entered.</param>
     /// <returns>A disposable value.</returns>
     [Obsolete("Use LockOrNull method instead as it is more performant.")]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public IDisposable Lock(int millisecondsTimeout, CancellationToken cancellationToken, out bool entered)
     {
         try
@@ -130,7 +125,6 @@ public sealed class AsyncNonKeyedLocker : IDisposable
     /// <param name="entered">An out parameter showing whether or not the semaphore was entered.</param>
     /// <returns>A disposable value.</returns>
     [Obsolete("Use LockOrNull method instead as it is more performant.")]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public IDisposable Lock(TimeSpan timeout, CancellationToken cancellationToken, out bool entered)
     {
         try
@@ -156,7 +150,6 @@ public sealed class AsyncNonKeyedLocker : IDisposable
     /// </summary>
     /// <param name="millisecondsTimeout">The number of milliseconds to wait, <see cref="Timeout.Infinite"/> (-1) to wait indefinitely, or zero to test the state of the wait handle and return immediately.</param>
     /// <returns>A disposable value if entered, otherwise null.</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public IDisposable? LockOrNull(int millisecondsTimeout)
     {
         if (_semaphoreSlim.Wait(millisecondsTimeout))
@@ -171,7 +164,6 @@ public sealed class AsyncNonKeyedLocker : IDisposable
     /// </summary>
     /// <param name="timeout">A <see cref="TimeSpan"/> that represents the number of milliseconds to wait, a <see cref="TimeSpan"/> that represents -1 milliseconds to wait indefinitely, or a <see cref="TimeSpan"/> that represents 0 milliseconds to test the wait handle and return immediately.</param>
     /// <returns>A disposable value if entered, otherwise null.</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public IDisposable? LockOrNull(TimeSpan timeout)
     {
         if (_semaphoreSlim.Wait(timeout))
@@ -187,7 +179,6 @@ public sealed class AsyncNonKeyedLocker : IDisposable
     /// <param name="millisecondsTimeout">The number of milliseconds to wait, <see cref="Timeout.Infinite"/> (-1) to wait indefinitely, or zero to test the state of the wait handle and return immediately.</param>
     /// <param name="cancellationToken">The <see cref="CancellationToken"/> to observe.</param>
     /// <returns>A disposable value if entered, otherwise null.</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public IDisposable? LockOrNull(int millisecondsTimeout, CancellationToken cancellationToken)
     {
         if (_semaphoreSlim.Wait(millisecondsTimeout, cancellationToken))
@@ -203,7 +194,6 @@ public sealed class AsyncNonKeyedLocker : IDisposable
     /// <param name="timeout">A <see cref="TimeSpan"/> that represents the number of milliseconds to wait, a <see cref="TimeSpan"/> that represents -1 milliseconds to wait indefinitely, or a <see cref="TimeSpan"/> that represents 0 milliseconds to test the wait handle and return immediately.</param>
     /// <param name="cancellationToken">The <see cref="CancellationToken"/> to observe.</param>
     /// <returns>A disposable value if entered, otherwise null.</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public IDisposable? LockOrNull(TimeSpan timeout, CancellationToken cancellationToken)
     {
         if (_semaphoreSlim.Wait(timeout, cancellationToken))
@@ -220,7 +210,6 @@ public sealed class AsyncNonKeyedLocker : IDisposable
     /// </summary>
     /// <param name="continueOnCapturedContext">true to attempt to marshal the continuation back to the original context captured; otherwise, false. Defaults to false.</param>
     /// <returns>A disposable value of type <see cref="AsyncNonKeyedLockReleaser"/>.</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public async ValueTask<AsyncNonKeyedLockReleaser> LockAsync(bool continueOnCapturedContext = false)
     {
         await _semaphoreSlim.WaitAsync().ConfigureAwait(continueOnCapturedContext);
@@ -233,7 +222,6 @@ public sealed class AsyncNonKeyedLocker : IDisposable
     /// <param name="cancellationToken">The <see cref="CancellationToken"/> to observe.</param>
     /// <param name="continueOnCapturedContext">true to attempt to marshal the continuation back to the original context captured; otherwise, false. Defaults to false.</param>
     /// <returns>A disposable value of type <see cref="AsyncNonKeyedLockReleaser"/>.</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public async ValueTask<AsyncNonKeyedLockReleaser> LockAsync(CancellationToken cancellationToken, bool continueOnCapturedContext = false)
     {
         await _semaphoreSlim.WaitAsync(cancellationToken).ConfigureAwait(continueOnCapturedContext);
@@ -247,7 +235,6 @@ public sealed class AsyncNonKeyedLocker : IDisposable
     /// <param name="continueOnCapturedContext">true to attempt to marshal the continuation back to the original context captured; otherwise, false. Defaults to false.</param>
     /// <returns>A disposable value of type <see cref="AsyncNonKeyedLockTimeoutReleaser"/>.</returns>
     [Obsolete("Use LockOrNullAsync method instead as it is more performant.")]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public async ValueTask<AsyncNonKeyedLockTimeoutReleaser> LockAsync(int millisecondsTimeout, bool continueOnCapturedContext = false)
     {
         bool entered = await _semaphoreSlim.WaitAsync(millisecondsTimeout).ConfigureAwait(continueOnCapturedContext);
@@ -261,7 +248,6 @@ public sealed class AsyncNonKeyedLocker : IDisposable
     /// <param name="continueOnCapturedContext">true to attempt to marshal the continuation back to the original context captured; otherwise, false. Defaults to false.</param>
     /// <returns>A disposable value of type <see cref="AsyncNonKeyedLockTimeoutReleaser"/>.</returns>
     [Obsolete("Use LockOrNullAsync method instead as it is more performant.")]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public async ValueTask<AsyncNonKeyedLockTimeoutReleaser> LockAsync(TimeSpan timeout, bool continueOnCapturedContext = false)
     {
         bool entered = await _semaphoreSlim.WaitAsync(timeout).ConfigureAwait(continueOnCapturedContext);
@@ -276,7 +262,6 @@ public sealed class AsyncNonKeyedLocker : IDisposable
     /// <param name="continueOnCapturedContext">true to attempt to marshal the continuation back to the original context captured; otherwise, false. Defaults to false.</param>
     /// <returns>A disposable value of type <see cref="AsyncNonKeyedLockTimeoutReleaser"/>.</returns>
     [Obsolete("Use LockOrNullAsync method instead as it is more performant.")]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public async ValueTask<AsyncNonKeyedLockTimeoutReleaser> LockAsync(int millisecondsTimeout, CancellationToken cancellationToken, bool continueOnCapturedContext = false)
     {
         try
@@ -299,7 +284,6 @@ public sealed class AsyncNonKeyedLocker : IDisposable
     /// <param name="continueOnCapturedContext">true to attempt to marshal the continuation back to the original context captured; otherwise, false. Defaults to false.</param>
     /// <returns>A disposable value of type <see cref="AsyncNonKeyedLockTimeoutReleaser"/>.</returns>
     [Obsolete("Use LockOrNullAsync method instead as it is more performant.")]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public async ValueTask<AsyncNonKeyedLockTimeoutReleaser> LockAsync(TimeSpan timeout, CancellationToken cancellationToken, bool continueOnCapturedContext = false)
     {
         try
@@ -320,7 +304,6 @@ public sealed class AsyncNonKeyedLocker : IDisposable
     /// <param name="millisecondsTimeout">The number of milliseconds to wait, <see cref="Timeout.Infinite"/> (-1) to wait indefinitely, or zero to test the state of the wait handle and return immediately.</param>
     /// <param name="continueOnCapturedContext">true to attempt to marshal the continuation back to the original context captured; otherwise, false. Defaults to false.</param>
     /// <returns>A disposable value if entered, otherwise null.</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public async ValueTask<IDisposable?> LockOrNullAsync(int millisecondsTimeout, bool continueOnCapturedContext = false)
     {
         if (await _semaphoreSlim.WaitAsync(millisecondsTimeout).ConfigureAwait(continueOnCapturedContext))
@@ -336,7 +319,6 @@ public sealed class AsyncNonKeyedLocker : IDisposable
     /// <param name="timeout">A <see cref="TimeSpan"/> that represents the number of milliseconds to wait, a <see cref="TimeSpan"/> that represents -1 milliseconds to wait indefinitely, or a <see cref="TimeSpan"/> that represents 0 milliseconds to test the wait handle and return immediately.</param>
     /// <param name="continueOnCapturedContext">true to attempt to marshal the continuation back to the original context captured; otherwise, false. Defaults to false.</param>
     /// <returns>A disposable value if entered, otherwise null.</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public async ValueTask<IDisposable?> LockOrNullAsync(TimeSpan timeout, bool continueOnCapturedContext = false)
     {
         if (await _semaphoreSlim.WaitAsync(timeout).ConfigureAwait(continueOnCapturedContext))
@@ -353,7 +335,6 @@ public sealed class AsyncNonKeyedLocker : IDisposable
     /// <param name="cancellationToken">The <see cref="CancellationToken"/> to observe.</param>
     /// <param name="continueOnCapturedContext">true to attempt to marshal the continuation back to the original context captured; otherwise, false. Defaults to false.</param>
     /// <returns>A disposable value if entered, otherwise null.</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public async ValueTask<IDisposable?> LockOrNullAsync(int millisecondsTimeout, CancellationToken cancellationToken, bool continueOnCapturedContext = false)
     {
         if (await _semaphoreSlim.WaitAsync(millisecondsTimeout, cancellationToken).ConfigureAwait(continueOnCapturedContext))
@@ -370,7 +351,6 @@ public sealed class AsyncNonKeyedLocker : IDisposable
     /// <param name="cancellationToken">The <see cref="CancellationToken"/> to observe.</param>
     /// <param name="continueOnCapturedContext">true to attempt to marshal the continuation back to the original context captured; otherwise, false. Defaults to false.</param>
     /// <returns>A disposable value if entered, otherwise null.</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public async ValueTask<IDisposable?> LockOrNullAsync(TimeSpan timeout, CancellationToken cancellationToken, bool continueOnCapturedContext = false)
     {
         if (await _semaphoreSlim.WaitAsync(timeout, cancellationToken).ConfigureAwait(continueOnCapturedContext))
@@ -388,7 +368,6 @@ public sealed class AsyncNonKeyedLocker : IDisposable
     /// </summary>
     /// <param name="configureAwaitOptions">Options used to configure how awaits on this task are performed.</param>
     /// <returns>A disposable value of type <see cref="AsyncNonKeyedLockReleaser"/>.</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public async ValueTask<AsyncNonKeyedLockReleaser> LockAsync(ConfigureAwaitOptions configureAwaitOptions)
     {
         await _semaphoreSlim.WaitAsync().ConfigureAwait(configureAwaitOptions);
@@ -401,7 +380,6 @@ public sealed class AsyncNonKeyedLocker : IDisposable
     /// <param name="cancellationToken">The <see cref="CancellationToken"/> to observe.</param>
     /// <param name="configureAwaitOptions">Options used to configure how awaits on this task are performed.</param>
     /// <returns>A disposable value of type <see cref="AsyncNonKeyedLockReleaser"/>.</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public async ValueTask<AsyncNonKeyedLockReleaser> LockAsync(CancellationToken cancellationToken, ConfigureAwaitOptions configureAwaitOptions)
     {
         await _semaphoreSlim.WaitAsync(cancellationToken).ConfigureAwait(configureAwaitOptions);
@@ -415,7 +393,6 @@ public sealed class AsyncNonKeyedLocker : IDisposable
     /// <param name="configureAwaitOptions">Options used to configure how awaits on this task are performed.</param>
     /// <returns>A disposable value of type <see cref="AsyncNonKeyedLockTimeoutReleaser"/>.</returns>
     [Obsolete("Use LockOrNullAsync method instead as it is more performant.")]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public async ValueTask<AsyncNonKeyedLockTimeoutReleaser> LockAsync(int millisecondsTimeout, ConfigureAwaitOptions configureAwaitOptions)
     {
         bool entered = await _semaphoreSlim.WaitAsync(millisecondsTimeout).ConfigureAwait(configureAwaitOptions);
@@ -429,7 +406,6 @@ public sealed class AsyncNonKeyedLocker : IDisposable
     /// <param name="configureAwaitOptions">Options used to configure how awaits on this task are performed.</param>
     /// <returns>A disposable value of type <see cref="AsyncNonKeyedLockTimeoutReleaser"/>.</returns>
     [Obsolete("Use LockOrNullAsync method instead as it is more performant.")]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public async ValueTask<AsyncNonKeyedLockTimeoutReleaser> LockAsync(TimeSpan timeout, ConfigureAwaitOptions configureAwaitOptions)
     {
         bool entered = await _semaphoreSlim.WaitAsync(timeout).ConfigureAwait(configureAwaitOptions);
@@ -444,7 +420,6 @@ public sealed class AsyncNonKeyedLocker : IDisposable
     /// <param name="configureAwaitOptions">Options used to configure how awaits on this task are performed.</param>
     /// <returns>A disposable value of type <see cref="AsyncNonKeyedLockTimeoutReleaser"/>.</returns>
     [Obsolete("Use LockOrNullAsync method instead as it is more performant.")]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public async ValueTask<AsyncNonKeyedLockTimeoutReleaser> LockAsync(int millisecondsTimeout, CancellationToken cancellationToken, ConfigureAwaitOptions configureAwaitOptions)
     {
         try
@@ -467,7 +442,6 @@ public sealed class AsyncNonKeyedLocker : IDisposable
     /// <param name="configureAwaitOptions">Options used to configure how awaits on this task are performed.</param>
     /// <returns>A disposable value of type <see cref="AsyncNonKeyedLockTimeoutReleaser"/>.</returns>
     [Obsolete("Use LockOrNullAsync method instead as it is more performant.")]
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public async ValueTask<AsyncNonKeyedLockTimeoutReleaser> LockAsync(TimeSpan timeout, CancellationToken cancellationToken, ConfigureAwaitOptions configureAwaitOptions)
     {
         try
@@ -488,7 +462,6 @@ public sealed class AsyncNonKeyedLocker : IDisposable
     /// <param name="millisecondsTimeout">The number of milliseconds to wait, <see cref="Timeout.Infinite"/> (-1) to wait indefinitely, or zero to test the state of the wait handle and return immediately.</param>
     /// <param name="configureAwaitOptions">Options used to configure how awaits on this task are performed.</param>
     /// <returns>A disposable value if entered, otherwise null.</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public async ValueTask<IDisposable?> LockOrNullAsync(int millisecondsTimeout, ConfigureAwaitOptions configureAwaitOptions)
     {
         if (await _semaphoreSlim.WaitAsync(millisecondsTimeout).ConfigureAwait(configureAwaitOptions))
@@ -504,7 +477,6 @@ public sealed class AsyncNonKeyedLocker : IDisposable
     /// <param name="timeout">A <see cref="TimeSpan"/> that represents the number of milliseconds to wait, a <see cref="TimeSpan"/> that represents -1 milliseconds to wait indefinitely, or a <see cref="TimeSpan"/> that represents 0 milliseconds to test the wait handle and return immediately.</param>
     /// <param name="configureAwaitOptions">Options used to configure how awaits on this task are performed.</param>
     /// <returns>A disposable value if entered, otherwise null.</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public async ValueTask<IDisposable?> LockOrNullAsync(TimeSpan timeout, ConfigureAwaitOptions configureAwaitOptions)
     {
         if (await _semaphoreSlim.WaitAsync(timeout).ConfigureAwait(configureAwaitOptions))
@@ -521,7 +493,6 @@ public sealed class AsyncNonKeyedLocker : IDisposable
     /// <param name="cancellationToken">The <see cref="CancellationToken"/> to observe.</param>
     /// <param name="configureAwaitOptions">Options used to configure how awaits on this task are performed.</param>
     /// <returns>A disposable value if entered, otherwise null.</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public async ValueTask<IDisposable?> LockOrNullAsync(int millisecondsTimeout, CancellationToken cancellationToken, ConfigureAwaitOptions configureAwaitOptions)
     {
         if (await _semaphoreSlim.WaitAsync(millisecondsTimeout, cancellationToken).ConfigureAwait(configureAwaitOptions))
@@ -538,7 +509,6 @@ public sealed class AsyncNonKeyedLocker : IDisposable
     /// <param name="cancellationToken">The <see cref="CancellationToken"/> to observe.</param>
     /// <param name="configureAwaitOptions">Options used to configure how awaits on this task are performed.</param>
     /// <returns>A disposable value if entered, otherwise null.</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public async ValueTask<IDisposable?> LockOrNullAsync(TimeSpan timeout, CancellationToken cancellationToken, ConfigureAwaitOptions configureAwaitOptions)
     {
         if (await _semaphoreSlim.WaitAsync(timeout, cancellationToken).ConfigureAwait(configureAwaitOptions))
@@ -556,7 +526,6 @@ public sealed class AsyncNonKeyedLocker : IDisposable
     /// </summary>
     /// <param name="getLock">Condition for getting lock if true, otherwise enters without locking.</param>
     /// <returns>A disposable value if entered, otherwise null.</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public IDisposable? ConditionalLock(bool getLock)
     {
         if (getLock)
@@ -572,7 +541,6 @@ public sealed class AsyncNonKeyedLocker : IDisposable
     /// <param name="getLock">Condition for getting lock if true, otherwise enters without locking.</param>
     /// <param name="cancellationToken">The <see cref="CancellationToken"/> to observe.</param>
     /// <returns>A disposable value if entered, otherwise null.</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public IDisposable? ConditionalLock(bool getLock, CancellationToken cancellationToken)
     {
         if (getLock)
@@ -588,7 +556,6 @@ public sealed class AsyncNonKeyedLocker : IDisposable
     /// <param name="getLock">Condition for getting lock if true, otherwise enters without locking.</param>
     /// <param name="millisecondsTimeout">The number of milliseconds to wait, <see cref="Timeout.Infinite"/> (-1) to wait indefinitely, or zero to test the state of the wait handle and return immediately.</param>
     /// <returns>A disposable value if entered, otherwise null.</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public IDisposable? ConditionalLock(bool getLock, int millisecondsTimeout)
     {
         if (getLock)
@@ -604,7 +571,6 @@ public sealed class AsyncNonKeyedLocker : IDisposable
     /// <param name="getLock">Condition for getting lock if true, otherwise enters without locking.</param>
     /// <param name="timeout">A <see cref="TimeSpan"/> that represents the number of milliseconds to wait, a <see cref="TimeSpan"/> that represents -1 milliseconds to wait indefinitely, or a <see cref="TimeSpan"/> that represents 0 milliseconds to test the wait handle and return immediately.</param>
     /// <returns>A disposable value if entered, otherwise null.</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public IDisposable? ConditionalLock(bool getLock, TimeSpan timeout)
     {
         if (getLock)
@@ -621,7 +587,6 @@ public sealed class AsyncNonKeyedLocker : IDisposable
     /// <param name="millisecondsTimeout">The number of milliseconds to wait, <see cref="Timeout.Infinite"/> (-1) to wait indefinitely, or zero to test the state of the wait handle and return immediately.</param>
     /// <param name="cancellationToken">The <see cref="CancellationToken"/> to observe.</param>
     /// <returns>A disposable value if entered, otherwise null.</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public IDisposable? ConditionalLock(bool getLock, int millisecondsTimeout, CancellationToken cancellationToken)
     {
         if (getLock)
@@ -638,7 +603,6 @@ public sealed class AsyncNonKeyedLocker : IDisposable
     /// <param name="timeout">A <see cref="TimeSpan"/> that represents the number of milliseconds to wait, a <see cref="TimeSpan"/> that represents -1 milliseconds to wait indefinitely, or a <see cref="TimeSpan"/> that represents 0 milliseconds to test the wait handle and return immediately.</param>
     /// <param name="cancellationToken">The <see cref="CancellationToken"/> to observe.</param>
     /// <returns>A disposable value if entered, otherwise null.</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public IDisposable? ConditionalLock(bool getLock, TimeSpan timeout, CancellationToken cancellationToken)
     {
         if (getLock)
@@ -656,7 +620,6 @@ public sealed class AsyncNonKeyedLocker : IDisposable
     /// <param name="getLock">Condition for getting lock if true, otherwise enters without locking.</param>
     /// <param name="continueOnCapturedContext">true to attempt to marshal the continuation back to the original context captured; otherwise, false. Defaults to false.</param>
     /// <returns>A disposable value if entered, otherwise null.</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public async ValueTask<IDisposable?> ConditionalLockAsync(bool getLock, bool continueOnCapturedContext = false)
     {
         if (getLock)
@@ -673,7 +636,6 @@ public sealed class AsyncNonKeyedLocker : IDisposable
     /// <param name="cancellationToken">The <see cref="CancellationToken"/> to observe.</param>
     /// <param name="continueOnCapturedContext">true to attempt to marshal the continuation back to the original context captured; otherwise, false. Defaults to false.</param>
     /// <returns>A disposable value if entered, otherwise null.</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public async ValueTask<IDisposable?> ConditionalLockAsync(bool getLock, CancellationToken cancellationToken, bool continueOnCapturedContext = false)
     {
         if (getLock)
@@ -690,7 +652,6 @@ public sealed class AsyncNonKeyedLocker : IDisposable
     /// <param name="millisecondsTimeout">The number of milliseconds to wait, <see cref="Timeout.Infinite"/> (-1) to wait indefinitely, or zero to test the state of the wait handle and return immediately.</param>
     /// <param name="continueOnCapturedContext">true to attempt to marshal the continuation back to the original context captured; otherwise, false. Defaults to false.</param>
     /// <returns>A disposable value if entered, otherwise null.</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public async ValueTask<IDisposable?> ConditionalLockAsync(bool getLock, int millisecondsTimeout, bool continueOnCapturedContext = false)
     {
         if (getLock)
@@ -707,7 +668,6 @@ public sealed class AsyncNonKeyedLocker : IDisposable
     /// <param name="timeout">A <see cref="TimeSpan"/> that represents the number of milliseconds to wait, a <see cref="TimeSpan"/> that represents -1 milliseconds to wait indefinitely, or a <see cref="TimeSpan"/> that represents 0 milliseconds to test the wait handle and return immediately.</param>
     /// <param name="continueOnCapturedContext">true to attempt to marshal the continuation back to the original context captured; otherwise, false. Defaults to false.</param>
     /// <returns>A disposable value if entered, otherwise null.</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public async ValueTask<IDisposable?> ConditionalLockAsync(bool getLock, TimeSpan timeout, bool continueOnCapturedContext = false)
     {
         if (getLock)
@@ -725,7 +685,6 @@ public sealed class AsyncNonKeyedLocker : IDisposable
     /// <param name="cancellationToken">The <see cref="CancellationToken"/> to observe.</param>
     /// <param name="continueOnCapturedContext">true to attempt to marshal the continuation back to the original context captured; otherwise, false. Defaults to false.</param>
     /// <returns>A disposable value if entered, otherwise null.</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public async ValueTask<IDisposable?> ConditionalLockAsync(bool getLock, int millisecondsTimeout, CancellationToken cancellationToken, bool continueOnCapturedContext = false)
     {
         if (getLock)
@@ -743,7 +702,6 @@ public sealed class AsyncNonKeyedLocker : IDisposable
     /// <param name="cancellationToken">The <see cref="CancellationToken"/> to observe.</param>
     /// <param name="continueOnCapturedContext">true to attempt to marshal the continuation back to the original context captured; otherwise, false. Defaults to false.</param>
     /// <returns>A disposable value if entered, otherwise null.</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public async ValueTask<IDisposable?> ConditionalLockAsync(bool getLock, TimeSpan timeout, CancellationToken cancellationToken, bool continueOnCapturedContext = false)
     {
         if (getLock)
@@ -762,7 +720,6 @@ public sealed class AsyncNonKeyedLocker : IDisposable
     /// <param name="getLock">Condition for getting lock if true, otherwise enters without locking.</param>
     /// <param name="configureAwaitOptions">Options used to configure how awaits on this task are performed.</param>
     /// <returns>A disposable value if entered, otherwise null.</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public async ValueTask<IDisposable?> ConditionalLockAsync(bool getLock, ConfigureAwaitOptions configureAwaitOptions)
     {
         if (getLock)
@@ -780,7 +737,6 @@ public sealed class AsyncNonKeyedLocker : IDisposable
     /// <param name="cancellationToken">The <see cref="CancellationToken"/> to observe.</param>
     /// <param name="configureAwaitOptions">Options used to configure how awaits on this task are performed.</param>
     /// <returns>A disposable value if entered, otherwise null.</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public async ValueTask<IDisposable?> ConditionalLockAsync(bool getLock, CancellationToken cancellationToken, ConfigureAwaitOptions configureAwaitOptions)
     {
         if (getLock)
@@ -798,7 +754,6 @@ public sealed class AsyncNonKeyedLocker : IDisposable
     /// <param name="millisecondsTimeout">The number of milliseconds to wait, <see cref="Timeout.Infinite"/> (-1) to wait indefinitely, or zero to test the state of the wait handle and return immediately.</param>
     /// <param name="configureAwaitOptions">Options used to configure how awaits on this task are performed.</param>
     /// <returns>A disposable value if entered, otherwise null.</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public async ValueTask<IDisposable?> ConditionalLockAsync(bool getLock, int millisecondsTimeout, ConfigureAwaitOptions configureAwaitOptions)
     {
         if (getLock)
@@ -819,7 +774,6 @@ public sealed class AsyncNonKeyedLocker : IDisposable
     /// <param name="timeout">A <see cref="TimeSpan"/> that represents the number of milliseconds to wait, a <see cref="TimeSpan"/> that represents -1 milliseconds to wait indefinitely, or a <see cref="TimeSpan"/> that represents 0 milliseconds to test the wait handle and return immediately.</param>
     /// <param name="configureAwaitOptions">Options used to configure how awaits on this task are performed.</param>
     /// <returns>A disposable value if entered, otherwise null.</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public async ValueTask<IDisposable?> ConditionalLockAsync(bool getLock, TimeSpan timeout, ConfigureAwaitOptions configureAwaitOptions)
     {
         if (getLock)
@@ -841,7 +795,6 @@ public sealed class AsyncNonKeyedLocker : IDisposable
     /// <param name="cancellationToken">The <see cref="CancellationToken"/> to observe.</param>
     /// <param name="configureAwaitOptions">Options used to configure how awaits on this task are performed.</param>
     /// <returns>A disposable value if entered, otherwise null.</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public async ValueTask<IDisposable?> ConditionalLockAsync(bool getLock, int millisecondsTimeout, CancellationToken cancellationToken, ConfigureAwaitOptions configureAwaitOptions)
     {
         if (getLock)
@@ -863,7 +816,6 @@ public sealed class AsyncNonKeyedLocker : IDisposable
     /// <param name="cancellationToken">The <see cref="CancellationToken"/> to observe.</param>
     /// <param name="configureAwaitOptions">Options used to configure how awaits on this task are performed.</param>
     /// <returns>A disposable value if entered, otherwise null.</returns>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public async ValueTask<IDisposable?> ConditionalLockAsync(bool getLock, TimeSpan timeout, CancellationToken cancellationToken, ConfigureAwaitOptions configureAwaitOptions)
     {
         if (getLock)
@@ -884,28 +836,18 @@ public sealed class AsyncNonKeyedLocker : IDisposable
     /// </summary>
     /// <returns>The number of requests concurrently locked.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public int GetRemainingCount()
-    {
-        return _maxCount - _semaphoreSlim.CurrentCount;
-    }
+    public int GetRemainingCount() => _maxCount - _semaphoreSlim.CurrentCount;
 
     /// <summary>
     /// Get the number of remaining threads that can enter the lock.
     /// </summary>
     /// <returns>The number of remaining threads that can enter the lock.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public int GetCurrentCount()
-    {
-        return _semaphoreSlim.CurrentCount;
-    }
+    public int GetCurrentCount() => _semaphoreSlim.CurrentCount;
 
     /// <summary>
     /// Disposes the AsyncNonKeyedLocker.
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public void Dispose()
-    {
-        _semaphoreSlim.Dispose();
-    }
-
+    public void Dispose() => _semaphoreSlim.Dispose();
 }
