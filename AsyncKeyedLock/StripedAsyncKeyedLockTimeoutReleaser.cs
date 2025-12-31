@@ -10,6 +10,9 @@ namespace AsyncKeyedLock;
 /// <summary>
 /// Represents an <see cref="IDisposable"/> for AsyncKeyedLock with timeouts.
 /// </summary>
+#if NET5_0_OR_GREATER
+[SkipLocalsInit]
+#endif
 public sealed class StripedAsyncKeyedLockTimeoutReleaser : IDisposable
 {
     /// <summary>

@@ -11,7 +11,7 @@ namespace AsyncKeyedLock;
 /// Represents an <see cref="IDisposable"/> for AsyncKeyedLock.
 /// </summary>
 #if NET5_0_OR_GREATER
-    [SkipLocalsInit]
+[SkipLocalsInit]
 #endif
 public sealed class AsyncKeyedLockReleaser<TKey> : IDisposable where TKey : notnull
 {

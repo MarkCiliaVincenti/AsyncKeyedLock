@@ -2,6 +2,7 @@
 // Licensed under the MIT license. See LICENSE file in the project root for full license information.
 
 using System;
+using System.Runtime.CompilerServices;
 using System.Threading;
 
 namespace AsyncKeyedLock;
@@ -9,6 +10,9 @@ namespace AsyncKeyedLock;
 /// <summary>
 /// Represents an <see cref="IDisposable"/> for AsyncKeyedLock.
 /// </summary>
+#if NET5_0_OR_GREATER
+[SkipLocalsInit]
+#endif
 public readonly struct StripedAsyncKeyedLockReleaser : IDisposable
 {
     internal StripedAsyncKeyedLockReleaser(SemaphoreSlim semaphoreSlim)

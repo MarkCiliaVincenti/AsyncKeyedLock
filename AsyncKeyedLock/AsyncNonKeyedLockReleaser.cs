@@ -10,6 +10,9 @@ namespace AsyncKeyedLock;
 /// <summary>
 /// Represents an <see cref="IDisposable"/> for AsyncNonKeyedLocker.
 /// </summary>
+#if NET5_0_OR_GREATER
+[SkipLocalsInit]
+#endif
 public readonly struct AsyncNonKeyedLockReleaser : IDisposable
 {
     private readonly AsyncNonKeyedLocker _locker;
