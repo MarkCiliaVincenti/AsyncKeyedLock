@@ -1544,6 +1544,7 @@ public sealed class StripedAsyncKeyedLocker<TKey> : IDisposable where TKey : not
     /// <summary>
     /// Disposes the StripedAsyncKeyedLocker.
     /// </summary>
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1031:Do not catch general exception types", Justification = "<Pending>")]
     public void Dispose()
     {
         foreach (var releaser in _releasers)
@@ -1552,9 +1553,7 @@ public sealed class StripedAsyncKeyedLocker<TKey> : IDisposable where TKey : not
             {
                 releaser.SemaphoreSlim.Dispose();
             }
-            catch (ObjectDisposedException) { } // do nothing
-            catch (SemaphoreFullException) { } // do nothing
-            catch (NullReferenceException) { } // do nothing
+            catch { } // do nothing
         }
     }
 }

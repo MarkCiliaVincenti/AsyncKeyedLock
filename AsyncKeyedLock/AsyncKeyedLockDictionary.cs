@@ -223,6 +223,7 @@ internal sealed class AsyncKeyedLockDictionary<TKey> : ConcurrentDictionary<TKey
         }
     }
 
+    [System.Diagnostics.CodeAnalysis.SuppressMessage("Design", "CA1031:Do not catch general exception types", Justification = "<Pending>")]
     public void Dispose()
     {
         foreach (var semaphore in Values)
@@ -231,18 +232,16 @@ internal sealed class AsyncKeyedLockDictionary<TKey> : ConcurrentDictionary<TKey
             {
                 semaphore?.Dispose();
             }
-            catch (ObjectDisposedException) { } // do nothing
-            catch (SemaphoreFullException) { } // do nothing
-            catch (NullReferenceException) { } // do nothing
+            catch { } // do nothing
         }
         Clear();
         if (PoolingEnabled)
         {
             try
             {
-                _pool?.Dispose();
+                _pool!.Dispose();
             }
-            catch (NullReferenceException) { } // do nothing
+            catch { } // do nothing
         }
     }
 }

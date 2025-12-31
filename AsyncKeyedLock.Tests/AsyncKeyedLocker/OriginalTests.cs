@@ -8,6 +8,59 @@ namespace AsyncKeyedLock.Tests.AsyncKeyedLocker;
 [CollectionDefinition("Original Tests", DisableParallelization = false)]
 public class OriginalTests
 {
+    public void Null_Parameters_Should_Throw()
+    {
+        Action options = () =>
+        {
+            AsyncKeyedLockOptions options = null!;
+            using var asyncKeyedLocker = new AsyncKeyedLocker<string>(options);
+        };
+        Action actionOptions = () =>
+        {
+            Action<AsyncKeyedLockOptions> options = null!;
+            using var asyncKeyedLocker = new AsyncKeyedLocker<string>(options);
+        };
+        Action optionsWithComparer = () =>
+        {
+            AsyncKeyedLockOptions options = null!;
+            using var asyncKeyedLocker = new AsyncKeyedLocker<string>(options, StringComparer.Ordinal);
+        };
+        Action actionOptionsWithComparer = () =>
+        {
+            Action<AsyncKeyedLockOptions> options = null!;
+            using var asyncKeyedLocker = new AsyncKeyedLocker<string>(options, StringComparer.Ordinal);
+        };
+        Action optionsWithConcurrencyLevelAndCapacity = () =>
+        {
+            AsyncKeyedLockOptions options = null!;
+            using var asyncKeyedLocker = new AsyncKeyedLocker<string>(options, 1, 1);
+        };
+        Action actionOptionsWithConcurrencyLevelAndCapacity = () =>
+        {
+            Action<AsyncKeyedLockOptions> options = null!;
+            using var asyncKeyedLocker = new AsyncKeyedLocker<string>(options, 1, 1);
+        };
+        Action optionsWithConcurrencyLevelAndCapacityAndComparer = () =>
+        {
+            AsyncKeyedLockOptions options = null!;
+            using var asyncKeyedLocker = new AsyncKeyedLocker<string>(options, 1, 1, StringComparer.Ordinal);
+        };
+        Action actionOptionsWithConcurrencyLevelAndCapacityAndComparer = () =>
+        {
+            Action<AsyncKeyedLockOptions> options = null!;
+            using var asyncKeyedLocker = new AsyncKeyedLocker<string>(options, 1, 1, StringComparer.Ordinal);
+        };
+
+        options.Should().Throw<ArgumentNullException>();
+        actionOptions.Should().Throw<ArgumentNullException>();
+        optionsWithComparer.Should().Throw<ArgumentNullException>();
+        actionOptionsWithComparer.Should().Throw<ArgumentNullException>();
+        optionsWithConcurrencyLevelAndCapacity.Should().Throw<ArgumentNullException>();
+        actionOptionsWithConcurrencyLevelAndCapacity.Should().Throw<ArgumentNullException>();
+        optionsWithConcurrencyLevelAndCapacityAndComparer.Should().Throw<ArgumentNullException>();
+        actionOptionsWithConcurrencyLevelAndCapacityAndComparer.Should().Throw<ArgumentNullException>();
+    }
+
     [Fact]
     public void DoubleDispose_ShouldNotThrow()
     {
