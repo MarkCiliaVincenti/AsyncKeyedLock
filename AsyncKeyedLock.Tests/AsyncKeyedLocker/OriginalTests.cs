@@ -8,6 +8,7 @@ namespace AsyncKeyedLock.Tests.AsyncKeyedLocker;
 [CollectionDefinition("Original Tests", DisableParallelization = false)]
 public class OriginalTests
 {
+    [Fact]
     public void Null_Parameters_Should_Throw()
     {
         Action options = () =>
