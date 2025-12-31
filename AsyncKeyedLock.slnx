@@ -1,7 +1,10 @@
 <Solution>
   <Folder Name="/Solution Items/">
+    <File Path=".editorconfig" />
     <File Path="Directory.Build.props" />
     <File Path="Directory.Packages.props" />
+    <File Path="LICENSE" />
+    <File Path="stylecop.json" />
   </Folder>
   <Project Path="AsyncKeyedLock.Tests/AsyncKeyedLock.Tests.csproj" />
   <Project Path="AsyncKeyedLock/AsyncKeyedLock.csproj" />

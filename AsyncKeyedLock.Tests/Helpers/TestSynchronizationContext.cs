@@ -1,6 +1,6 @@
-﻿namespace AsyncKeyedLock.Tests.Helpers;
+namespace AsyncKeyedLock.Tests.Helpers;
 
-public class TestSynchronizationContext : SynchronizationContext
+internal class TestSynchronizationContext : SynchronizationContext
 {
     public int LastPostThreadId { get; private set; }
 

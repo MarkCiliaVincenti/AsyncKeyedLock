@@ -1,9 +1,13 @@
-﻿using System;
+// Copyright (c) All contributors.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
+using static System.Collections.Specialized.BitVector32;
 
 [assembly: InternalsVisibleTo("AsyncKeyedLock.Tests, PublicKey=002400000480000094000000060200000024000052534131000" +
     "4000001000100a5cffbe51901ba498a225214c7eee4ff5f0341aad9f7605a596e72dbffdf234bcf2c157f7e3a4e2a3900cbc0d3919a6b" +
@@ -276,7 +280,10 @@ public sealed class StripedAsyncKeyedLocker<TKey> : IDisposable where TKey : not
 
         try
         {
-            action();
+            if (action is not null)
+            {
+                action();
+            }
         }
         finally
         {
@@ -302,7 +309,10 @@ public sealed class StripedAsyncKeyedLocker<TKey> : IDisposable where TKey : not
 
         try
         {
-            action();
+            if (action is not null)
+            {
+                action();
+            }
         }
         finally
         {
@@ -329,7 +339,10 @@ public sealed class StripedAsyncKeyedLocker<TKey> : IDisposable where TKey : not
 
         try
         {
-            action();
+            if (action is not null)
+            {
+                action();
+            }
         }
         finally
         {
@@ -356,7 +369,10 @@ public sealed class StripedAsyncKeyedLocker<TKey> : IDisposable where TKey : not
 
         try
         {
-            action();
+            if (action is not null)
+            {
+                action();
+            }
         }
         finally
         {
@@ -385,7 +401,10 @@ public sealed class StripedAsyncKeyedLocker<TKey> : IDisposable where TKey : not
 
         try
         {
-            action();
+            if (action is not null)
+            {
+                action();
+            }
         }
         finally
         {
@@ -412,7 +431,10 @@ public sealed class StripedAsyncKeyedLocker<TKey> : IDisposable where TKey : not
 
         try
         {
-            await task().ConfigureAwait(continueOnCapturedContext);
+            if (task is not null)
+            {
+                await task().ConfigureAwait(continueOnCapturedContext);
+            }
         }
         finally
         {
@@ -439,7 +461,10 @@ public sealed class StripedAsyncKeyedLocker<TKey> : IDisposable where TKey : not
 
         try
         {
-            action();
+            if (action is not null)
+            {
+                action();
+            }
         }
         finally
         {
@@ -466,7 +491,10 @@ public sealed class StripedAsyncKeyedLocker<TKey> : IDisposable where TKey : not
 
         try
         {
-            await task().ConfigureAwait(continueOnCapturedContext);
+            if (task is not null)
+            {
+                await task().ConfigureAwait(continueOnCapturedContext);
+            }
         }
         finally
         {
@@ -494,7 +522,10 @@ public sealed class StripedAsyncKeyedLocker<TKey> : IDisposable where TKey : not
 
         try
         {
-            action();
+            if (action is not null)
+            {
+                action();
+            }
         }
         finally
         {
@@ -522,7 +553,10 @@ public sealed class StripedAsyncKeyedLocker<TKey> : IDisposable where TKey : not
 
         try
         {
-            await task().ConfigureAwait(continueOnCapturedContext);
+            if (task is not null)
+            {
+                await task().ConfigureAwait(continueOnCapturedContext);
+            }
         }
         finally
         {
@@ -550,7 +584,10 @@ public sealed class StripedAsyncKeyedLocker<TKey> : IDisposable where TKey : not
 
         try
         {
-            action();
+            if (action is not null)
+            {
+                action();
+            }
         }
         finally
         {
@@ -578,7 +615,10 @@ public sealed class StripedAsyncKeyedLocker<TKey> : IDisposable where TKey : not
 
         try
         {
-            await task().ConfigureAwait(continueOnCapturedContext);
+            if (task is not null)
+            {
+                await task().ConfigureAwait(continueOnCapturedContext);
+            }
         }
         finally
         {
@@ -590,6 +630,7 @@ public sealed class StripedAsyncKeyedLocker<TKey> : IDisposable where TKey : not
 
     #region AsynchronousTryNet8.0
 #if NET8_0_OR_GREATER
+#pragma warning disable CA1068 // CancellationToken parameters must come last
     /// <summary>
     /// Asynchronously lock based on a key, setting a limit for the number of milliseconds to wait, and if not timed out, scynchronously execute an action and release.
     /// </summary>
@@ -608,7 +649,10 @@ public sealed class StripedAsyncKeyedLocker<TKey> : IDisposable where TKey : not
 
         try
         {
-            action();
+            if (action is not null)
+            {
+                action();
+            }
         }
         finally
         {
@@ -635,7 +679,10 @@ public sealed class StripedAsyncKeyedLocker<TKey> : IDisposable where TKey : not
 
         try
         {
-            await task().ConfigureAwait(configureAwaitOptions);
+            if (task is not null)
+            {
+                await task().ConfigureAwait(configureAwaitOptions);
+            }
         }
         finally
         {
@@ -662,7 +709,10 @@ public sealed class StripedAsyncKeyedLocker<TKey> : IDisposable where TKey : not
 
         try
         {
-            action();
+            if (action is not null)
+            {
+                action();
+            }
         }
         finally
         {
@@ -689,7 +739,10 @@ public sealed class StripedAsyncKeyedLocker<TKey> : IDisposable where TKey : not
 
         try
         {
-            await task().ConfigureAwait(configureAwaitOptions);
+            if (task is not null)
+            {
+                await task().ConfigureAwait(configureAwaitOptions);
+            }
         }
         finally
         {
@@ -717,7 +770,10 @@ public sealed class StripedAsyncKeyedLocker<TKey> : IDisposable where TKey : not
 
         try
         {
-            action();
+            if (action is not null)
+            {
+                action();
+            }
         }
         finally
         {
@@ -745,7 +801,10 @@ public sealed class StripedAsyncKeyedLocker<TKey> : IDisposable where TKey : not
 
         try
         {
-            await task().ConfigureAwait(configureAwaitOptions);
+            if (task is not null)
+            {
+                await task().ConfigureAwait(configureAwaitOptions);
+            }
         }
         finally
         {
@@ -773,7 +832,10 @@ public sealed class StripedAsyncKeyedLocker<TKey> : IDisposable where TKey : not
 
         try
         {
-            action();
+            if (action is not null)
+            {
+                action();
+            }
         }
         finally
         {
@@ -801,7 +863,10 @@ public sealed class StripedAsyncKeyedLocker<TKey> : IDisposable where TKey : not
 
         try
         {
-            await task().ConfigureAwait(configureAwaitOptions);
+            if (task is not null)
+            {
+                await task().ConfigureAwait(configureAwaitOptions);
+            }
         }
         finally
         {
@@ -809,6 +874,7 @@ public sealed class StripedAsyncKeyedLocker<TKey> : IDisposable where TKey : not
         }
         return true;
     }
+#pragma warning restore CA1068 // CancellationToken parameters must come last
 #endif
     #endregion AsynchronousTryNet8.0
 
@@ -971,6 +1037,7 @@ public sealed class StripedAsyncKeyedLocker<TKey> : IDisposable where TKey : not
 
     #region AsynchronousNet8.0
 #if NET8_0_OR_GREATER
+#pragma warning disable CA1068 // CancellationToken parameters must come last
     /// <summary>
     /// Asynchronously lock based on a key.
     /// </summary>
@@ -1124,6 +1191,7 @@ public sealed class StripedAsyncKeyedLocker<TKey> : IDisposable where TKey : not
         }
         return null;
     }
+#pragma warning restore CA1068 // CancellationToken parameters must come last
 #endif
     #endregion AsynchronousNet8.0
 
@@ -1333,6 +1401,7 @@ public sealed class StripedAsyncKeyedLocker<TKey> : IDisposable where TKey : not
 
     #region ConditionalAsynchronousNet8.0
 #if NET8_0_OR_GREATER
+#pragma warning disable CA1068 // CancellationToken parameters must come last
     /// <summary>
     /// Asynchronously lock based on a key. If the condition is false, it enters without locking.
     /// </summary>
@@ -1459,6 +1528,7 @@ public sealed class StripedAsyncKeyedLocker<TKey> : IDisposable where TKey : not
         }
         return null;
     }
+#pragma warning restore CA1068 // CancellationToken parameters must come last
 #endif
     #endregion ConditionalAsynchronousNet8.0
 
@@ -1482,7 +1552,9 @@ public sealed class StripedAsyncKeyedLocker<TKey> : IDisposable where TKey : not
             {
                 releaser.SemaphoreSlim.Dispose();
             }
-            catch { } // do nothing
+            catch (ObjectDisposedException) { } // do nothing
+            catch (SemaphoreFullException) { } // do nothing
+            catch (NullReferenceException) { } // do nothing
         }
     }
 }

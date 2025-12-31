@@ -1,4 +1,7 @@
-﻿using System;
+// Copyright (c) All contributors.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+
+using System;
 using System.Runtime.CompilerServices;
 using System.Threading;
 
@@ -7,29 +10,22 @@ namespace AsyncKeyedLock;
 /// <summary>
 /// Represents an <see cref="IDisposable"/> for AsyncKeyedLock with timeouts.
 /// </summary>
+/// <remarks>
+/// Creates a releaser that only disposes the <see cref="SemaphoreSlim"/> if enteredSemaphore is true.
+/// </remarks>
+/// <param name="enteredSemaphore">If set to true, will dispose the <see cref="SemaphoreSlim"/>.</param>
+/// <param name="releaser">The <see cref="AsyncKeyedLockReleaser{TKey}"/> releaser.</param>
 #if NET5_0_OR_GREATER
-    [SkipLocalsInit]
+[SkipLocalsInit]
 #endif
-public sealed class AsyncKeyedLockTimeoutReleaser<TKey> : IDisposable where TKey : notnull
+public sealed class AsyncKeyedLockTimeoutReleaser<TKey>(bool enteredSemaphore, AsyncKeyedLockReleaser<TKey> releaser) : IDisposable where TKey : notnull
 {
     /// <summary>
     /// True if the timeout was reached, false if not.
     /// </summary>
-    public bool EnteredSemaphore => _enteredSemaphore;
+    public bool EnteredSemaphore => enteredSemaphore;
 
-    private readonly bool _enteredSemaphore;
-    internal readonly AsyncKeyedLockReleaser<TKey> _releaser;
-
-    /// <summary>
-    /// Creates a releaser that only disposes the <see cref="SemaphoreSlim"/> if enteredSemaphore is true.
-    /// </summary>
-    /// <param name="enteredSemaphore">If set to true, will dispose the <see cref="SemaphoreSlim"/>.</param>
-    /// <param name="releaser">The <see cref="AsyncKeyedLockReleaser{TKey}"/> releaser.</param>
-    public AsyncKeyedLockTimeoutReleaser(bool enteredSemaphore, AsyncKeyedLockReleaser<TKey> releaser)
-    {
-        _enteredSemaphore = enteredSemaphore;
-        _releaser = releaser;
-    }
+    internal readonly AsyncKeyedLockReleaser<TKey> _releaser = releaser;
 
     /// <summary>
     /// Releases the <see cref="SemaphoreSlim"/> object once, depending on whether or not the semaphore was entered.

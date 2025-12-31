@@ -1,4 +1,7 @@
-﻿using System;
+// Copyright (c) All contributors.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+
+using System;
 using System.Runtime.CompilerServices;
 using System.Threading;
 
@@ -21,7 +24,7 @@ public sealed class AsyncKeyedLockReleaser<TKey> : IDisposable where TKey : notn
     }
 #endif
 
-    internal bool IsNotInUse { get; set; } = false;
+    internal bool IsNotInUse { get; set; }
 
     private TKey _key;
 

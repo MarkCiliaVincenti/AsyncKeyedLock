@@ -1,4 +1,4 @@
-﻿using FluentAssertions;
+using FluentAssertions;
 using Xunit;
 
 namespace AsyncKeyedLock.Tests.AsyncNonKeyedLockerTests;
@@ -17,7 +17,7 @@ public class OriginalTests
     [Fact]
     public void TestRecursion()
     {
-        var asyncNonKeyedLocker = new AsyncNonKeyedLocker();
+        using var asyncNonKeyedLocker = new AsyncNonKeyedLocker();
 
         double Factorial(int number, bool isFirst = true)
         {
@@ -35,7 +35,7 @@ public class OriginalTests
     [Fact]
     public async Task TestRecursionAsync()
     {
-        var asyncNonKeyedLocker = new AsyncNonKeyedLocker();
+        using var asyncNonKeyedLocker = new AsyncNonKeyedLocker();
 
         async Task<double> Factorial(int number, bool isFirst = true)
         {
@@ -53,7 +53,7 @@ public class OriginalTests
     [Fact]
     public void TestRecursionWithCancellationToken()
     {
-        var asyncNonKeyedLocker = new AsyncNonKeyedLocker();
+        using var asyncNonKeyedLocker = new AsyncNonKeyedLocker();
 
         double Factorial(int number, bool isFirst = true)
         {
@@ -71,7 +71,7 @@ public class OriginalTests
     [Fact]
     public async Task TestRecursionWithCancellationTokenAsync()
     {
-        var asyncNonKeyedLocker = new AsyncNonKeyedLocker();
+        using var asyncNonKeyedLocker = new AsyncNonKeyedLocker();
 
         async Task<double> Factorial(int number, bool isFirst = true)
         {
@@ -89,7 +89,7 @@ public class OriginalTests
     [Fact]
     public void TestRecursionWithTimeout()
     {
-        var asyncNonKeyedLocker = new AsyncNonKeyedLocker();
+        using var asyncNonKeyedLocker = new AsyncNonKeyedLocker();
 
         double Factorial(int number, bool isFirst = true)
         {
@@ -107,7 +107,7 @@ public class OriginalTests
     [Fact]
     public async Task TestRecursionWithTimeoutAsync()
     {
-        var asyncNonKeyedLocker = new AsyncNonKeyedLocker();
+        using var asyncNonKeyedLocker = new AsyncNonKeyedLocker();
 
         async Task<double> Factorial(int number, bool isFirst = true)
         {
@@ -125,7 +125,7 @@ public class OriginalTests
     [Fact]
     public void TestRecursionWithTimeSpan()
     {
-        var asyncNonKeyedLocker = new AsyncNonKeyedLocker();
+        using var asyncNonKeyedLocker = new AsyncNonKeyedLocker();
 
         double Factorial(int number, bool isFirst = true)
         {
@@ -143,7 +143,7 @@ public class OriginalTests
     [Fact]
     public async Task TestRecursionWithTimeSpanAsync()
     {
-        var asyncNonKeyedLocker = new AsyncNonKeyedLocker();
+        using var asyncNonKeyedLocker = new AsyncNonKeyedLocker();
 
         async Task<double> Factorial(int number, bool isFirst = true)
         {
@@ -161,7 +161,7 @@ public class OriginalTests
     [Fact]
     public void TestRecursionWithTimeoutAndCancellationToken()
     {
-        var asyncNonKeyedLocker = new AsyncNonKeyedLocker();
+        using var asyncNonKeyedLocker = new AsyncNonKeyedLocker();
 
         double Factorial(int number, bool isFirst = true)
         {
@@ -179,7 +179,7 @@ public class OriginalTests
     [Fact]
     public async Task TestRecursionWithTimeoutAndCancellationTokenAsync()
     {
-        var asyncNonKeyedLocker = new AsyncNonKeyedLocker();
+        using var asyncNonKeyedLocker = new AsyncNonKeyedLocker();
 
         async Task<double> Factorial(int number, bool isFirst = true)
         {
@@ -197,7 +197,7 @@ public class OriginalTests
     [Fact]
     public void TestRecursionWithTimeSpanAndCancellationToken()
     {
-        var asyncNonKeyedLocker = new AsyncNonKeyedLocker();
+        using var asyncNonKeyedLocker = new AsyncNonKeyedLocker();
 
         double Factorial(int number, bool isFirst = true)
         {
@@ -215,7 +215,7 @@ public class OriginalTests
     [Fact]
     public async Task TestRecursionWithTimeSpanAndCancellationTokenAsync()
     {
-        var asyncNonKeyedLocker = new AsyncNonKeyedLocker();
+        using var asyncNonKeyedLocker = new AsyncNonKeyedLocker();
 
         async Task<double> Factorial(int number, bool isFirst = true)
         {
@@ -251,7 +251,7 @@ public class OriginalTests
     [Fact]
     public void TestLock()
     {
-        var asyncNonKeyedLocker = new AsyncNonKeyedLocker();
+        using var asyncNonKeyedLocker = new AsyncNonKeyedLocker();
         Assert.Equal(0, asyncNonKeyedLocker.GetRemainingCount());
         Assert.Equal(1, asyncNonKeyedLocker.GetCurrentCount());
         using (var myLock = (AsyncNonKeyedLockReleaser)asyncNonKeyedLocker.Lock())
@@ -266,7 +266,7 @@ public class OriginalTests
     [Fact]
     public void TestLockAndCancellationToken()
     {
-        var asyncNonKeyedLocker = new AsyncNonKeyedLocker();
+        using var asyncNonKeyedLocker = new AsyncNonKeyedLocker();
         Assert.Equal(0, asyncNonKeyedLocker.GetRemainingCount());
         Assert.Equal(1, asyncNonKeyedLocker.GetCurrentCount());
         using (asyncNonKeyedLocker.Lock(CancellationToken.None))
@@ -283,7 +283,7 @@ public class OriginalTests
     {
         Action action = () =>
         {
-            var asyncNonKeyedLocker = new AsyncNonKeyedLocker();
+            using var asyncNonKeyedLocker = new AsyncNonKeyedLocker();
             using (asyncNonKeyedLocker.Lock(new CancellationToken(true)))
             { }
         };
@@ -293,7 +293,7 @@ public class OriginalTests
     [Fact]
     public void TestLockAndMillisecondsTimeout()
     {
-        var asyncNonKeyedLocker = new AsyncNonKeyedLocker();
+        using var asyncNonKeyedLocker = new AsyncNonKeyedLocker();
         Assert.Equal(0, asyncNonKeyedLocker.GetRemainingCount());
         Assert.Equal(1, asyncNonKeyedLocker.GetCurrentCount());
         using (var myLock = asyncNonKeyedLocker.Lock(Timeout.Infinite, out bool entered))
@@ -312,7 +312,7 @@ public class OriginalTests
     [Fact]
     public void TestLockOrNullAndMillisecondsTimeout()
     {
-        var asyncNonKeyedLocker = new AsyncNonKeyedLocker();
+        using var asyncNonKeyedLocker = new AsyncNonKeyedLocker();
         Assert.Equal(0, asyncNonKeyedLocker.GetRemainingCount());
         Assert.Equal(1, asyncNonKeyedLocker.GetCurrentCount());
         using (var myLock = asyncNonKeyedLocker.LockOrNull(Timeout.Infinite))
@@ -330,7 +330,7 @@ public class OriginalTests
     [Fact]
     public void TestLockAndTimeout()
     {
-        var asyncNonKeyedLocker = new AsyncNonKeyedLocker();
+        using var asyncNonKeyedLocker = new AsyncNonKeyedLocker();
         Assert.Equal(0, asyncNonKeyedLocker.GetRemainingCount());
         Assert.Equal(1, asyncNonKeyedLocker.GetCurrentCount());
         using (var myLock = asyncNonKeyedLocker.Lock(Timeout.InfiniteTimeSpan, out bool entered))
@@ -349,7 +349,7 @@ public class OriginalTests
     [Fact]
     public void TestLockOrNullAndTimeout()
     {
-        var asyncNonKeyedLocker = new AsyncNonKeyedLocker();
+        using var asyncNonKeyedLocker = new AsyncNonKeyedLocker();
         Assert.Equal(0, asyncNonKeyedLocker.GetRemainingCount());
         Assert.Equal(1, asyncNonKeyedLocker.GetCurrentCount());
         using (var myLock = asyncNonKeyedLocker.LockOrNull(Timeout.InfiniteTimeSpan))
@@ -367,7 +367,7 @@ public class OriginalTests
     [Fact]
     public void TestLockAndMillisecondsTimeoutAndCancellationToken()
     {
-        var asyncNonKeyedLocker = new AsyncNonKeyedLocker();
+        using var asyncNonKeyedLocker = new AsyncNonKeyedLocker();
         Assert.Equal(0, asyncNonKeyedLocker.GetRemainingCount());
         Assert.Equal(1, asyncNonKeyedLocker.GetCurrentCount());
         using (var myLock = asyncNonKeyedLocker.Lock(0, CancellationToken.None, out bool entered))
@@ -392,7 +392,7 @@ public class OriginalTests
     [Fact]
     public void TestLockOrNullAndMillisecondsTimeoutAndCancellationToken()
     {
-        var asyncNonKeyedLocker = new AsyncNonKeyedLocker();
+        using var asyncNonKeyedLocker = new AsyncNonKeyedLocker();
         Assert.Equal(0, asyncNonKeyedLocker.GetRemainingCount());
         Assert.Equal(1, asyncNonKeyedLocker.GetCurrentCount());
         using (var myLock = asyncNonKeyedLocker.LockOrNull(0, CancellationToken.None))
@@ -419,7 +419,7 @@ public class OriginalTests
         bool entered = false;
         Action action = () =>
         {
-            var asyncNonKeyedLocker = new AsyncNonKeyedLocker();
+            using var asyncNonKeyedLocker = new AsyncNonKeyedLocker();
             using (asyncNonKeyedLocker.Lock(0, new CancellationToken(true), out entered))
             { }
         };
@@ -433,7 +433,7 @@ public class OriginalTests
         bool entered = false;
         Action action = () =>
         {
-            var asyncNonKeyedLocker = new AsyncNonKeyedLocker();
+            using var asyncNonKeyedLocker = new AsyncNonKeyedLocker();
             using (asyncNonKeyedLocker.LockOrNull(0, new CancellationToken(true)))
             { }
         };
@@ -447,7 +447,7 @@ public class OriginalTests
         bool entered = false;
         Action action = () =>
         {
-            var asyncNonKeyedLocker = new AsyncNonKeyedLocker();
+            using var asyncNonKeyedLocker = new AsyncNonKeyedLocker();
             using (asyncNonKeyedLocker.Lock(Timeout.Infinite, new CancellationToken(true), out entered))
             { }
         };
@@ -461,7 +461,7 @@ public class OriginalTests
         bool entered = false;
         Action action = () =>
         {
-            var asyncNonKeyedLocker = new AsyncNonKeyedLocker();
+            using var asyncNonKeyedLocker = new AsyncNonKeyedLocker();
             using (asyncNonKeyedLocker.LockOrNull(Timeout.Infinite, new CancellationToken(true)))
             { }
         };
@@ -472,7 +472,7 @@ public class OriginalTests
     [Fact]
     public void TestLockAndTimeoutAndCancellationToken()
     {
-        var asyncNonKeyedLocker = new AsyncNonKeyedLocker();
+        using var asyncNonKeyedLocker = new AsyncNonKeyedLocker();
         Assert.Equal(0, asyncNonKeyedLocker.GetRemainingCount());
         Assert.Equal(1, asyncNonKeyedLocker.GetCurrentCount());
         using (var myLock = asyncNonKeyedLocker.Lock(TimeSpan.Zero, CancellationToken.None, out bool entered))
@@ -497,7 +497,7 @@ public class OriginalTests
     [Fact]
     public void TestLockOrNullAndTimeoutAndCancellationToken()
     {
-        var asyncNonKeyedLocker = new AsyncNonKeyedLocker();
+        using var asyncNonKeyedLocker = new AsyncNonKeyedLocker();
         Assert.Equal(0, asyncNonKeyedLocker.GetRemainingCount());
         Assert.Equal(1, asyncNonKeyedLocker.GetCurrentCount());
         using (var myLock = asyncNonKeyedLocker.LockOrNull(TimeSpan.Zero, CancellationToken.None))
@@ -524,7 +524,7 @@ public class OriginalTests
         bool entered = false;
         Action action = () =>
         {
-            var asyncNonKeyedLocker = new AsyncNonKeyedLocker();
+            using var asyncNonKeyedLocker = new AsyncNonKeyedLocker();
             using (asyncNonKeyedLocker.Lock(TimeSpan.Zero, new CancellationToken(true), out entered))
             { }
         };
@@ -538,7 +538,7 @@ public class OriginalTests
         bool entered = false;
         Action action = () =>
         {
-            var asyncNonKeyedLocker = new AsyncNonKeyedLocker();
+            using var asyncNonKeyedLocker = new AsyncNonKeyedLocker();
             using (asyncNonKeyedLocker.LockOrNull(TimeSpan.Zero, new CancellationToken(true)))
             { }
         };
@@ -552,7 +552,7 @@ public class OriginalTests
         bool entered = false;
         Action action = () =>
         {
-            var asyncNonKeyedLocker = new AsyncNonKeyedLocker();
+            using var asyncNonKeyedLocker = new AsyncNonKeyedLocker();
             using (asyncNonKeyedLocker.Lock(Timeout.InfiniteTimeSpan, new CancellationToken(true), out entered))
             { }
         };
@@ -566,7 +566,7 @@ public class OriginalTests
         bool entered = false;
         Action action = () =>
         {
-            var asyncNonKeyedLocker = new AsyncNonKeyedLocker();
+            using var asyncNonKeyedLocker = new AsyncNonKeyedLocker();
             using (asyncNonKeyedLocker.LockOrNull(Timeout.InfiniteTimeSpan, new CancellationToken(true)))
             { }
         };

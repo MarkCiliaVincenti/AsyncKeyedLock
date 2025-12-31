@@ -1,4 +1,7 @@
-﻿using System;
+// Copyright (c) All contributors.
+// Licensed under the MIT license. See LICENSE file in the project root for full license information.
+
+using System;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
@@ -8,26 +11,19 @@ namespace AsyncKeyedLock;
 /// <summary>
 /// Represents a lock, limiting concurrent threads to a specified number.
 /// </summary>
+/// <remarks>
+/// The maximum number of requests for the semaphore that can be granted concurrently. Defaults to 1.
+/// </remarks>
 [System.Diagnostics.DebuggerDisplay("Current Count = {GetCurrentCount()}")]
-public sealed class AsyncNonKeyedLocker : IDisposable
+public sealed class AsyncNonKeyedLocker(int maxCount = 1) : IDisposable
 {
-    private readonly int _maxCount;
 
     /// <summary>
     /// The maximum number of requests for the semaphore that can be granted concurrently. Defaults to 1.
     /// </summary>
-    public int MaxCount => _maxCount;
+    public int MaxCount => maxCount;
 
-    internal SemaphoreSlim _semaphoreSlim;
-
-    /// <summary>
-    /// The maximum number of requests for the semaphore that can be granted concurrently. Defaults to 1.
-    /// </summary>
-    public AsyncNonKeyedLocker(int maxCount = 1)
-    {
-        _maxCount = maxCount;
-        _semaphoreSlim = new SemaphoreSlim(maxCount, maxCount);
-    }
+    internal SemaphoreSlim _semaphoreSlim = new(maxCount, maxCount);
 
     #region Synchronous
     /// <summary>
@@ -363,6 +359,7 @@ public sealed class AsyncNonKeyedLocker : IDisposable
 
     #region AsynchronousNet8.0
 #if NET8_0_OR_GREATER
+#pragma warning disable CA1068 // CancellationToken parameters must come last
     /// <summary>
     /// Asynchronously lock.
     /// </summary>
@@ -517,6 +514,7 @@ public sealed class AsyncNonKeyedLocker : IDisposable
         }
         return null;
     }
+#pragma warning restore CA1068 // CancellationToken parameters must come last
 #endif
     #endregion AsynchronousNet8.0
 
@@ -714,6 +712,7 @@ public sealed class AsyncNonKeyedLocker : IDisposable
 
     #region ConditionalAsynchronousNet8.0
 #if NET8_0_OR_GREATER
+#pragma warning disable CA1068 // CancellationToken parameters must come last
     /// <summary>
     /// Asynchronously lock. If the condition is false, it enters without locking.
     /// </summary>
@@ -828,6 +827,7 @@ public sealed class AsyncNonKeyedLocker : IDisposable
         }
         return null;
     }
+#pragma warning restore CA1068 // CancellationToken parameters must come last
 #endif
     #endregion ConditionalAsynchronousNet8.0
 
@@ -836,14 +836,18 @@ public sealed class AsyncNonKeyedLocker : IDisposable
     /// </summary>
     /// <returns>The number of requests concurrently locked.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public int GetRemainingCount() => _maxCount - _semaphoreSlim.CurrentCount;
+#pragma warning disable CA1024 // Use properties where appropriate
+    public int GetRemainingCount() => maxCount - _semaphoreSlim.CurrentCount;
+#pragma warning restore CA1024 // Use properties where appropriate
 
     /// <summary>
     /// Get the number of remaining threads that can enter the lock.
     /// </summary>
     /// <returns>The number of remaining threads that can enter the lock.</returns>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
+#pragma warning disable CA1024 // Use properties where appropriate
     public int GetCurrentCount() => _semaphoreSlim.CurrentCount;
+#pragma warning restore CA1024 // Use properties where appropriate
 
     /// <summary>
     /// Disposes the AsyncNonKeyedLocker.

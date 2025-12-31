@@ -1,5 +1,6 @@
-﻿using FluentAssertions;
 using System.Collections.Concurrent;
+using System.Globalization;
+using FluentAssertions;
 using Xunit;
 using Xunit.Abstractions;
 
@@ -10,23 +11,16 @@ namespace AsyncKeyedLock.Tests.StripedAsyncKeyedLocker.KeyedSemaphores;
 /// </summary>
 [Collection("KeyedSemaphore Tests")]
 [CollectionDefinition("KeyedSemaphore Tests", DisableParallelization = false)]
-public class TestsForStripedAsyncKeyedLock
+public class TestsForStripedAsyncKeyedLock(ITestOutputHelper output) : IDisposable
 {
-    private readonly ITestOutputHelper _output;
+    private readonly ITestOutputHelper _output = output ?? throw new ArgumentNullException(nameof(output));
     private readonly StripedAsyncKeyedLocker<string> _keyedLocker = new();
-    TimeSpan _defaultSynchronousWaitDuration = TimeSpan.FromMilliseconds(10);
-
-    public TestsForStripedAsyncKeyedLock(ITestOutputHelper output)
-    {
-        _output = output ?? throw new ArgumentNullException(nameof(output));
-    }
+    readonly TimeSpan _defaultSynchronousWaitDuration = TimeSpan.FromMilliseconds(10);
 
     [Collection("KeyedSemaphore Tests")]
     [CollectionDefinition("KeyedSemaphore Tests", DisableParallelization = false)]
-    public class Async : TestsForStripedAsyncKeyedLock
+    public class Async(ITestOutputHelper output) : TestsForStripedAsyncKeyedLock(output)
     {
-        public Async(ITestOutputHelper output) : base(output) { }
-
         [Theory]
         [InlineData(100, 100, 3, 100)]
         [InlineData(100, 10, 2, 10)]
@@ -56,7 +50,7 @@ public class TestsForStripedAsyncKeyedLock
 
             async Task OccupyTheLockALittleBit(int key)
             {
-                using (await _keyedLocker.LockAsync(key.ToString()))
+                using (await _keyedLocker.LockAsync(key.ToString(CultureInfo.InvariantCulture)))
                 {
                     var incrementedCurrentParallelism = Interlocked.Increment(ref currentParallelism);
 
@@ -73,9 +67,9 @@ public class TestsForStripedAsyncKeyedLock
                             $"Task #{currentTaskId} acquired a lock using key ${key} but another thread is also still running using this key!");
                     }
 
-                    const int delay = 10;
+                    const int Delay = 10;
 
-                    await Task.Delay(delay);
+                    await Task.Delay(Delay);
 
                     if (!runningTasksIndex.TryRemove(key, out var value))
                     {
@@ -99,10 +93,8 @@ public class TestsForStripedAsyncKeyedLock
 
     [Collection("KeyedSemaphore Tests")]
     [CollectionDefinition("KeyedSemaphore Tests", DisableParallelization = false)]
-    public class Sync : TestsForStripedAsyncKeyedLock
+    public class Sync(ITestOutputHelper output) : TestsForStripedAsyncKeyedLock(output)
     {
-        public Sync(ITestOutputHelper output) : base(output) { }
-
         [Theory]
         [InlineData(100, 100, 3, 100)]
         [InlineData(100, 10, 2, 10)]
@@ -133,7 +125,7 @@ public class TestsForStripedAsyncKeyedLock
 
             void OccupyTheLockALittleBit(int key)
             {
-                using (_keyedLocker.Lock(key.ToString()))
+                using (_keyedLocker.Lock(key.ToString(CultureInfo.InvariantCulture)))
                 {
                     var incrementedCurrentParallelism = Interlocked.Increment(ref currentParallelism);
 
@@ -142,7 +134,7 @@ public class TestsForStripedAsyncKeyedLock
                         peakParallelism = Math.Max(incrementedCurrentParallelism, peakParallelism);
                     }
 
-                    var currentThreadId = Thread.CurrentThread.ManagedThreadId;
+                    var currentThreadId = Environment.CurrentManagedThreadId;
 
                     if (!runningThreadsIndex.TryAdd(key, currentThreadId))
                     {
@@ -150,9 +142,9 @@ public class TestsForStripedAsyncKeyedLock
                             $"Thread #{currentThreadId} acquired a lock using key ${key} but another thread is also still running using this key!");
                     }
 
-                    const int delay = 10;
+                    const int Delay = 10;
 
-                    Thread.Sleep(delay);
+                    Thread.Sleep(Delay);
 
                     if (!runningThreadsIndex.TryRemove(key, out var value))
                     {
@@ -178,7 +170,7 @@ public class TestsForStripedAsyncKeyedLock
     public async Task ThreeDifferentLocksShouldWork()
     {
         // Arrange
-        var keyedLocker = new StripedAsyncKeyedLocker<int>();
+        using var keyedLocker = new StripedAsyncKeyedLocker<int>();
 
         // Act
         using var _1 = await keyedLocker.LockAsync(1);
@@ -195,7 +187,7 @@ public class TestsForStripedAsyncKeyedLock
     public async Task ThreeIdenticalLocksShouldWork()
     {
         // Arrange
-        var keyedLocker = new StripedAsyncKeyedLocker<int>();
+        using var keyedLocker = new StripedAsyncKeyedLocker<int>();
 
         // Act
         var t1 = Task.Run(async () =>
@@ -227,7 +219,7 @@ public class TestsForStripedAsyncKeyedLock
         var currentParallelism = 0;
         var maxParallelism = 0;
         var parallelismLock = new object();
-        var keyedLocker = new StripedAsyncKeyedLocker<int>();
+        using var keyedLocker = new StripedAsyncKeyedLocker<int>();
 
         // 100 threads, 100 keys
         var threads = Enumerable.Range(0, 100)
@@ -254,10 +246,9 @@ public class TestsForStripedAsyncKeyedLock
                     maxParallelism = Math.Max(incrementedCurrentParallelism, maxParallelism);
                 }
 
-                const int delay = 250;
+                const int Delay = 250;
 
-
-                await Task.Delay(TimeSpan.FromMilliseconds(delay));
+                await Task.Delay(TimeSpan.FromMilliseconds(Delay));
 
                 Interlocked.Decrement(ref currentParallelism);
             }
@@ -272,7 +263,7 @@ public class TestsForStripedAsyncKeyedLock
         var parallelismLock = new object();
         var currentParallelism = 0;
         var maxParallelism = 0;
-        var keyedLocker = new StripedAsyncKeyedLocker<int>();
+        using var keyedLocker = new StripedAsyncKeyedLocker<int>();
 
         // 100 threads, 10 keys
         var threads = Enumerable.Range(0, 100)
@@ -301,18 +292,18 @@ public class TestsForStripedAsyncKeyedLock
 
                 var currentTaskId = Task.CurrentId ?? -1;
                 if (runningTasksIndex.TryGetValue(key, out var otherThread))
-                    throw new Exception($"Thread #{currentTaskId} acquired a lock using key ${key} " +
+                    throw new InvalidOperationException($"Thread #{currentTaskId} acquired a lock using key ${key} " +
                                         $"but another thread #{otherThread} is also still running using this key!");
 
                 runningTasksIndex[key] = currentTaskId;
 
-                const int delay = 10;
+                const int Delay = 10;
 
-                await Task.Delay(TimeSpan.FromMilliseconds(delay));
+                await Task.Delay(TimeSpan.FromMilliseconds(Delay));
 
                 if (!runningTasksIndex.TryRemove(key, out var value))
                 {
-                    var ex = new Exception($"Thread #{currentTaskId} has finished " +
+                    var ex = new InvalidOperationException($"Thread #{currentTaskId} has finished " +
                                            "but when trying to cleanup the running threads index, the value is already gone");
 
                     throw ex;
@@ -320,7 +311,7 @@ public class TestsForStripedAsyncKeyedLock
 
                 if (value != currentTaskId)
                 {
-                    var ex = new Exception(
+                    var ex = new InvalidOperationException(
                         $"Thread #{currentTaskId} has finished and has removed itself from the running threads index," +
                         $" but that index contained an incorrect value: #{value}!");
 
@@ -341,7 +332,7 @@ public class TestsForStripedAsyncKeyedLock
         var currentParallelism = 0;
         var maxParallelism = 0;
         var random = new Random();
-        var keyedLocker = new StripedAsyncKeyedLocker<int>();
+        using var keyedLocker = new StripedAsyncKeyedLocker<int>();
 
         // Many threads, 1 key
         var threads = Enumerable.Range(0, 100)
@@ -372,14 +363,14 @@ public class TestsForStripedAsyncKeyedLock
                 }
 
                 if (runningTasksIndex.TryGetValue(key, out var otherThread))
-                    throw new Exception($"Task [{currentTaskId,3}] has a lock for key ${key} " +
+                    throw new InvalidOperationException($"Task [{currentTaskId,3}] has a lock for key ${key} " +
                                         $"but another task [{otherThread,3}] also has an active lock for this key!");
 
                 runningTasksIndex[key] = currentTaskId;
 
                 if (!runningTasksIndex.TryRemove(key, out var value))
                 {
-                    var ex = new Exception($"Task [{currentTaskId,3}] has finished " +
+                    var ex = new InvalidOperationException($"Task [{currentTaskId,3}] has finished " +
                                            "but when trying to cleanup the running tasks index, the value is already gone");
 
                     throw ex;
@@ -387,7 +378,7 @@ public class TestsForStripedAsyncKeyedLock
 
                 if (value != currentTaskId)
                 {
-                    var ex = new Exception(
+                    var ex = new InvalidOperationException(
                         $"Task [{currentTaskId,3}] has finished and has removed itself from the running tasks index," +
                         $" but that index contained a task ID of another task: [{value}]!");
 
@@ -406,7 +397,7 @@ public class TestsForStripedAsyncKeyedLock
         var currentParallelism = 0;
         var maxParallelism = 0;
         var parallelismLock = new object();
-        var keyedLocker = new StripedAsyncKeyedLocker<int>();
+        using var keyedLocker = new StripedAsyncKeyedLocker<int>();
 
         // 100 threads, 100 keys
         var threads = Enumerable.Range(0, 100)
@@ -433,9 +424,9 @@ public class TestsForStripedAsyncKeyedLock
                     maxParallelism = Math.Max(incrementedCurrentParallelism, maxParallelism);
                 }
 
-                const int delay = 250;
+                const int Delay = 250;
 
-                await Task.Delay(TimeSpan.FromMilliseconds(delay));
+                await Task.Delay(TimeSpan.FromMilliseconds(Delay));
 
                 Interlocked.Decrement(ref currentParallelism);
             }
@@ -446,7 +437,7 @@ public class TestsForStripedAsyncKeyedLock
     public async Task IsInUseShouldReturnTrueWhenLockedAndFalseWhenNotLocked()
     {
         // Arrange
-        var keyedLocker = new StripedAsyncKeyedLocker<int>();
+        using var keyedLocker = new StripedAsyncKeyedLocker<int>();
 
         // 10 threads, 10 keys
         var threads = Enumerable.Range(0, 10)
@@ -466,9 +457,9 @@ public class TestsForStripedAsyncKeyedLock
 
             using (await keyedLocker.LockAsync(key))
             {
-                const int delay = 250;
+                const int Delay = 250;
 
-                await Task.Delay(TimeSpan.FromMilliseconds(delay));
+                await Task.Delay(TimeSpan.FromMilliseconds(Delay));
 
                 keyedLocker.IsInUse(key).Should().BeTrue();
             }
@@ -481,7 +472,7 @@ public class TestsForStripedAsyncKeyedLock
     public void Lock_WhenCancelled_ShouldReleaseKeyedSemaphoreAndThrowOperationCanceledException()
     {
         // Arrange
-        var collection = new StripedAsyncKeyedLocker<string>();
+        using var collection = new StripedAsyncKeyedLocker<string>();
         var cancelledCancellationToken = new CancellationToken(true);
 
         // Act
@@ -499,7 +490,7 @@ public class TestsForStripedAsyncKeyedLock
     public void Lock_WhenNotCancelled_ShouldReturnDisposable()
     {
         // Arrange
-        var collection = new StripedAsyncKeyedLocker<string>();
+        using var collection = new StripedAsyncKeyedLocker<string>();
         var cancellationToken = default(CancellationToken);
 
         // Act
@@ -527,7 +518,7 @@ public class TestsForStripedAsyncKeyedLock
             isCallbackInvoked = true;
         }
 
-        var collection = new StripedAsyncKeyedLocker<string>();
+        using var collection = new StripedAsyncKeyedLocker<string>();
         var cancelledCancellationToken = new CancellationToken(true);
         var timeout = useShortTimeout
             ? _defaultSynchronousWaitDuration.Subtract(TimeSpan.FromMilliseconds(1))
@@ -561,7 +552,7 @@ public class TestsForStripedAsyncKeyedLock
             isCallbackInvoked = true;
         }
 
-        var collection = new StripedAsyncKeyedLocker<string>();
+        using var collection = new StripedAsyncKeyedLocker<string>();
         var cancellationToken = default(CancellationToken);
         var timeout = useShortTimeout
             ? _defaultSynchronousWaitDuration.Subtract(TimeSpan.FromMilliseconds(1))
@@ -587,7 +578,7 @@ public class TestsForStripedAsyncKeyedLock
     public async Task LockAsync_WhenCancelled_ShouldReleaseKeyedSemaphoreAndThrowOperationCanceledException()
     {
         // Arrange
-        var collection = new StripedAsyncKeyedLocker<string>();
+        using var collection = new StripedAsyncKeyedLocker<string>();
         var cancelledCancellationToken = new CancellationToken(true);
 
         // Act
@@ -605,7 +596,7 @@ public class TestsForStripedAsyncKeyedLock
     public async Task LockAsync_WhenNotCancelled_ShouldReturnDisposable()
     {
         // Arrange
-        var collection = new StripedAsyncKeyedLocker<string>();
+        using var collection = new StripedAsyncKeyedLocker<string>();
         var cancellationToken = default(CancellationToken);
 
         // Act
@@ -633,7 +624,7 @@ public class TestsForStripedAsyncKeyedLock
             isCallbackInvoked = true;
         }
 
-        var collection = new StripedAsyncKeyedLocker<string>();
+        using var collection = new StripedAsyncKeyedLocker<string>();
         var cancelledCancellationToken = new CancellationToken(true);
         var timeout = useShortTimeout
             ? _defaultSynchronousWaitDuration.Subtract(TimeSpan.FromMilliseconds(1))
@@ -668,7 +659,7 @@ public class TestsForStripedAsyncKeyedLock
             isCallbackInvoked = true;
         }
 
-        var collection = new StripedAsyncKeyedLocker<string>();
+        using var collection = new StripedAsyncKeyedLocker<string>();
         var cancellationToken = default(CancellationToken);
         var timeout = useShortTimeout
             ? _defaultSynchronousWaitDuration.Subtract(TimeSpan.FromMilliseconds(1))
@@ -707,7 +698,7 @@ public class TestsForStripedAsyncKeyedLock
             isCallbackInvoked = true;
         }
 
-        var collection = new StripedAsyncKeyedLocker<string>();
+        using var collection = new StripedAsyncKeyedLocker<string>();
         var cancelledCancellationToken = new CancellationToken(true);
         var timeout = useShortTimeout
             ? _defaultSynchronousWaitDuration.Subtract(TimeSpan.FromMilliseconds(1))
@@ -749,7 +740,7 @@ public class TestsForStripedAsyncKeyedLock
             isCallbackInvoked = true;
         }
 
-        var collection = new StripedAsyncKeyedLocker<string>();
+        using var collection = new StripedAsyncKeyedLocker<string>();
         var cancellationToken = default(CancellationToken);
         var timeout = useShortTimeout
             ? _defaultSynchronousWaitDuration.Subtract(TimeSpan.FromMilliseconds(1))
@@ -777,7 +768,7 @@ public class TestsForStripedAsyncKeyedLock
     public void TryLock_WhenTimedOut_ShouldNotInvokeCallbackAndReturnFalse(bool useShortTimeout)
     {
         // Arrange
-        var collection = new StripedAsyncKeyedLocker<string>();
+        using var collection = new StripedAsyncKeyedLocker<string>();
         var key = "test";
         using var _ = collection.Lock(key);
         var isCallbackInvoked = false;
@@ -813,7 +804,7 @@ public class TestsForStripedAsyncKeyedLock
     public void TryLock_WhenNotTimedOut_ShouldInvokeCallbackAndReturnTrue(bool useShortTimeout)
     {
         // Arrange
-        var collection = new StripedAsyncKeyedLocker<string>();
+        using var collection = new StripedAsyncKeyedLocker<string>();
         var key = "test";
         var isCallbackInvoked = false;
         var timeout = useShortTimeout
@@ -847,7 +838,7 @@ public class TestsForStripedAsyncKeyedLock
     public async Task TryLockAsync_WhenTimedOut_ShouldNotInvokeCallbackAndReturnFalse(bool useShortTimeout)
     {
         // Arrange
-        var collection = new StripedAsyncKeyedLocker<string>();
+        using var collection = new StripedAsyncKeyedLocker<string>();
         var key = "test";
         using var _ = await collection.LockAsync(key);
         var isCallbackInvoked = false;
@@ -882,7 +873,7 @@ public class TestsForStripedAsyncKeyedLock
     public async Task TryLockAsync_WhenNotTimedOut_ShouldNotInvokeCallbackAndReturnFalse(bool useShortTimeout)
     {
         // Arrange
-        var collection = new StripedAsyncKeyedLocker<string>();
+        using var collection = new StripedAsyncKeyedLocker<string>();
         var key = "test";
         var isCallbackInvoked = false;
         var timeout = useShortTimeout
@@ -908,5 +899,19 @@ public class TestsForStripedAsyncKeyedLock
         isLockAcquired.Should().BeTrue();
         isCallbackInvoked.Should().BeTrue();
         collection.IsInUse(key).Should().BeFalse();
+    }
+
+    protected virtual void Dispose(bool disposing)
+    {
+        if (disposing)
+        {
+            _keyedLocker.Dispose();
+        }
+    }
+
+    public void Dispose()
+    {
+        Dispose(true);
+        GC.SuppressFinalize(this);
     }
 }

@@ -58,6 +58,9 @@ For more help with `AsyncKeyedLocker`, or for examples with `StripedAsyncKeyedLo
 ## Pooling change in v7.0.0
 Prior to AsyncKeyedLock 7.0.0, pooling was disabled by default and you needed to specify a pool size in order to enable it. Since v7.0.0, pooling is enabled by default with an initial fill of 1 and a pool size of 20. In order to disable pooling (not recommended), you need to now specify a pool size of 0 within AsyncKeyedLockOptions. Read more about pooling in [our wiki](https://github.com/MarkCiliaVincenti/AsyncKeyedLock/wiki/How-to-use-AsyncKeyedLocker#pooling).
 
+## Non-generic constructor removal in v8.0.0
+As of v8.0.0, the non-generic constructors for `AsyncKeyedLocker` has been removed. These were already marked as obsolete; if you were using them, please switch to `AsyncKeyedLocker<object>`.
+
 ## Benchmarks
 This library has been extensively benchmarked against several other options and [our benchmarks](https://github.com/MarkCiliaVincenti/AsyncKeyedLock/wiki/Benchmarks) run publicly and transparently on Github Actions.
 

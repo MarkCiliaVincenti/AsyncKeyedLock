@@ -1,6 +1,7 @@
+using System.Collections.Concurrent;
+using System.Globalization;
 using FluentAssertions;
 using ListShuffle;
-using System.Collections.Concurrent;
 using Xunit;
 
 namespace AsyncKeyedLock.Tests.AsyncKeyedLocker;
@@ -29,7 +30,7 @@ public class StressTests
     {
         var locks = 5000;
         var concurrency = 50;
-        var asyncKeyedLocker = new AsyncKeyedLocker<object>(o => { o.PoolSize = 0; });
+        using var asyncKeyedLocker = new AsyncKeyedLocker<object>(o => { o.PoolSize = 0; });
         var concurrentQueue = new ConcurrentQueue<(bool entered, int key)>();
 
         var tasks = Enumerable.Range(1, locks * concurrency)
@@ -81,7 +82,7 @@ public class StressTests
     {
         var locks = 5000;
         var concurrency = 50;
-        var asyncKeyedLocker = new AsyncKeyedLocker<int>(o => { o.PoolSize = 0; });
+        using var asyncKeyedLocker = new AsyncKeyedLocker<int>(o => { o.PoolSize = 0; });
         var concurrentQueue = new ConcurrentQueue<(bool entered, int key)>();
 
         var tasks = Enumerable.Range(1, locks * concurrency)
@@ -131,50 +132,49 @@ public class StressTests
     [Fact]
     public async Task BenchmarkSimulationTest()
     {
-        AsyncKeyedLocker<string> AsyncKeyedLocker;
-        ParallelQuery<Task>? AsyncKeyedLockerTasks = null;
-        Dictionary<int, List<int>> _shuffledIntegers = new();
+        AsyncKeyedLocker<string> asyncKeyedLocker;
+        ParallelQuery<Task>? asyncKeyedLockerTasks = null;
+        Dictionary<int, List<int>> shuffledIntegers = [];
 
-        var NumberOfLocks = 200;
-        var Contention = 100;
-        var GuidReversals = 0;
+        var numberOfLocks = 200;
+        var contention = 100;
+        var guidReversals = 0;
 
-        if (!_shuffledIntegers.TryGetValue(Contention * NumberOfLocks, out var ShuffledIntegers))
+        if (!shuffledIntegers.TryGetValue(contention * numberOfLocks, out var ints))
         {
-            ShuffledIntegers = Enumerable.Range(0, Contention * NumberOfLocks).ToList();
-            ShuffledIntegers.Shuffle();
-            _shuffledIntegers[Contention * NumberOfLocks] = ShuffledIntegers;
+            ints = [.. Enumerable.Range(0, contention * numberOfLocks)];
+            ints.Shuffle();
+            shuffledIntegers[contention * numberOfLocks] = ints;
         }
 
-        if (NumberOfLocks != Contention)
-        {
-            AsyncKeyedLocker = new AsyncKeyedLocker<string>(o => o.PoolSize = NumberOfLocks, Environment.ProcessorCount, NumberOfLocks);
-            AsyncKeyedLockerTasks = ShuffledIntegers
-                .Select(async i =>
+        asyncKeyedLocker = new AsyncKeyedLocker<string>(o => o.PoolSize = numberOfLocks, Environment.ProcessorCount, numberOfLocks);
+        asyncKeyedLockerTasks = ints
+            .Select(async i =>
+            {
+                var key = i % numberOfLocks;
+
+                using (var myLock = await asyncKeyedLocker.LockAsync(key.ToString(CultureInfo.InvariantCulture)))
                 {
-                    var key = i % NumberOfLocks;
-
-                    using (var myLock = await AsyncKeyedLocker.LockAsync(key.ToString()))
+                    for (int j = 0; j < guidReversals; j++)
                     {
-                        for (int j = 0; j < GuidReversals; j++)
-                        {
-                            Guid guid = Guid.NewGuid();
-                            var guidString = guid.ToString();
-                            guidString = guidString.Reverse().ToString();
+                        Guid guid = Guid.NewGuid();
+                        var guidString = guid.ToString();
+                        guidString = guidString.Reverse().ToString();
 #pragma warning disable CS8602 // Dereference of a possibly null reference.
-                            if (guidString.Length != 53)
-                            {
-                                throw new Exception($"Not 53 but {guidString?.Length}");
-                            }
-#pragma warning restore CS8602 // Dereference of a possibly null reference.
+                        if (guidString.Length != 53)
+                        {
+                            throw new InvalidOperationException($"Not 53 but {guidString?.Length}");
                         }
+#pragma warning restore CS8602 // Dereference of a possibly null reference.
                     }
+                }
 
-                    await Task.Yield();
-                }).AsParallel();
+                await Task.Yield();
+            }).AsParallel();
 
-            await Task.WhenAll(AsyncKeyedLockerTasks);
-        }
+        await Task.WhenAll(asyncKeyedLockerTasks);
+
+        asyncKeyedLocker.Dispose();
     }
 
     [Fact]
@@ -182,7 +182,7 @@ public class StressTests
     {
         var locks = 50_000;
         var concurrency = 50;
-        var asyncKeyedLocker = new AsyncKeyedLocker<int>(o => o.PoolSize = 50_000, Environment.ProcessorCount, 50_000);
+        using var asyncKeyedLocker = new AsyncKeyedLocker<int>(o => o.PoolSize = 50_000, Environment.ProcessorCount, 50_000);
         var concurrentQueue = new ConcurrentQueue<(bool entered, int key)>();
 
         var tasks = Enumerable.Range(1, locks * concurrency)
@@ -234,7 +234,7 @@ public class StressTests
     {
         var locks = 50_000;
         var concurrency = 50;
-        var asyncKeyedLocker = new AsyncKeyedLocker<int>(o =>
+        using var asyncKeyedLocker = new AsyncKeyedLocker<int>(o =>
             {
                 o.PoolSize = 50_000;
                 o.PoolInitialFill = 0;
@@ -290,7 +290,7 @@ public class StressTests
     {
         var locks = 50_000;
         var concurrency = 50;
-        var asyncKeyedLocker = new AsyncKeyedLocker<int>(o => o.PoolSize = Environment.ProcessorCount, Environment.ProcessorCount, 50_000);
+        using var asyncKeyedLocker = new AsyncKeyedLocker<int>(o => o.PoolSize = Environment.ProcessorCount, Environment.ProcessorCount, 50_000);
         var concurrentQueue = new ConcurrentQueue<(bool entered, int key)>();
 
         var tasks = Enumerable.Range(1, locks * concurrency)
@@ -342,7 +342,7 @@ public class StressTests
     {
         var locks = 50_000;
         var concurrency = 50;
-        var asyncKeyedLocker = new AsyncKeyedLocker<int>(o => o.PoolSize = 10_000, Environment.ProcessorCount, 50_000);
+        using var asyncKeyedLocker = new AsyncKeyedLocker<int>(o => o.PoolSize = 10_000, Environment.ProcessorCount, 50_000);
         var concurrentQueue = new ConcurrentQueue<(bool entered, int key)>();
 
         var tasks = Enumerable.Range(1, locks * concurrency)
@@ -394,13 +394,13 @@ public class StressTests
     {
         var locks = 5000;
         var concurrency = 50;
-        var asyncKeyedLocker = new AsyncKeyedLocker<string>(o => { o.PoolSize = 0; });
+        using var asyncKeyedLocker = new AsyncKeyedLocker<string>(o => { o.PoolSize = 0; });
         var concurrentQueue = new ConcurrentQueue<(bool entered, string key)>();
 
         var tasks = Enumerable.Range(1, locks * concurrency)
             .Select(async i =>
             {
-                var key = Convert.ToInt32(Math.Ceiling((double)i / 5)).ToString();
+                var key = Convert.ToInt32(Math.Ceiling((double)i / 5)).ToString(CultureInfo.InvariantCulture);
                 using (await asyncKeyedLocker.LockAsync(key))
                 {
                     await Task.Delay(20);
@@ -445,7 +445,7 @@ public class StressTests
     public async Task Test1AtATime()
     {
         var range = 25000;
-        var asyncKeyedLocker = new AsyncKeyedLocker<object>(o => { o.PoolSize = 0; });
+        using var asyncKeyedLocker = new AsyncKeyedLocker<object>(o => { o.PoolSize = 0; });
         var concurrentQueue = new ConcurrentQueue<int>();
 
         int threadNum = 0;
@@ -480,7 +480,7 @@ public class StressTests
     public async Task Test2AtATime()
     {
         var range = 4;
-        var asyncKeyedLocker = new AsyncKeyedLocker<object>(o => { o.MaxCount = 2; o.PoolSize = 0; });
+        using var asyncKeyedLocker = new AsyncKeyedLocker<object>(o => { o.MaxCount = 2; o.PoolSize = 0; });
         var concurrentQueue = new ConcurrentQueue<int>();
 
         var tasks = Enumerable.Range(1, range * 4)
@@ -514,7 +514,7 @@ public class StressTests
     public async Task Test1AtATimeGenerics()
     {
         var range = 25000;
-        var asyncKeyedLocker = new AsyncKeyedLocker<int>(o => { o.PoolSize = 0; });
+        using var asyncKeyedLocker = new AsyncKeyedLocker<int>(o => { o.PoolSize = 0; });
         var concurrentQueue = new ConcurrentQueue<int>();
 
         int threadNum = 0;
@@ -549,7 +549,7 @@ public class StressTests
     public async Task Test2AtATimeGenerics()
     {
         var range = 4;
-        var asyncKeyedLocker = new AsyncKeyedLocker<int>(o => { o.MaxCount = 2; o.PoolSize = 0; });
+        using var asyncKeyedLocker = new AsyncKeyedLocker<int>(o => { o.MaxCount = 2; o.PoolSize = 0; });
         var concurrentQueue = new ConcurrentQueue<int>();
 
         var tasks = Enumerable.Range(1, range * 4)
