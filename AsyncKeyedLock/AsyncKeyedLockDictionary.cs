@@ -139,9 +139,7 @@ internal sealed class AsyncKeyedLockDictionary<TKey> : ConcurrentDictionary<TKey
 #else
                 Monitor.Exit(releaser);
 #endif
-#pragma warning disable CS8602 // Dereference of a possibly null reference.
-                _pool.PutObject(releaser);
-#pragma warning restore CS8602 // Dereference of a possibly null reference.
+                _pool!.PutObject(releaser);
                 releaser.SemaphoreSlim.Release();
                 return;
             }
@@ -194,9 +192,7 @@ internal sealed class AsyncKeyedLockDictionary<TKey> : ConcurrentDictionary<TKey
 #else
                 Monitor.Exit(releaser);
 #endif
-#pragma warning disable CS8602 // Dereference of a possibly null reference.
-                _pool.PutObject(releaser);
-#pragma warning restore CS8602 // Dereference of a possibly null reference.
+                _pool!.PutObject(releaser);
                 return;
             }
             --releaser.ReferenceCount;
