@@ -7,17 +7,17 @@
 		<PackageProjectUrl>https://github.com/MarkCiliaVincenti/AsyncKeyedLock</PackageProjectUrl>
 		<Copyright>MIT</Copyright>
 		<PackageLicenseExpression>MIT</PackageLicenseExpression>
-		<Version>8.0.0</Version>
+		<Version>8.0.1-alpha</Version>
 		<Nullable>Enable</Nullable>
 		<PackageIcon>logo.png</PackageIcon>
-		<PackageReleaseNotes>Code quality, dropping non-generic, sealing, improved disposing, more null checks.</PackageReleaseNotes>
+		<PackageReleaseNotes>Experimental do not use</PackageReleaseNotes>
 		<Description>An asynchronous .NET library that allows you to lock based on a key (keyed semaphores), limiting concurrent threads sharing the same key to a specified number, with optional pooling for reducing memory allocations.</Description>
 		<Copyright>© 2026 Mark Cilia Vincenti</Copyright>
 		<PackageTags>async,lock,key,keyed,semaphore,striped,dictionary,concurrentdictionary,pooling,duplicate,synchronization</PackageTags>
 		<RepositoryType>git</RepositoryType>
 		<GeneratePackageOnBuild>false</GeneratePackageOnBuild>
-		<AssemblyVersion>8.0.0.0</AssemblyVersion>
-		<FileVersion>8.0.0.0</FileVersion>
+		<AssemblyVersion>8.0.0.1</AssemblyVersion>
+		<FileVersion>8.0.0.1</FileVersion>
 		<PackageReadmeFile>README.md</PackageReadmeFile>
 		<IsPackable>true</IsPackable>
 		<EnforceCodeStyleInBuild>True</EnforceCodeStyleInBuild>
