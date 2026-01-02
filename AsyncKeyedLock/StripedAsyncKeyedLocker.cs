@@ -7,7 +7,6 @@ using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
-using static System.Collections.Specialized.BitVector32;
 
 [assembly: InternalsVisibleTo("AsyncKeyedLock.Tests, PublicKey=002400000480000094000000060200000024000052534131000" +
     "4000001000100a5cffbe51901ba498a225214c7eee4ff5f0341aad9f7605a596e72dbffdf234bcf2c157f7e3a4e2a3900cbc0d3919a6b" +
