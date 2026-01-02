@@ -15,7 +15,7 @@ using System.Threading.Tasks;
 namespace AsyncKeyedLock;
 
 /// <summary>
-/// 
+/// Represents a thread-safe keyed locker based on striped locking that allows you to lock based on a key (keyed semaphores), only allowing a specified number of concurrent threads that share the same key.
 /// </summary>
 /// <typeparam name="TKey"></typeparam>
 public sealed class StripedAsyncKeyedLocker<TKey> : IDisposable where TKey : notnull
@@ -30,11 +30,11 @@ public sealed class StripedAsyncKeyedLocker<TKey> : IDisposable where TKey : not
     private static readonly EmptyDisposable _emptyDisposable = new();
 
     /// <summary>
-    /// 
+    /// Initializes a new instance of the <see cref="StripedAsyncKeyedLocker{TKey}" /> class.
     /// </summary>
-    /// <param name="numberOfStripes"></param>
-    /// <param name="maxCount"></param>
-    /// <param name="comparer"></param>
+    /// <param name="numberOfStripes">The number of stripes to hold. Gets rounded up to the next prime number. Defaults to 4049.</param>
+    /// <param name="maxCount">The maximum number of requests for the semaphore that can be granted concurrently. Defaults to 1.</param>
+    /// <param name="comparer">The equality comparison implementation to use when comparing keys.</param>
     public StripedAsyncKeyedLocker(int numberOfStripes = 4049, int maxCount = 1, IEqualityComparer<TKey>? comparer = null)
     {
         MaxCount = maxCount;
