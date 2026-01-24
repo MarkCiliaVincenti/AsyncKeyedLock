@@ -4,7 +4,7 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageVersion Include="coverlet.collector" Version="6.0.4" />
-    <PackageVersion Include="DotNet.ReproducibleBuilds" Version="1.2.39" />
+    <PackageVersion Include="DotNet.ReproducibleBuilds" Version="2.0.1" />
     <PackageVersion Include="FluentAssertions" Version="8.8.0" />
     <PackageVersion Include="ListShuffle" Version="2.1.3" />
     <PackageVersion Include="Microsoft.NET.Test.Sdk" Version="18.0.1" />

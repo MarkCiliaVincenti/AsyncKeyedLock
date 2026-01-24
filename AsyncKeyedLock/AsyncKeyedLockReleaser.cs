@@ -73,9 +73,8 @@ public sealed class AsyncKeyedLockReleaser<TKey> : IDisposable where TKey : notn
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     internal bool TryIncrement(TKey key)
     {
-#pragma warning disable CS8602 // Dereference of a possibly null reference.
 #if NET9_0_OR_GREATER
-        if (Lock.TryEnter())
+        if (Lock!.TryEnter())
 #else
         if (Monitor.TryEnter(this))
 #endif
@@ -98,7 +97,6 @@ public sealed class AsyncKeyedLockReleaser<TKey> : IDisposable where TKey : notn
             return true;
         }
         return false;
-#pragma warning restore CS8602 // Dereference of a possibly null reference.
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]

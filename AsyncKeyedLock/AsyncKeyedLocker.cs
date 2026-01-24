@@ -1952,9 +1952,8 @@ public sealed class AsyncKeyedLocker<TKey> : IDisposable where TKey : notnull
 
         if (_dictionary.PoolingEnabled)
         {
-#pragma warning disable CS8602 // Dereference of a possibly null reference.
 #if NET9_0_OR_GREATER
-            result.Lock.Enter();
+            result.Lock!.Enter();
 #else
             Monitor.Enter(result);
 #endif
@@ -1981,7 +1980,6 @@ public sealed class AsyncKeyedLocker<TKey> : IDisposable where TKey : notnull
 #else
             Monitor.Exit(result);
 #endif
-#pragma warning restore CS8602 // Dereference of a possibly null reference.
         }
         else
         {

@@ -160,12 +160,10 @@ public class StressTests
                         Guid guid = Guid.NewGuid();
                         var guidString = guid.ToString();
                         guidString = guidString.Reverse().ToString();
-#pragma warning disable CS8602 // Dereference of a possibly null reference.
-                        if (guidString.Length != 53)
+                        if (guidString!.Length != 53)
                         {
                             throw new InvalidOperationException($"Not 53 but {guidString?.Length}");
                         }
-#pragma warning restore CS8602 // Dereference of a possibly null reference.
                     }
                 }
 

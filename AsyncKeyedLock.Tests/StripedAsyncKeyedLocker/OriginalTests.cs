@@ -1,6 +1,6 @@
+using System.Collections;
 using AsyncKeyedLock.Tests.Helpers;
 using FluentAssertions;
-using System.Collections;
 using Xunit;
 
 namespace AsyncKeyedLock.Tests.StripedAsyncKeyedLocker;

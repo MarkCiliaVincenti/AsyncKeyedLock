@@ -30,9 +30,7 @@ internal sealed class AsyncKeyedLockPool<TKey> : IDisposable where TKey : notnul
         {
             for (int i = 0; i < capacity; ++i)
             {
-#pragma warning disable CS8604 // Possible null reference argument.
-                var releaser = _objectGenerator(default);
-#pragma warning restore CS8604 // Possible null reference argument.
+                var releaser = _objectGenerator(default!);
                 releaser.IsNotInUse = true;
                 _objects.Add(releaser);
             }
@@ -42,9 +40,7 @@ internal sealed class AsyncKeyedLockPool<TKey> : IDisposable where TKey : notnul
             initialFill = Math.Min(initialFill, capacity);
             for (int i = 0; i < initialFill; ++i)
             {
-#pragma warning disable CS8604 // Possible null reference argument.
-                var releaser = _objectGenerator(default);
-#pragma warning restore CS8604 // Possible null reference argument.
+                var releaser = _objectGenerator(default!);
                 releaser.IsNotInUse = true;
                 _objects.Add(releaser);
             }

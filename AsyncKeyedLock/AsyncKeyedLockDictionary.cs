@@ -73,9 +73,7 @@ internal sealed class AsyncKeyedLockDictionary<TKey> : ConcurrentDictionary<TKey
                 return releaser;
             }
 
-#pragma warning disable CS8602 // Dereference of a possibly null reference.
-            var releaserToAdd = _pool.GetObject(key);
-#pragma warning restore CS8602 // Dereference of a possibly null reference.
+            var releaserToAdd = _pool!.GetObject(key);
             if (TryAdd(key, releaserToAdd))
             {
                 return releaserToAdd;
@@ -123,9 +121,8 @@ internal sealed class AsyncKeyedLockDictionary<TKey> : ConcurrentDictionary<TKey
     {
         if (PoolingEnabled)
         {
-#pragma warning disable CS8602 // Dereference of a possibly null reference.
 #if NET9_0_OR_GREATER
-            releaser.Lock.Enter();
+            releaser.Lock!.Enter();
 #else
             Monitor.Enter(releaser);
 #endif
@@ -150,7 +147,6 @@ internal sealed class AsyncKeyedLockDictionary<TKey> : ConcurrentDictionary<TKey
 #else
             Monitor.Exit(releaser);
 #endif
-#pragma warning restore CS8602 // Dereference of a possibly null reference.
         }
         else
         {
@@ -176,9 +172,8 @@ internal sealed class AsyncKeyedLockDictionary<TKey> : ConcurrentDictionary<TKey
     {
         if (PoolingEnabled)
         {
-#pragma warning disable CS8602 // Dereference of a possibly null reference.
 #if NET9_0_OR_GREATER
-            releaser.Lock.Enter();
+            releaser.Lock!.Enter();
 #else
             Monitor.Enter(releaser);
 #endif
@@ -201,7 +196,6 @@ internal sealed class AsyncKeyedLockDictionary<TKey> : ConcurrentDictionary<TKey
 #else
             Monitor.Exit(releaser);
 #endif
-#pragma warning restore CS8602 // Dereference of a possibly null reference.
         }
         else
         {
