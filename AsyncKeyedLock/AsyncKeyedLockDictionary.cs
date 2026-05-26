@@ -180,14 +180,23 @@ internal sealed class AsyncKeyedLockDictionary<TKey> : ConcurrentDictionary<TKey
 
             if (releaser.ReferenceCount == 1)
             {
-                TryRemove(releaser.Key, out _);
-                releaser.IsNotInUse = true;
+                if (releaser.SemaphoreSlim.CurrentCount == MaxCount)
+                {
+                    TryRemove(releaser.Key, out _);
+                    releaser.IsNotInUse = true;
+#if NET9_0_OR_GREATER
+                    releaser.Lock.Exit();
+#else
+                    Monitor.Exit(releaser);
+#endif
+                    _pool!.PutObject(releaser);
+                    return;
+                }
 #if NET9_0_OR_GREATER
                 releaser.Lock.Exit();
 #else
                 Monitor.Exit(releaser);
 #endif
-                _pool!.PutObject(releaser);
                 return;
             }
             --releaser.ReferenceCount;
