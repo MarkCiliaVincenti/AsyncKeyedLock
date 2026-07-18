@@ -131,17 +131,18 @@ internal sealed class AsyncKeyedLockDictionary<TKey> : ConcurrentDictionary<TKey
             {
                 TryRemove(releaser.Key, out _);
                 releaser.IsNotInUse = true;
+                releaser.SemaphoreSlim.Release();
 #if NET9_0_OR_GREATER
                 releaser.Lock.Exit();
 #else
                 Monitor.Exit(releaser);
 #endif
                 _pool!.PutObject(releaser);
-                releaser.SemaphoreSlim.Release();
                 return;
             }
 
             --releaser.ReferenceCount;
+            releaser.SemaphoreSlim.Release();
 #if NET9_0_OR_GREATER
             releaser.Lock.Exit();
 #else
@@ -156,15 +157,15 @@ internal sealed class AsyncKeyedLockDictionary<TKey> : ConcurrentDictionary<TKey
             {
                 TryRemove(releaser.Key, out _);
                 releaser.IsNotInUse = true;
-                Monitor.Exit(releaser);
                 releaser.SemaphoreSlim.Release();
+                Monitor.Exit(releaser);
                 return;
             }
 
             --releaser.ReferenceCount;
+            releaser.SemaphoreSlim.Release();
             Monitor.Exit(releaser);
         }
-        releaser.SemaphoreSlim.Release();
     }
 
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
