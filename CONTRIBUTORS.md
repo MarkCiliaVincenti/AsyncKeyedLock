@@ -10,3 +10,4 @@
 * [MagicAndre1981](https://github.com/MagicAndre1981) for enabling deterministic builds
 * [c0nd3v](https://github.com/c0nd3v) for allowing optionally passing on continueOnCapturedContext
 * [Jody Donetti](https://github.com/jodydonetti) for his idea for LockOrNull / LockOrNullAsync
+* [Marcin Nowak](https://github.com/malciin) for identifying a rare race condition in the pooled path under extreme load

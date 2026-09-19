@@ -76,6 +76,7 @@ internal sealed class AsyncKeyedLockDictionary<TKey> : ConcurrentDictionary<TKey
             var releaserToAdd = _pool!.GetObject(key);
             if (TryAdd(key, releaserToAdd))
             {
+                releaserToAdd.IsNotInUse = false;
                 return releaserToAdd;
             }
 
@@ -84,6 +85,7 @@ internal sealed class AsyncKeyedLockDictionary<TKey> : ConcurrentDictionary<TKey
                 releaser = GetOrAdd(key, releaserToAdd);
                 if (ReferenceEquals(releaser, releaserToAdd))
                 {
+                    releaserToAdd.IsNotInUse = false;
                     return releaser;
                 }
                 if (releaser.TryIncrement(key))

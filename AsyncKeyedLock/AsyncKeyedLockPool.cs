@@ -71,7 +71,6 @@ internal sealed class AsyncKeyedLockPool<TKey> : IDisposable where TKey : notnul
             Monitor.Exit(_objects);
 #endif
             item.Key = key;
-            item.IsNotInUse = false;
             return item;
         }
 #if NET9_0_OR_GREATER
