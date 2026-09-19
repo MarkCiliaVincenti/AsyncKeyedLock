@@ -20,18 +20,7 @@ jobs:
         dotnet-version: |
             8.0.x
             9.0.x
-
-    - name: Install .NET SDK 10.0.401
-      shell: bash
-      run: |
-        curl -fsSL https://dot.net/v1/dotnet-install.sh -o dotnet-install.sh
-        chmod +x dotnet-install.sh
-        ./dotnet-install.sh \
-          --version 10.0.401 \
-          --install-dir "$RUNNER_TEMP/dotnet"
-
-        echo "$RUNNER_TEMP/dotnet" >> "$GITHUB_PATH"
-        echo "DOTNET_ROOT=$RUNNER_TEMP/dotnet" >> "$GITHUB_ENV"
+            10.0.401
         
     - name: Restore dependencies
       run: dotnet restore
